@@ -5,7 +5,6 @@
 
 #define CODEC_I2C_ADDR 0x1a
 
-
 #define I2C_CLOCKSPEED 10000  //0.01mhz
 
 

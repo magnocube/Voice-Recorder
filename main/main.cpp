@@ -3,32 +3,58 @@ extern "C" {
 	void app_main();
 }
 
-void example_task(){
-	WM8960 *codec;
-	codec = new WM8960();
+void recording_task(){  // now it will only do a write speed test
+	char* m = "POOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOQ";
+	SD->printCardInfo();
+	SD->beginFile();
+	int start = esp_log_timestamp();
+	for(int i = 0 ; i < 10000; i++){
+		SD->addDataToFile(m);
+	}
+	int time = esp_log_timestamp() - start;
+	printf("written in %d milliSeconds...\n", time);
+	
+	SD->endFile(); //write out the wav header and close the stream
 	while(1){
 		//codec->send_I2C_command();
 		ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());
 		//heap_caps_print_heap_info(MALLOC_CAP_8BIT);
 		vTaskDelay(5000/portTICK_PERIOD_MS);
+	}
+}
+void Wifi_ethernet_interface_task(){   //this task will controll the device(using wifi, ethernet or the big button)
 
+	while(1){
+		vTaskDelay(10/portTICK_PERIOD_MS);
 	}
 }
 void app_main()
 {
-    esp_pin_config pinout = ESP_PIN_CONFIG_DEFAULT(); //change default config in "settings.h"
+	esp_pin_config pinout = ESP_PIN_CONFIG_DEFAULT(); //change default config in "settings.h"
 	setupPeripherals(&pinout);  //setup for i2s, i2c, etc...
+	codec = new WM8960();       //defining the global Codec instance
+	SD = new SDCard(&pinout);	//defining the global SD instance, will try to mount the SD
+	
+	
+	
 
-    xTaskCreatePinnedToCore((TaskFunction_t)example_task,		//task function		
-							 "example_task", 					//taks name 
+    xTaskCreatePinnedToCore((TaskFunction_t)recording_task,		//task function		   //probably the recording task
+							 "recording_task", 					//taks name 
 							 1024 * 2, 							//stack size
 							 NULL,								//function parameters
 							 1,									//priority
 							 NULL,								//task handle
 							 0									//task core
 							 );
-    
-	
+	  xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the recording task
+							 "Wifi_ethernet_interface_task", 					//taks name 
+							 1024 * 2, 							//stack size
+							 NULL,								//function parameters
+							 1,									//priority
+							 NULL,								//task handle
+							 1									//task core
+							 );
+
 
 
 }
@@ -38,6 +64,7 @@ void setupPeripherals(esp_pin_config *pinconfig)
 	ESP_LOGI(TAG, "setting up peripherals");
     setupI2C(pinconfig);
     setupI2S(pinconfig);
+
 	vTaskDelay(100/portTICK_PERIOD_MS);
 	ESP_LOGI(TAG, "done setting up peripherals");
 

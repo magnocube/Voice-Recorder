@@ -4,9 +4,10 @@
 void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
     vTaskDelay(10/portTICK_PERIOD_MS);
     esp_err_t errAddr, errReg, errVal, espRc;
-
-    uint8_t vByte = value  & 0x00FF; //last 8 bits 
+    
     uint8_t rByte = (reg << 1) | (value >> 8); // register + first bit
+    uint8_t vByte = value  & 0x00FF; //last 8 bits 
+    
     
     ESP_LOGI(TAG, "writing trough I2C (WM8960)... Register: %d  With data: %d",rByte>>1,vByte);
 
