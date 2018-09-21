@@ -18,10 +18,11 @@
 
 class WM8960{
     public:
-        WM8960();                                                    //constructor, will do the setup of the chip
+        WM8960(esp_audio_config *audioC);                                                    //constructor, will do the setup of the chip
     private:
         void send_I2C_command(uint8_t reg, uint16_t value);     //send a value to a register
         void micToHeadsetBypass();
+        esp_audio_config *audioConfig;
 };
 
 

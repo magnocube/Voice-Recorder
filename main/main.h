@@ -5,6 +5,8 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include <driver/i2c.h>
+#include <math.h>
+#include <driver/adc.h>
 
 
 

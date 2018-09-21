@@ -3,60 +3,82 @@ extern "C" {
 	void app_main();
 }
 
-void recording_task(){  // now it will only do a write speed test
-	char* m = "POOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOQ";
+// now it will only do a write speed test
+void recording_task(){  
+	
+	
+
 	SD->printCardInfo();
 	SD->beginFile();
 	int start = esp_log_timestamp();
-	for(int i = 0 ; i < 10000; i++){
-		SD->addDataToFile(m);
+	for(int i = 0 ; i < 1000; i++){ //+/- 500kb -> should take around 1.5 seconds
+		char* m = (char *)malloc(512);
+		for(int i = 0; i < 512; i++){
+			m[i] = adc1_get_raw(ADC1_CHANNEL_0)/16;
+		}
+		SD->addDataToFile(m,512);
+		free(m);
 	}
+	
 	int time = esp_log_timestamp() - start;
 	printf("written in %d milliSeconds...\n", time);
 	
 	SD->endFile(); //write out the wav header and close the stream
 	while(1){
-		//codec->send_I2C_command();
 		ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());
 		//heap_caps_print_heap_info(MALLOC_CAP_8BIT);
 		vTaskDelay(5000/portTICK_PERIOD_MS);
+
 	}
 }
-void Wifi_ethernet_interface_task(){   //this task will controll the device(using wifi, ethernet or the big button)
+
+
+//this task will controll the device(using wifi, ethernet or the big button)
+void Wifi_ethernet_interface_task(){   
 
 	while(1){
 		vTaskDelay(10/portTICK_PERIOD_MS);
 	}
 }
+
+
+
 void app_main()
 {
-	esp_pin_config pinout = ESP_PIN_CONFIG_DEFAULT(); //change default config in "settings.h"
-	setupPeripherals(&pinout);  //setup for i2s, i2c, etc...
-	codec = new WM8960();       //defining the global Codec instance
-	SD = new SDCard(&pinout);	//defining the global SD instance, will try to mount the SD
+	esp_pin_config pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
+	esp_audio_config audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
+	setupPeripherals(&pinout);  									//setup for i2s, i2c, etc...
+	codec = new WM8960(&audioConfig);      							//defining the global Codec instance (found in "main.h")
+	SD = new SDCard(&pinout,&audioConfig);							//defining the global SD instance (found in "main.h"), will try to mount the SD
 	
-	
-	
+		
 
-    xTaskCreatePinnedToCore((TaskFunction_t)recording_task,		//task function		   //probably the recording task
-							 "recording_task", 					//taks name 
-							 1024 * 2, 							//stack size
-							 NULL,								//function parameters
-							 1,									//priority
-							 NULL,								//task handle
-							 0									//task core
-							 );
-	  xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the recording task
+	/*create a recording task. This task will handle the SD card and the I2S*/
+    xTaskCreatePinnedToCore((TaskFunction_t)recording_task,						//task function		   
+							 "recording_task", 									//taks name 
+							 1024 * 4, 											//stack size
+							 NULL,												//function parameters
+							 1,													//priority
+							 NULL,												//task handle
+							 0													//task core
+							 );	
+							 
+	/*create a "other task", this task will do everything else*/
+	xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the tast that does everything except recording
 							 "Wifi_ethernet_interface_task", 					//taks name 
-							 1024 * 2, 							//stack size
-							 NULL,								//function parameters
-							 1,									//priority
-							 NULL,								//task handle
-							 1									//task core
+							 1024 * 2, 											//stack size
+							 NULL,												//function parameters
+							 1,													//priority
+							 NULL,												//task handle
+							 1													//task core
 							 );
 
 
-
+	while(1){ 												// -- this loop has cost me a couple of hours of hopeless debugging
+		vTaskDelay(1000/portTICK_PERIOD_MS);   				//    when the main ends the structs pinconfig and audioconfig will be removed from the stack
+	}														//    and overwritten by other memory... took me some time to figure that out... this loop prevents
+															// 	  the main from ending and keeping the 2 structs in memory. (i know... i m too lazy to place the
+															//	  structs on the heap and pass a pointer to the required functions)
 }
 
 void setupPeripherals(esp_pin_config *pinconfig)
@@ -64,9 +86,14 @@ void setupPeripherals(esp_pin_config *pinconfig)
 	ESP_LOGI(TAG, "setting up peripherals");
     setupI2C(pinconfig);
     setupI2S(pinconfig);
-
 	vTaskDelay(100/portTICK_PERIOD_MS);
 	ESP_LOGI(TAG, "done setting up peripherals");
+
+
+	//testsetup adc... can be deleted later
+	adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(ADC1_CHANNEL_0,ADC_ATTEN_DB_0);
+
 
 }
 void setupI2C(esp_pin_config *pinconfig)

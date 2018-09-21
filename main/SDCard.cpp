@@ -2,18 +2,17 @@
 
 
 
-SDCard::SDCard(esp_pin_config *pinC){ 
+SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC){ 
     pinconfig = pinC;
+    audioConfig = audioC;
     isCardMounted = false;
+
     setupSDConfig();
     if(isCardInSlot()){
         if(!isWriteProtectOn()){
             mountCard();
-        }
-        
-    
-    }
-    
+        }   
+    } 
 }
                                                
 bool SDCard::isCardInSlot(){
@@ -44,20 +43,21 @@ void SDCard::releaseCard(){
     
 }
 esp_err_t SDCard::beginFile(){
+   
     ESP_LOGI(TAG, "Opening file");
-    file = fopen("/sdcard/hello.txt", "w");
-    fgetpos (file, &fileStartPosition);
+    file = fopen("/sdcard/test.wav", "w");
     return ESP_OK;
 }
-esp_err_t SDCard::addDataToFile(char* data){
-    fputs(data,file);
+esp_err_t SDCard::addDataToFile(char* data,int length){
+    fwrite(data,sizeof(char),length,file);
     return ESP_OK;
 }   
 void SDCard::endFile(){
-    fsetpos (file, &fileStartPosition);
-    fputs ("Header", file);
-    fclose(file);
+       
     ESP_LOGI(TAG, "File written..");
+    generateWavHeader();
+    fclose(file);
+    
 }
 void SDCard::setupSDConfig(){
     ESP_LOGI(TAG, "initializing SDMMC peripheral");
@@ -83,3 +83,38 @@ bool SDCard::isWriteProtectOn(){
     return false;
 }
 
+
+
+void SDCard::generateWavHeader()
+{
+    wavHeader wavh;    
+    int size = ftell(file);       //size of the file
+    
+    /*generating the WAV header based on the file size and audio quallity*/
+    strncpy(wavh.ChunkID,"RIFF",4);
+    wavh.ChunkSize = size - 8;
+    strncpy(wavh.Format,"WAVE",4);
+    strncpy(wavh.SubChunk1ID,"fmt ",4);
+    wavh.SubChunk1Size = 16;
+    wavh.AudioFormat = 1; 
+    wavh.NumChannels = audioConfig->num_channels;
+    wavh.SampleRate = audioConfig->sample_rate;
+    wavh.ByteRate = audioConfig->sample_rate * audioConfig->num_channels * audioConfig->bits_per_sample / 8;
+    wavh.BlockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
+    wavh.BitsPerSample = audioConfig->bits_per_sample;
+    strncpy(wavh.SubChunk2ID,"data",4);
+    wavh.SubChunk2Size = size-44;    
+    
+    /*jump to the start of the file and overwrite the header*/
+    fseek(file,0,SEEK_SET);
+    fwrite(&wavh,sizeof(char),WAV_HEADER_SIZE,file);
+   
+    printf("file written with: sample rate      : %d\n", wavh.SampleRate);
+    printf("                 : num channels     : %d\n", wavh.NumChannels);
+    printf("                 : byte rate        : %d\n", wavh.ByteRate);
+    printf("                 : BlockAlign       : %d\n", wavh.BlockAlign);
+    printf("                 : bits_per_sample  : %d\n", wavh.BitsPerSample);
+    printf("Size of the written file: %d\n", size);
+
+
+}
