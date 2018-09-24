@@ -32,7 +32,7 @@ class SDCard{
         esp_err_t mountCard();                                  //will attempt to mount the SD card to the file system
         void releaseCard();                                     //will demount the SD card from the file System
         esp_err_t beginFile();                                  //will make a file on the file system and sets the offset for the header
-        esp_err_t addDataToFile(char *data,int length);                    //will add data to the file. (can be time consuming)
+        esp_err_t addDataToFile(uint8_t *data,int length);      //will add data to the file. (can be time consuming!)
         void endFile();                                         //write out the wav header tho the beginning of the file and close the file
         void printCardInfo();                                   //print out basic info of the card. might come in handy if some specific card wont work  
     private:
@@ -48,7 +48,7 @@ class SDCard{
         FILE* file;                                             //the file that will be written too.. start by calling: beginFile();
         
 
-        typedef struct {                                        //the struct to have a clear overview of the WAV header. this struct will be configured and written to the file in: endFile();
+        typedef struct {                                        //the struct to have a clear overview of the WAV header. this struct will be configured and written to the file in: SDCard::endFile();
             char ChunkID[4];                                    /* "RIFF"                                  */
             int ChunkSize;                                      /* file length in bytes - 8 bytes          */
             char Format[4];                                     /* "WAVE"                                  */

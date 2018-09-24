@@ -2,6 +2,9 @@
 #define SETTINGS_H
 #pragma once
 
+// #include "SDCard.h"
+// #include "wm8960.h"
+
 //i2c defines
 #define CODEC_I2C_ADDR 0x1a
 #define I2C_CLOCKSPEED 10000  //0.01mhz
@@ -33,14 +36,20 @@
 //default audio configuration
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
     .num_channels = MONO, \
-    .bits_per_sample = 8, \
-    .sample_rate = 20000, \
+    .bits_per_sample = 16, \
+    .sample_rate = 16000, \
 }
 
 
 
 //TAG used for logging
 static const char* TAG = "Voice Recorder"; 
+
+
+/*|||||||||_____________CORE COMMUNICATION_______________|||||||||*/
+//every fonction called on a specific core will be executed on that core. core 1 (which should be handling the interface).
+//should not handle recording and writing to the SD card. therefore this shared buffer will indicate what eacht task should do
+
 
 /*|||||||||_____________AUDIO SETTINGS_______________|||||||||*/
 typedef struct{

@@ -48,13 +48,13 @@ esp_err_t SDCard::beginFile(){
     file = fopen("/sdcard/test.wav", "w");
     return ESP_OK;
 }
-esp_err_t SDCard::addDataToFile(char* data,int length){
-    fwrite(data,sizeof(char),length,file);
+esp_err_t SDCard::addDataToFile(uint8_t* data,int length){
+    fwrite(data,sizeof(uint8_t),length,file);
     return ESP_OK;
 }   
 void SDCard::endFile(){
        
-    ESP_LOGI(TAG, "File written..");
+    ESP_LOGI(TAG, "File written...");
     generateWavHeader();
     fclose(file);
     
@@ -114,7 +114,7 @@ void SDCard::generateWavHeader()
     printf("                 : byte rate        : %d\n", wavh.ByteRate);
     printf("                 : BlockAlign       : %d\n", wavh.BlockAlign);
     printf("                 : bits_per_sample  : %d\n", wavh.BitsPerSample);
-    printf("Size of the written file: %d\n", size);
+    printf("Size of the written file it bytes: %d\n", size);
 
 
 }

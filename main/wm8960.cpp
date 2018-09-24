@@ -36,7 +36,8 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
     
 
 }
-WM8960::WM8960(esp_audio_config *audioC){
+WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card){
+    SD = sd_card;
     audioConfig = audioC; 
 //set all registers
     micToHeadsetBypass(); //configuration example
