@@ -9,12 +9,16 @@ extern "C" { 														 //this just needs to be here
 void app_main()
 {
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
-	setupPeripherals(&pinout);						//setup for i2s, i2c, etc...
+	setupPeripherals(&pinout);						//setup for i2c, etc...
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
-	sb = {	.recording = true,						//this shared buffer is passed to the tasks that will run each on a core. it contains all the pointers Both tasks might need.
-			.SD = new SDCard(&pinout,&audioConfig),
-			.codec = new WM8960(&audioConfig, sb.SD)
-			}; //.... this works!?!?..........^^^^^^.........
+
+	pca9535 *pca_ptr = new pca9535(&pinout);
+	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig);
+	sb = {	.recording = false,						//this shared buffer is passed to the tasks that will run each on a core. it contains all the pointers Both tasks might need.
+			.gpio_header = pca_ptr,					
+			.SD = SD_ptr,
+			.codec = new WM8960(&audioConfig, SD_ptr, pca_ptr)			
+			};
 	 									
 	
 		
@@ -24,7 +28,7 @@ void app_main()
     xTaskCreatePinnedToCore((TaskFunction_t)recording_task,						//task function		   
 							 "recording_task", 									//task name 
 							 1024 * 4, 											//stack size
-							 &sb,												//function parameters
+							 &sb,												//function parameters (struct with pointers to shared classes)
 							 1,													//priority
 							 NULL,												//task handle
 							 0													//task core
@@ -34,7 +38,7 @@ void app_main()
 	xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the tast that does everything except recording
 							 "Wifi_ethernet_interface_task", 					//task name 
 							 1024 * 2, 											//stack size
-							 &sb,												//function parameters
+							 &sb,												//function parameters (struct with pointers to shared classes)
 							 1,													//priority
 							 NULL,												//task handle
 							 1													//task core
@@ -97,4 +101,5 @@ void setupI2S(esp_pin_config *pinconfig)
 	//  i2s_set_dac_mode(I2S_DAC_CHANNEL_BOTH_EN);
 	//  //init ADC pad
 	//  i2s_set_adc_mode(I2S_ADC_UNIT, I2S_ADC_CHANNEL);
+
 }

@@ -29,6 +29,8 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
         ESP_LOGW(TAG, "error in I2C writing value to command");
     } else if(espRc != ESP_OK){
         ESP_LOGW(TAG, "error in I2C writing the command to WM8960" );
+         //ESP_ERROR_CHECK( espRc);
+      
         //ESP_LOGW(TAG,esp_err_to_name(espRc));
     } else {
          ESP_LOGI(TAG, "no error in writing i2c");
@@ -36,27 +38,33 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
     
 
 }
-WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card){
+WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader){
     SD = sd_card;
     audioConfig = audioC; 
-//set all registers
+    gpio_header = gpioHeader;
+    printf("value of getRawdata in gpio board from codec class : %d ", gpio_header->getRawData());
+    //set all registers
     micToHeadsetBypass(); //configuration example
 
 
 }
 
 void WM8960::micToHeadsetBypass(){
-    send_I2C_command(0x15,0x00); //reset ? 
-    send_I2C_command(0x15,0x00); //reset2 ? 
-    send_I2C_command(0x25,0x0F0);  
-    send_I2C_command(0x26,0x060);
-    send_I2C_command(0x32,0x000);
-    send_I2C_command(0x33,0x000);  
-    send_I2C_command(0x47,0x00c);  
-    send_I2C_command(0x34,0x080);
-    send_I2C_command(0x37,0x080);
-    send_I2C_command(0x02,0x179);
-    send_I2C_command(0x03,0x179);
+    vTaskDelay(10000/portTICK_PERIOD_MS);
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+   
+    // send_I2C_command(0x15,0x00); //reset ? 
+    // send_I2C_command(0x15,0x00); //reset2 ? 
+    // send_I2C_command(0x25,0x0F0);  
+    // send_I2C_command(0x26,0x060);
+    // send_I2C_command(0x32,0x000);
+    // send_I2C_command(0x33,0x000);  
+    // send_I2C_command(0x47,0x00c);  
+    // send_I2C_command(0x34,0x080);
+    // send_I2C_command(0x37,0x080);
+    // send_I2C_command(0x02,0x179);
+    // send_I2C_command(0x03,0x179);
     
     //send_I2C_command(0x1A,0b000000001);  //NOTE... 9 bits //enable pll
     //send_I2C_command(0x04,0b000000001);  //NOTE... 9 bits //clock from pll
