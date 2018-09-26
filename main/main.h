@@ -9,7 +9,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include <driver/i2c.h>
-#include <driver/i2s.h>
+
 #include <math.h>
 #include <driver/adc.h>
 
@@ -25,6 +25,8 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
     pca9535 *gpio_header;      
     SDCard *SD;
     WM8960 *codec;
+    esp_audio_config *audio_config;
+    esp_pin_config *pin_config;
 } esp_shared_buffer;
  #include "recording_task.h"
  #include "wifi_ethernet_interface_task.h"
@@ -33,7 +35,6 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
 
 
 void setupI2C(esp_pin_config *pinconfig);
-void setupI2S(esp_pin_config *pinconfig);
 void setupPeripherals(esp_pin_config *pinconfig);
 // void recording_task(esp_shared_buffer *shared_buffer);
 // void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer);

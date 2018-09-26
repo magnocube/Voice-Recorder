@@ -33,19 +33,69 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
       
         //ESP_LOGW(TAG,esp_err_to_name(espRc));
     } else {
-         ESP_LOGI(TAG, "no error in writing i2c");
+        //uncomment line below to have log feedback that there was no error.
+        // ESP_LOGI(TAG, "no error in writing i2c");
     }
     
 
 }
-WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader){
+WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,esp_pin_config *pinconfig){
     SD = sd_card;
     audioConfig = audioC; 
     gpio_header = gpioHeader;
-    printf("value of getRawdata in gpio board from codec class : %d ", gpio_header->getRawData());
+    pinout = pinconfig;
+
+    audioBuffer1 = (uint8_t*)malloc(AUDIO_BUFFER_SIZE);
+    
+    setupI2S(); // init i2s driver
+    printf("value of i2s sample rate:   %d ", i2s_config.sample_rate);
     //set all registers
     micToHeadsetBypass(); //configuration example
 
+
+}
+void WM8960::setupI2S(){  //setup the i2s bus
+  
+
+    i2s_config = {
+        .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_RX),
+        .sample_rate = audioConfig->sample_rate,
+        .bits_per_sample = static_cast<i2s_bits_per_sample_t>(audioConfig->bits_per_sample),
+        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //default value, will be overwritten 
+        .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // high interrupt priority
+        .dma_buf_count = 3,
+        .dma_buf_len = AUDIO_BUFFER_SIZE, // 512
+        .use_apll = false,
+        .fixed_mclk = 0
+    };
+    if(audioConfig->num_channels ==1){
+        i2s_config.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
+    } else if(audioConfig->num_channels == 2){
+        i2s_config.channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT;
+    }
+     pin_config = {
+        .bck_io_num = pinout->i2s_BCLK,
+        .ws_io_num = pinout->i2s_WS,
+        .data_out_num = pinout->i2s_DOUT,
+        .data_in_num = pinout->i2s_DIN
+    };
+	 //install and start i2s driver
+	i2s_driver_install((i2s_port_t)CODEC_I2S_NUM, &i2s_config, 0, NULL);   //install and start i2s driver
+    i2s_set_pin((i2s_port_t)CODEC_I2S_NUM, &pin_config);
+
+
+}
+void WM8960::read(){                   //read from the dma buffers. make sure to call this function frequently to prevent a buffer overflow
+
+    
+    size_t numBytesread; 
+    i2s_read((i2s_port_t)CODEC_I2S_NUM,(uint8_t*)audioBuffer1, AUDIO_BUFFER_SIZE,&numBytesread,portMAX_DELAY);
+   
+   
+    
+}
+void WM8960::update(){
 
 }
 

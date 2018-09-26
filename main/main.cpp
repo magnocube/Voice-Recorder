@@ -14,10 +14,13 @@ void app_main()
 
 	pca9535 *pca_ptr = new pca9535(&pinout);
 	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig);
+	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);
 	sb = {	.recording = false,						//this shared buffer is passed to the tasks that will run each on a core. it contains all the pointers Both tasks might need.
 			.gpio_header = pca_ptr,					
 			.SD = SD_ptr,
-			.codec = new WM8960(&audioConfig, SD_ptr, pca_ptr)			
+			.codec = audio_codec_ptr,
+			.audio_config = &audioConfig,
+			.pin_config = &pinout			
 			};
 	 									
 	
@@ -57,7 +60,6 @@ void setupPeripherals(esp_pin_config *pinconfig)
 {
 	ESP_LOGI(TAG, "setting up peripherals");
     setupI2C(pinconfig);
-    setupI2S(pinconfig);
 	ESP_LOGI(TAG, "done setting up peripherals");
 
 
@@ -81,25 +83,4 @@ void setupI2C(esp_pin_config *pinconfig)
 	i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
     ESP_LOGI(TAG, "i2c_clk pin: %d",pinconfig->i2c_clock);
     ESP_LOGI(TAG, "i2c_data pin: %d",pinconfig->i2c_data);
-}
-void setupI2S(esp_pin_config *pinconfig)
-{
-    // int i2s_num = EXAMPLE_I2S_NUM;
-	//  i2s_config_t i2s_config = {
-    //     .mode = I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN | I2S_MODE_ADC_BUILT_IN,
-    //     .sample_rate =  EXAMPLE_I2S_SAMPLE_RATE,
-    //     .bits_per_sample = EXAMPLE_I2S_SAMPLE_BITS,
-	//     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
-	//     .channel_format = EXAMPLE_I2S_FORMAT,
-	//     .intr_alloc_flags = 0,
-	//     .dma_buf_count = 2,
-	//     .dma_buf_len = 1024
-	//  };
-	//  //install and start i2s driver
-	//  i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
-	//  //init DAC pad
-	//  i2s_set_dac_mode(I2S_DAC_CHANNEL_BOTH_EN);
-	//  //init ADC pad
-	//  i2s_set_adc_mode(I2S_ADC_UNIT, I2S_ADC_CHANNEL);
-
 }
