@@ -8,7 +8,7 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			shared_buffer->SD->printCardInfo();
 			shared_buffer->SD->beginFile();
 			int start = esp_log_timestamp();
-			int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value
+			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value
 			while(shared_buffer->recording == true){				//while it should be recording,,, take and store 512 samples
 				shared_buffer->codec->read();
 				uint8_t* data = shared_buffer->codec->audioBuffer1;				

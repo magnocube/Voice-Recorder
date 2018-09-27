@@ -2,6 +2,7 @@
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
 	ESP_LOGI(TAG, "should be off... turning on after 5 seconds");
 	vTaskDelay(5000/portTICK_PERIOD_MS);
+	shared_buffer->codec->printCopyCodecRegisters();
 	shared_buffer->recording = true;
 	ESP_LOGI(TAG, "should be on... turning off after 60 seconds");
 	gpio_pad_select_gpio(22);

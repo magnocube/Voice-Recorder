@@ -23,7 +23,8 @@ class pca9535{
         uint16_t getRawData();
     private:
         esp_pin_config *pinout;
-        bool data[16]; //16 high/low IO pins
+        bool mode[16]; //input or output
+        bool data[16]; //logic voltage(mode does not matter)
 };
 
 

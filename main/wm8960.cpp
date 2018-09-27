@@ -40,17 +40,18 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
 
 }
 WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,esp_pin_config *pinconfig){
-    SD = sd_card;
-    audioConfig = audioC; 
-    gpio_header = gpioHeader;
-    pinout = pinconfig;
+    SD = sd_card;                                   //might be needed to have status of SD card. not used now
+    audioConfig = audioC;                           //disired confuguration of the recorder. call wm8960::update(); to apply changes
+    gpio_header = gpioHeader;                       //external i2c gpio expander, needed for controlling some IC's
+    pinout = pinconfig;                             //pinout of hardware. needed for connecting the i2s driver
+    regCopy = CODEC_REGISTER_COPY_DEFAULT();        //see wm8960.h, contains a copy of all the registers
 
     audioBuffer1 = (uint8_t*)malloc(AUDIO_BUFFER_SIZE);
     
     setupI2S(); // init i2s driver
-    printf("value of i2s sample rate:   %d ", i2s_config.sample_rate);
-    //set all registers
-    micToHeadsetBypass(); //configuration example
+  
+
+    //micToHeadsetBypass(); //configuration example
 
 
 }
@@ -87,20 +88,87 @@ void WM8960::setupI2S(){  //setup the i2s bus
 
 }
 void WM8960::read(){                   //read from the dma buffers. make sure to call this function frequently to prevent a buffer overflow
-
-    
     size_t numBytesread; 
     i2s_read((i2s_port_t)CODEC_I2S_NUM,(uint8_t*)audioBuffer1, AUDIO_BUFFER_SIZE,&numBytesread,portMAX_DELAY);
-   
-   
-    
 }
 void WM8960::update(){
+    //take info from esp_audio_config and update the registers that should be affected by this.. then write out all those registers
+}
+void WM8960::printCopyCodecRegisters(){
+    ESP_LOGI(TAG, "Printing out all Codec Variables (local Copy)");
+    printRegister(0, regCopy.R0_Codec_Left_Input_Volume);
+    printRegister(1, regCopy.R1_Codec_Right_Input_Volume);
+    printRegister(2, regCopy.R2_Codec_LOUT1_Volume);
+    printRegister(3, regCopy.R3_Codec_ROUT1_Volume);
+    printRegister(4, regCopy.R4_Codec_Clocking1);
+    printRegister(5, regCopy.R5_Codec_ADC_DAC_Control1);
+    printRegister(6, regCopy.R6_Codec_ADC_DAC_Control2);
+    printRegister(7, regCopy.R7_Codec_Audio_Interface1);
+    printRegister(8, regCopy.R8_Codec_Clocking2);
+    printRegister(9, regCopy.R9_Codec_Audio_interface2);
+    printRegister(10, regCopy.R10_Codec_Left_Dac_Volume);
+    printRegister(11, regCopy.R11_Codec_Right_Dac_Volume);
+    printRegister(15, regCopy.R15_Codec_Reset);
+    printRegister(16, regCopy.R16_Codec_3D_Conrtol);
+    printRegister(17, regCopy.R17_Codec_ALC1);
+    printRegister(18, regCopy.R18_Codec_ALC2);
+    printRegister(19, regCopy.R19_Codec_ALC3);
+    printRegister(20, regCopy.R20_Codec_Noise_Gate);
+    printRegister(21, regCopy.R21_Codec_Left_ADC_Volume);
+    printRegister(22, regCopy.R22_Codec_Right_ADC_Volume);
+    printRegister(23, regCopy.R23_Codec_Adittional_control1);
+    printRegister(24, regCopy.R24_Codec_Adittional_control2);
+    printRegister(25, regCopy.R25_Codec_Power_Manegement1);
+    printRegister(26, regCopy.R26_Codec_Power_Manegement2);
+    printRegister(27, regCopy.R27_Codec_Additional_control3);
+    printRegister(28, regCopy.R28_Codec_Anti_Pop1);
+    printRegister(29, regCopy.R29_Codec_Anti_Pop2);
+    printRegister(32, regCopy.R32_Codec_ADCL_Signal_Path);
+    printRegister(33, regCopy.R33_Codec_ADCR_Signal_Path);
+    printRegister(34, regCopy.R34_Codec_Left_Out_Mix);
+    printRegister(37, regCopy.R37_Codec_Right_Out_Mix);
+    printRegister(38, regCopy.R38_Codec_Mono_Out_Mix1);
+    printRegister(39, regCopy.R39_Codec_Mono_Out_Mix2);
+    printRegister(40, regCopy.R40_Codec_LOUT1_Volume);
+    printRegister(41, regCopy.R41_Codec_ROUT2_Volume);
+    printRegister(42, regCopy.R42_Codec_MONOOUT_Volume);
+    printRegister(43, regCopy.R43_Codec_Input_Boost_Mixer1);
+    printRegister(44, regCopy.R44_Codec_Input_Boost_Mixer2);
+    printRegister(45, regCopy.R45_Codec_Bypass1);
+    printRegister(46, regCopy.R46_Cocec_Bypass2);
+    printRegister(47, regCopy.R47_Codec_Power_Manegement3);
+    printRegister(48, regCopy.R48_Codec_Additional_Control4);
+    printRegister(49, regCopy.R49_Codec_Class_D_Control1);
+    printRegister(51, regCopy.R51_Codec_Class_D_Control3);
+    printRegister(52, regCopy.R52_Codec_PLL_N);
+    printRegister(53, regCopy.R53_Codec_PLL_K_1);
+    printRegister(54, regCopy.R54_Codec_PLL_K_2);
+    printRegister(55, regCopy.R55_Codec_PLL_K_3);
+    
+    
+  
+    
+}
+void WM8960::printRegister(uint8_t index, uint16_t value){
+    printf("register (HEX)%x, (DEC)%d,   with value: (HEX) %03X ,(BIN) 0B", index,index,value); 
+
+    unsigned char *b = (unsigned char*) &value;
+    int i, j;
+    int size = 2;
+    for (i=size-1;i>=0;i--)
+    {
+        for (j=8;j>=0;j--)
+        {
+            printf("%u", (b[i] >> j) & 1);
+        }
+    }
+    printf(" ,(DEC) %d",value);
+    printf("\n");
 
 }
 
 void WM8960::micToHeadsetBypass(){
-    vTaskDelay(10000/portTICK_PERIOD_MS);
+    
     send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
    
