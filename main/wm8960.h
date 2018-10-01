@@ -20,7 +20,7 @@
 
 /*
 Brief working of the class...
-all the updates are done to struct esp_audio_config. whenever a variable in the struct esp_audio_config is changed. you should call wm8960::update();
+all the updates/settings are done to struct esp_audio_config. whenever a variable in the struct esp_audio_config is changed. you should call wm8960::update();
 the update class wil first make a list of what ALL the registers should be. then it will update al the registers that have changed. 
 (this is to have a local copy of all the registers, because the codec does not allow for reading the registers)
 */
@@ -75,7 +75,7 @@ typedef struct{       // copy of registers
     uint16_t R55_Codec_PLL_K_3;    
 } codec_register_copy;
 
-#define CODEC_REGISTER_COPY_DEFAULT() {\
+#define CODEC_REGISTER_COPY_DEFAULT() {\            //default values of the registers (according to the datasheet)
     .R0_Codec_Left_Input_Volume =           0b010010111, \
     .R1_Codec_Right_Input_Volume =          0b010010111, \
     .R2_Codec_LOUT1_Volume =                0b000000000, \
@@ -132,7 +132,7 @@ class WM8960{
         WM8960(esp_audio_config *audioC,SDCard *sd_card,pca9535 *gpioHeader,esp_pin_config *pinconfig);     //constructor, will do the setup of the chip
         void read();                                                                                        // calls the read function from i2s driver. will take a number of bits and put it into the audiobuffer1
         void printCopyCodecRegisters();                                                                     
-        uint8_t* audioBuffer1;                                                                              //buffer to hold the latest date from the i2s driver
+        uint8_t* audioBuffer1;                                                                              //buffer to hold the latest data from the i2s driver
         
     private:
         void setupI2S();                                                                                    //does the setup.. installs the driver, gets called by the constructor

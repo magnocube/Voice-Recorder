@@ -86,6 +86,7 @@ void WM8960::setupI2S(){  //setup the i2s bus
     i2s_set_pin((i2s_port_t)CODEC_I2S_NUM, &pin_config);
 
 
+
 }
 void WM8960::read(){                   //read from the dma buffers. make sure to call this function frequently to prevent a buffer overflow
     size_t numBytesread; 
