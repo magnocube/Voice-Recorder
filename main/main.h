@@ -9,7 +9,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include <driver/i2c.h>
-
+#include "esp_spiffs.h" 
 #include <math.h>
 #include <driver/adc.h>
 
@@ -35,6 +35,7 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
 
 
 void setupI2C(esp_pin_config *pinconfig);
+void setupSPIFFS();
 void setupPeripherals(esp_pin_config *pinconfig);
 // void recording_task(esp_shared_buffer *shared_buffer);
 // void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer);

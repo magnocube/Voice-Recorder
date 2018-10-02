@@ -24,7 +24,9 @@ all the updates/settings are done to struct esp_audio_config. whenever a variabl
 the update class wil first make a list of what ALL the registers should be. then it will update al the registers that have changed. 
 (this is to have a local copy of all the registers, because the codec does not allow for reading the registers)
 */
-typedef struct{       // copy of registers
+
+ // copy of registers
+typedef struct{      
     uint16_t R0_Codec_Left_Input_Volume;
     uint16_t R1_Codec_Right_Input_Volume;
     uint16_t R2_Codec_LOUT1_Volume;
@@ -75,16 +77,17 @@ typedef struct{       // copy of registers
     uint16_t R55_Codec_PLL_K_3;    
 } codec_register_copy;
 
-#define CODEC_REGISTER_COPY_DEFAULT() {\            //default values of the registers (according to the datasheet)
+//default values of the registers (according to the datasheet)
+#define CODEC_REGISTER_COPY_DEFAULT() {\
     .R0_Codec_Left_Input_Volume =           0b010010111, \
     .R1_Codec_Right_Input_Volume =          0b010010111, \
     .R2_Codec_LOUT1_Volume =                0b000000000, \
     .R3_Codec_ROUT1_Volume =                0b000000000, \
     .R4_Codec_Clocking1 =                   0b000000000, \
-    .R5_Codec_ADC_DAC_Control1 =            0b000001000,\
+    .R5_Codec_ADC_DAC_Control1 =            0b000001000, \
     .R6_Codec_ADC_DAC_Control2 =            0b000000000, \
     .R7_Codec_Audio_Interface1 =            0b000001010, \
-    .R8_Codec_Clocking2 =                   0b11100000, \
+    .R8_Codec_Clocking2 =                   0b111000000, \
     .R9_Codec_Audio_interface2 =            0b000000000, \
     .R10_Codec_Left_Dac_Volume =            0b111111111, \
     .R11_Codec_Right_Dac_Volume =           0b111111111, \

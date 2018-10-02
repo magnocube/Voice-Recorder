@@ -87,7 +87,7 @@ bool SDCard::isWriteProtectOn(){
 
 void SDCard::generateWavHeader()
 {
-    wavHeader wavh;    
+    wavHeader wavh;                //struct... can be found in SDCard.h 
     int size = ftell(file);       //size of the file
     
     /*generating the WAV header based on the file size and audio quallity*/
