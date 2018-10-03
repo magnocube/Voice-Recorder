@@ -88,7 +88,7 @@ bool SDCard::isWriteProtectOn(){
 void SDCard::generateWavHeader()
 {
     wavHeader wavh;                //struct... can be found in SDCard.h 
-    int size = ftell(file);       //size of the file
+    int size = ftell(file);       //size of the file at the moment of writing the wav header
     
     /*generating the WAV header based on the file size and audio quallity*/
     strncpy(wavh.ChunkID,"RIFF",4);

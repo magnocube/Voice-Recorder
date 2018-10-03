@@ -33,6 +33,17 @@
     .MDIO = 18, \
     .MDC = 23, \
     .big_button = 34, \
+    .led_red = 0, \
+    .led_green = 1, \
+    .led_blue = 2, \
+    .led_yellow = 3, \
+    .mic_select_0 = 4, \
+    .mic_select_1 = 5, \
+    .phy_reset = 6, \
+    .ethernet_up_led = 7, \
+    .sdPower = 8, \
+    .sdDetect = 9, \
+    .sdProtect = 10, \
 }
 
 //default audio configuration
@@ -79,6 +90,17 @@ typedef struct{
     int MDIO;           //Phy: control IO: data
     int MDC;            //Phy: control IO: clock
     int big_button;     //large button on top of case
+    int led_red;                                                        //NOTE: the following gpio are on the i2c expander,,, not on theESP32
+    int led_green;
+    int led_blue;
+    int led_yellow;
+    int mic_select_0;   //keep at default,, 3.5mm mic
+    int mic_select_1;   //switch between build in and phantom mic
+    int phy_reset;      //reset-pin of PHY
+    int ethernet_up_led;//led on rj45 connector
+    int sdPower;        //pullup and vcc to SD card
+    int sdDetect;       //sd card in slot
+    int sdProtect;      //wirte protection pin
 } esp_pin_config;
 
 

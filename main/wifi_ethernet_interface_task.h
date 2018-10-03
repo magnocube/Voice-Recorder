@@ -5,6 +5,19 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 	shared_buffer->codec->printCopyCodecRegisters();
 	shared_buffer->recording = true;
 	ESP_LOGI(TAG, "should be on... turning off after 60 seconds");
+
+		// esp_err_t err = nvs_open("storage", NVS_READWRITE, &shared_buffer->my_NVS_handle);
+		// if (err != ESP_OK) {
+		// 	printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+		// }	
+	    //  err = nvs_set_i32(shared_buffer->my_NVS_handle, "restart_counter", 42069);
+        // printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+        // printf("Committing updates in NVS ... ");
+        // err = nvs_commit(shared_buffer->my_NVS_handle);
+        // printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+
+
+
 	gpio_pad_select_gpio(22);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction((gpio_num_t)22, GPIO_MODE_OUTPUT);
@@ -17,6 +30,8 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 	}
 	ESP_LOGI(TAG, "stop");
 	shared_buffer->recording = false;
+
+
 	while(1){
 		
 		ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());

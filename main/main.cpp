@@ -20,28 +20,14 @@ void app_main()
 			.SD = SD_ptr,
 			.codec = audio_codec_ptr,
 			.audio_config = &audioConfig,
-			.pin_config = &pinout			
+			.pin_config = &pinout,
+			.my_NVS_handle = NULL	
 			};
-	 									
+
+	testSPIFFSRead();						
 	
 
-	ESP_LOGI(TAG, "Reading file");
-    FILE* f = fopen("/spiffs/foo.txt", "r");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        //return;
-    } else {
-    char line[64];
-    fgets(line, sizeof(line), f);
-    fclose(f);
-    // strip newline
-    char* pos = strchr(line, '\n');
-    if (pos) {
-        *pos = '\0';
-    }
-    ESP_LOGI(TAG, "Read from file: '%s'", line);
-	esp_vfs_spiffs_unregister(NULL);
-	}
+	
 
 	/*create a recording task. This task will handle the SD card and the I2S*/
     xTaskCreatePinnedToCore((TaskFunction_t)recording_task,						//task function		   
@@ -75,8 +61,9 @@ void app_main()
 void setupPeripherals(esp_pin_config *pinconfig)
 {
 	ESP_LOGI(TAG, "setting up peripherals");
-    setupI2C(pinconfig);
+    setupI2C(pinconfig);  
 	setupSPIFFS();
+	setupNVS();			//also does a restart counter
 	ESP_LOGI(TAG, "done setting up peripherals");
 
 
@@ -134,4 +121,81 @@ void setupSPIFFS(){
     } else {
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
+}
+void testSPIFFSRead(){
+	ESP_LOGI(TAG, "Reading file");
+    FILE* f = fopen("/spiffs/foo.txt", "r");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        //return;
+    } else {
+    char line[64];
+    fgets(line, sizeof(line), f);
+    fclose(f);
+    // strip newline
+    char* pos = strchr(line, '\n');
+    if (pos) {
+        *pos = '\0';
+    }
+    ESP_LOGI(TAG, "Read from file: '%s'", line);
+	esp_vfs_spiffs_unregister(NULL);
+	}
+}
+void setupNVS(){
+	// Initialize NVS
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        // NVS partition was truncated and needs to be erased
+        // Retry nvs_flash_init
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK( err );
+
+    // Open
+    printf("\n");
+    printf("Opening Non-Volatile Storage (NVS) handle... ");
+    
+    err = nvs_open("storage", NVS_READWRITE, &sb.my_NVS_handle);
+    if (err != ESP_OK) {
+        printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+    } else {
+        printf("Done\n");
+
+        // Read
+        printf("Reading restart counter from NVS ... ");
+        int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
+        err = nvs_get_i32(sb.my_NVS_handle, "restart_counter", &restart_counter);
+        switch (err) {
+            case ESP_OK:
+                printf("Done\n");
+                printf("Restart counter = %d\n", restart_counter);
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                printf("The value is not initialized yet!\n");
+                break;
+            default :
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+        }
+
+        // Write
+        printf("Updating restart counter in NVS ... ");
+        restart_counter++;
+        err = nvs_set_i32(sb.my_NVS_handle, "restart_counter", restart_counter);
+        printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+
+        // Commit written value.
+        // After setting any values, nvs_commit() must be called to ensure changes are written
+        // to flash storage. Implementations may write to storage at other times,
+        // but this is not guaranteed.
+        printf("Committing updates in NVS ... ");
+        err = nvs_commit(sb.my_NVS_handle);
+        printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+
+        // Close
+         nvs_close(sb.my_NVS_handle); 
+    }
+
+    printf("\n");
+
 }
