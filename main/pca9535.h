@@ -21,10 +21,13 @@ class pca9535{
     public:
         pca9535(esp_pin_config * pinconfig);                                                    //constructor, will do the setup of the chip
         uint16_t getRawData();
+        void redOn();
+        void redOff();
     private:
         esp_pin_config *pinout;
         bool mode[16]; //input or output
         bool data[16]; //logic voltage(mode does not matter)
+        void writeOutData();
 };
 
 
