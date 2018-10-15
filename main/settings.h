@@ -13,6 +13,11 @@
 
 #define MONO 1
 #define STERIO 2
+#define PCA_OUTPUT 0   //configuration register
+#define PCA_INPUT 1    //configuration register
+#define PCA_LOW 0
+#define PCA_HIGH 1
+#define PCA_I2C_ADDR 0x20 
 #define PI 3.14159265
 #define WAV_HEADER_SIZE 44 
 
@@ -44,6 +49,7 @@
     .sdPower = 8, \
     .sdDetect = 9, \
     .sdProtect = 10, \
+    .enable48V = 11, \
 }
 
 //default audio configuration
@@ -101,6 +107,7 @@ typedef struct{
     int sdPower;        //pullup and vcc to SD card
     int sdDetect;       //sd card in slot
     int sdProtect;      //wirte protection pin
+    int enable48V;      //pahnom power 
 } esp_pin_config;
 
 

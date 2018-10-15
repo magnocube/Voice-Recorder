@@ -20,14 +20,19 @@
 class pca9535{
     public:
         pca9535(esp_pin_config * pinconfig);                                                    //constructor, will do the setup of the chip
-        uint16_t getRawData();
-        void redOn();
-        void redOff();
+        uint16_t getRawWriteData();  //the read(input) data of all pins
+        uint16_t getRawConfigData();  //the config (input/output) data of all pins
+        void pinMode(int pin, int m,bool flush);  
+        void digitalWrite(int pin, int mode,bool flush);
+        bool digitalRead(int pin,bool updateFirst);                                  
     private:
         esp_pin_config *pinout;
         bool mode[16]; //input or output
-        bool data[16]; //logic voltage(mode does not matter)
-        void writeOutData();
+        bool writeData[16]; //logic voltage of the io (for output)
+        bool readData[16];  //logic input voltage (for input)
+        void writeDataToI2C();
+        void writeConfigToI2C();
+        void readDataFromI2C();
 };
 
 

@@ -1,13 +1,21 @@
 //errors might not show up,,, accidently disabled them
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
+	int redLed = shared_buffer->pin_config->led_red;
+	int yellowLed = shared_buffer->pin_config->led_yellow;
+	pca9535 * gh = shared_buffer->gpio_header;
+	gh->pinMode(redLed,PCA_OUTPUT,false);
+	gh->pinMode(yellowLed,PCA_OUTPUT,true);
+
 	while(1){
 			
 			 ESP_LOGI(TAG, "red on ");
-			 shared_buffer->gpio_header->redOn();
-			 vTaskDelay(1000/portTICK_PERIOD_MS); //reset watchdog
+			gh->digitalWrite(redLed,PCA_HIGH,false);
+			gh->digitalWrite(yellowLed,PCA_HIGH,true);
+			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
 			 ESP_LOGI(TAG, "red off");
-			 shared_buffer->gpio_header->redOff();
-			 vTaskDelay(1000/portTICK_PERIOD_MS); //reset watchdog
+			gh->digitalWrite(redLed,PCA_LOW,false);
+			gh->digitalWrite(yellowLed,PCA_LOW,true);
+			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
 	}
 	// ESP_LOGI(TAG, "should be off... turning on after 5 seconds");
 	// vTaskDelay(5000/portTICK_PERIOD_MS);
