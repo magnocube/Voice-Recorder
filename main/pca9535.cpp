@@ -73,7 +73,7 @@ void pca9535::writeConfigToI2C(){
     
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd,(PCA_I2C_ADDR << 1) | I2C_MASTER_WRITE, true /* expect ack */);     // codec adress + write
-    i2c_master_write_byte(cmd,6,true); // command byte 2
+    i2c_master_write_byte(cmd,6,true); // command byte 6
     i2c_master_write_byte(cmd,dataToSend,true);
     i2c_master_write_byte(cmd,dataToSend >> 8,true);
     i2c_master_stop(cmd);

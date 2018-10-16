@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/unistd.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "driver/gpio.h"
 #include "driver/sdmmc_host.h"
 #include "sdmmc_cmd.h"

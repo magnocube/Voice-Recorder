@@ -24,7 +24,10 @@ void app_main()
 			.my_NVS_handle = NULL	
 			};
 
-	testSPIFFSRead();						
+	testSPIFFSRead();	
+    // turn on sd card (i hope)
+    pca_ptr->pinMode(pinout.sdPower,PCA_OUTPUT,true);
+    pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);					
 	
 
 	
@@ -65,6 +68,8 @@ void setupPeripherals(esp_pin_config *pinconfig)
 	setupSPIFFS();
 	setupNVS();			//also does a restart counter
 	ESP_LOGI(TAG, "done setting up peripherals");
+ 
+    
 
 
 	//testsetup adc... can be deleted later

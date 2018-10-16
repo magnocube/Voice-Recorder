@@ -69,8 +69,11 @@ void SDCard::setupSDConfig(){
         .max_files = 5,
         .allocation_unit_size = 0 //default
     };
-
+    
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_D0,GPIO_PULLUP_ONLY);
+    gpio_set_pull_mode((gpio_num_t)pinconfig->sd_CLK,GPIO_PULLUP_ONLY);
+    gpio_set_pull_mode((gpio_num_t)pinconfig->sd_CMD,GPIO_PULLUP_ONLY);
+    vTaskDelay(500/portTICK_PERIOD_MS);
 }
 void SDCard::printCardInfo(){
     sdmmc_card_print_info(stdout, card);

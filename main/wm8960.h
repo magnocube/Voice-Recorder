@@ -133,7 +133,7 @@ typedef struct{
 class WM8960{
     public:
         WM8960(esp_audio_config *audioC,SDCard *sd_card,pca9535 *gpioHeader,esp_pin_config *pinconfig);     //constructor, will do the setup of the chip
-        void read();                                                                                        // calls the read function from i2s driver. will take a number of bits and put it into the audiobuffer1
+        void read();     //reads the i2s bus. (call this before accessing the audiobuffer1)                                                                                   // calls the read function from i2s driver. will take a number of bits and put it into the audiobuffer1
         void printCopyCodecRegisters();                                                                     
         uint8_t* audioBuffer1;                                                                              //buffer to hold the latest data from the i2s driver
         
