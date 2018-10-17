@@ -28,7 +28,7 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
     } else if(errVal != ESP_OK){
         ESP_LOGW(TAG, "error in I2C writing value to command");
     } else if(espRc != ESP_OK){
-        ESP_LOGW(TAG, "error in I2C writing the command to WM8960" );
+        ESP_LOGW(TAG, "error in I2C writing the command to WM8960, .. %d",espRc);
          //ESP_ERROR_CHECK( espRc);
       
         //ESP_LOGW(TAG,esp_err_to_name(espRc));
@@ -51,7 +51,7 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
     setupI2S(); // init i2s driver
   
 
-    //micToHeadsetBypass(); //configuration example
+    micToHeadsetBypass(); //configuration example
 
 
 }
@@ -170,6 +170,14 @@ void WM8960::printRegister(uint8_t index, uint16_t value){
 
 void WM8960::micToHeadsetBypass(){
     
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
    

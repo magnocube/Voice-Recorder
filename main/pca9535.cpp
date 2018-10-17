@@ -44,7 +44,7 @@ bool pca9535::digitalRead(int pin, bool update){
 }
 void pca9535::writeDataToI2C(){
     uint16_t dataToSend = getRawWriteData();
-    ESP_LOGI(TAG, "writing trough I2C (PCA9535)... data: %d",dataToSend);
+    //ESP_LOGI(TAG, "writing trough I2C (PCA9535)... data: %d",dataToSend);
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     
@@ -63,7 +63,39 @@ void pca9535::writeDataToI2C(){
     
 }
 void pca9535::readDataFromI2C(){
-  //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ESP_LOGI(TAG, "reading trough I2C (PCA9535)... ");
+  uint8_t firstHalf;
+  uint8_t secondHalf;
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd,(PCA_I2C_ADDR << 1) | I2C_MASTER_WRITE, true /* expect ack */);     // codec adress + write
+    i2c_master_write_byte(cmd,0,true); // command byte 2
+
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd,(PCA_I2C_ADDR << 1) | 0x01, true /* expect ack */); 
+    i2c_master_read_byte(cmd,&firstHalf,I2C_MASTER_ACK);
+    i2c_master_read_byte(cmd,&secondHalf,I2C_MASTER_NACK);   
+    i2c_master_stop(cmd);
+
+    esp_err_t espRc = i2c_master_cmd_begin(I2C_NUM_0, cmd, 500/portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+
+    if(espRc != ESP_OK){
+        ESP_LOGW(TAG, "error in I2C writing the command to PCA9535, %d \n" , espRc);
+        
+    } else{
+        ESP_LOGI(TAG, "1e:  %d  and 2e:  %d",firstHalf,secondHalf);
+      
+        
+        for(int i = 0; i < 8; i++){
+            readData[i] = firstHalf >> i && 0x01;
+            readData[i+8] = secondHalf >> i && 0x01;
+            printf(" %d ",readData[2*i]);
+            printf(" %d ",readData[(2*i)+1]);
+        }
+    }
 }
 void pca9535::writeConfigToI2C(){
     uint16_t dataToSend = getRawConfigData();

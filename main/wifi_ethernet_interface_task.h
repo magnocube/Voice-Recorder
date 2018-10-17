@@ -4,59 +4,47 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 	int yellowLed = shared_buffer->pin_config->led_yellow;
 	int greenLed = shared_buffer->pin_config->led_green;
 	int blueLed = shared_buffer->pin_config->led_blue;
+	int detectSd = shared_buffer->pin_config->sdDetect;
+	int detectProtect = shared_buffer->pin_config->sdProtect;
+
 	pca9535 * gh = shared_buffer->gpio_header;
+	gh->pinMode(detectSd,PCA_INPUT,false);
+	gh->pinMode(detectProtect,PCA_INPUT,false);
 	gh->pinMode(redLed,PCA_OUTPUT,false);
 	gh->pinMode(yellowLed,PCA_OUTPUT,false);
 	gh->pinMode(greenLed,PCA_OUTPUT,false);
 	gh->pinMode(blueLed,PCA_OUTPUT,true);
+
 	
 	// shared_buffer->recording = true;
 	// vTaskDelay(5000/portTICK_PERIOD_MS);
 	// shared_buffer->recording = false;
 
-	while(1){	
+	while(1){
 			
+			bool one = gh->digitalRead(detectSd,true);
+			bool two = gh->digitalRead(detectProtect,false);
 		
-			gh->digitalWrite(redLed,PCA_LOW,false);
-			gh->digitalWrite(yellowLed,PCA_LOW,false);
-			gh->digitalWrite(greenLed,PCA_LOW,false);
-			gh->digitalWrite(blueLed,PCA_LOW,true);
-			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
+
+			if(one == false && two == false){				
+				gh->digitalWrite(redLed,PCA_LOW,false);
+				gh->digitalWrite(yellowLed,PCA_HIGH,false);
+				gh->digitalWrite(greenLed,PCA_HIGH,false);
+				gh->digitalWrite(blueLed,PCA_HIGH,true);
+			} else {
+				gh->digitalWrite(redLed,PCA_HIGH,false);
+				gh->digitalWrite(yellowLed,PCA_LOW,false);
+				gh->digitalWrite(greenLed,PCA_LOW,false);
+				gh->digitalWrite(blueLed,PCA_LOW,true);
+			}
+			vTaskDelay(200/portTICK_PERIOD_MS);
+
+	
 			 
-	 
-			gh->digitalWrite(redLed,PCA_HIGH,false);
-			gh->digitalWrite(yellowLed,PCA_LOW,false);
-			gh->digitalWrite(greenLed,PCA_HIGH,false);
-			gh->digitalWrite(blueLed,PCA_LOW,true);
-			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
+
+			// printf("value of pinDetect: %d   and pinProtect: %d \n", gh->digitalRead(detectSd,true),gh->digitalRead(detectProtect,false));	
 
 			  
-			gh->digitalWrite(redLed,PCA_HIGH,false);
-			gh->digitalWrite(yellowLed,PCA_LOW,false);
-			gh->digitalWrite(greenLed,PCA_LOW,false);
-			gh->digitalWrite(blueLed,PCA_HIGH,true);
-			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
-
-			  
-			gh->digitalWrite(redLed,PCA_HIGH,false);
-			gh->digitalWrite(yellowLed,PCA_HIGH,false);
-			gh->digitalWrite(greenLed,PCA_LOW,false);
-			gh->digitalWrite(blueLed,PCA_LOW,true);
-			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
-
-			  
-			gh->digitalWrite(redLed,PCA_HIGH,false);
-			gh->digitalWrite(yellowLed,PCA_LOW,false);
-			gh->digitalWrite(greenLed,PCA_LOW,false);
-			gh->digitalWrite(blueLed,PCA_HIGH,true);
-			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
-
-			  
-			gh->digitalWrite(redLed,PCA_HIGH,false);
-			gh->digitalWrite(yellowLed,PCA_LOW,false);
-			gh->digitalWrite(greenLed,PCA_HIGH,false);
-			gh->digitalWrite(blueLed,PCA_LOW,true);
-			 vTaskDelay(100/portTICK_PERIOD_MS); //reset watchdog
 	}
 	// ESP_LOGI(TAG, "should be off... turning on after 5 seconds");
 	// vTaskDelay(5000/portTICK_PERIOD_MS);
