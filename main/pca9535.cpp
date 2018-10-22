@@ -63,7 +63,7 @@ void pca9535::writeDataToI2C(){
     
 }
 void pca9535::readDataFromI2C(){
-  ESP_LOGI(TAG, "reading trough I2C (PCA9535)... ");
+ // ESP_LOGI(TAG, "reading trough I2C (PCA9535)... ");
   uint8_t firstHalf;
   uint8_t secondHalf;
 
@@ -83,17 +83,17 @@ void pca9535::readDataFromI2C(){
     i2c_cmd_link_delete(cmd);
 
     if(espRc != ESP_OK){
-        ESP_LOGW(TAG, "error in I2C writing the command to PCA9535, %d \n" , espRc);
+        ESP_LOGW(TAG, "error in I2C writing the command to PCA9535 (while reading), %d \n" , espRc);
         
     } else{
-        ESP_LOGI(TAG, "1e:  %d  and 2e:  %d",firstHalf,secondHalf);
+        // ESP_LOGI(TAG, "data while reading: 1e:  %d  and 2e:  %d",firstHalf,secondHalf);
       
         
         for(int i = 0; i < 8; i++){
             readData[i] = firstHalf >> i && 0x01;
             readData[i+8] = secondHalf >> i && 0x01;
-            printf(" %d ",readData[2*i]);
-            printf(" %d ",readData[(2*i)+1]);
+            // printf(" %d ",readData[2*i]);
+            // printf(" %d ",readData[(2*i)+1]);
         }
     }
 }

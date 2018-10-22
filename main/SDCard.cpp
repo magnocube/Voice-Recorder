@@ -2,17 +2,14 @@
 
 
 
-SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC){ 
+SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC,pca9535 * gh){ 
     pinconfig = pinC;
     audioConfig = audioC;
     isCardMounted = false;
+    gpio_header = gh;
 
     setupSDConfig();
-    if(isCardInSlot()){
-        if(!isWriteProtectOn()){
-            mountCard();
-        }   
-    } 
+    
 }
                                                
 bool SDCard::isCardInSlot(){
@@ -31,7 +28,7 @@ esp_err_t SDCard::mountCard(){
         if (ret == ESP_FAIL) {
             ESP_LOGE(TAG, "Failed to mount filesystem, consider a card format(can be done in code,,, but needs to be inplemented");
         } else {
-            ESP_LOGE(TAG, "Failed to initialize the card");
+            ESP_LOGE(TAG, "Failed to initialize the card: %d", ret);
         }
     } else{
         ESP_LOGI(TAG, "SD card mouted succesfully!");
@@ -73,13 +70,48 @@ void SDCard::setupSDConfig(){
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_D0,GPIO_PULLUP_ONLY);
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_CLK,GPIO_PULLUP_ONLY);
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_CMD,GPIO_PULLUP_ONLY);
-    vTaskDelay(500/portTICK_PERIOD_MS);
+    //vTaskDelay(500/portTICK_PERIOD_MS);
 }
 void SDCard::printCardInfo(){
     sdmmc_card_print_info(stdout, card);
 }
-bool SDCard::isMounted(){
-    return isCardMounted;
+bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCardMounted", 
+                            //      this variable keeps track of the latest state od the SD since the last check
+    int one = gpio_header->digitalRead(pinconfig->sdDetect,true);
+	int two = gpio_header->digitalRead(pinconfig->sdProtect,false);
+    // printf("pins:  %d   %d", pinconfig->sdDetect, pinconfig->sdProtect);
+    // printf("readstatusses: %d ,  %d ",one, two);
+    if(one == false && two == false){   //both are low... so the card is in the slot
+        if(isCardMounted == false){ //the card was not mounted before
+            mountCard();            //mount the card
+            if(isCardMounted){
+                gpio_header->digitalWrite(pinconfig->led_yellow,PCA_HIGH,false);
+                gpio_header->digitalWrite(pinconfig->led_red,PCA_HIGH,true);
+                return true;
+            } else{
+                
+                return false;
+            }
+        } else {  // card should be mounted
+            ESP_LOGI(TAG, "should be mounted");
+            return true;           
+        }
+    } else{                            // card is not in the cardholder
+        if(isCardMounted == true) {  //the card was just removed from the cardholder
+        isCardMounted = false;
+            ESP_LOGW(TAG, "SD card was removed from slot... possible data loss");
+            esp_vfs_fat_sdmmc_unmount();
+            ESP_LOGI(TAG, "Card unmounted");
+            gpio_header->digitalWrite(pinconfig->led_yellow,PCA_LOW,false);
+            gpio_header->digitalWrite(pinconfig->led_red,PCA_LOW,true);
+            return false;
+        } else { //the card is out for a while
+             ESP_LOGI(TAG, "not mounted");
+            return false;
+        }
+    }
+    ESP_LOGW(TAG, "this should never be printed (sdcard::ismounted)");
+    return false;
 }
 bool SDCard::isWriteProtectOn(){
     //check for write protect pin

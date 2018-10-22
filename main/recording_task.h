@@ -5,6 +5,9 @@ void recording_task(esp_shared_buffer *shared_buffer){
 	while(1){
 		vTaskDelay(10/portTICK_PERIOD_MS);							// reset watchdog
 		if(shared_buffer->recording == true){						//if the device should be recording
+			if(shared_buffer->SD->isMounted()){						//and the card is acually mounted
+
+			
 			shared_buffer->SD->printCardInfo();
 			shared_buffer->SD->beginFile();
 			int start = esp_log_timestamp();
@@ -29,6 +32,10 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			printf("written in %d milliSeconds...\n", time);	
 			
 			shared_buffer->SD->endFile();							//write out the wav header and close the stream
+			}
+			/*should be recording,,, but card is not mounted...*/
+			//flash red led!
+
 		}
 		// /vTaskDelay(100000/portTICK_PERIOD_MS);
 	}

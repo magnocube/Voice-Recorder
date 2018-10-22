@@ -13,7 +13,7 @@ void app_main()
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
 
 	pca9535 *pca_ptr = new pca9535(&pinout);
-	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig);
+	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr);
 	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);
 	sb = {	.recording = false,						//this shared buffer is passed to the tasks that will run each on a core. it contains all the pointers Both tasks might need.
 			.gpio_header = pca_ptr,					
@@ -25,8 +25,8 @@ void app_main()
 			};
 
 	testSPIFFSRead();	
-    // turn on sd card (i hope)
-    pca_ptr->pinMode(pinout.sdPower,PCA_OUTPUT,true);
+    configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code)
+    // turn on sd card (i hope)    
     pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);					
 	
 
@@ -42,7 +42,7 @@ void app_main()
 							 0													//task core
 							 );	
 							 
-	/*create a "other task", this task will do everything else*/
+	/*create a "other task", this task will do everything else (wifi,ethernet&test)*/
 	xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the tast that does everything except recording
 							 "Wifi_ethernet_interface_task", 					//task name 
 							 1024 * 2, 											//stack size
@@ -58,7 +58,7 @@ void app_main()
 	//}														//    and overwritten by other memory... took me some time to figure that out... this loop prevents
 															// 	  the main from ending and keeping the 2 structs in memory. (i know... i m too lazy to place the
 															//	  structs on the heap and pass a pointer to the required functions): update: i removed the
-															// the structs from the stack. and placed them in the header... too lazy to remove the comment.
+															// the structs from the stack. and placed them in the heap... too lazy to remove the comment.
 }
 
 void setupPeripherals(esp_pin_config *pinconfig)
@@ -92,6 +92,20 @@ void setupI2C(esp_pin_config *pinconfig)
 	i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
     // ESP_LOGI(TAG, "i2c_clk pin: %d",pinconfig->i2c_clock);
     // ESP_LOGI(TAG, "i2c_data pin: %d",pinconfig->i2c_data);
+}
+void configureGPIOExpander(){
+    pca9535 * gh = sb.gpio_header;
+	// shared_buffer->gpio_header->pinMode(shared_buffer->pin_config->led_red,PCA_INPUT,false);
+
+	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
+	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false);
+	gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
+	gh->pinMode(sb.pin_config->led_yellow,PCA_OUTPUT,false);
+	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
+    gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,true);
+	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
+    gh->digitalWrite(sb.pin_config->led_red,PCA_HIGH,true);
+    
 }
 
 void setupSPIFFS(){

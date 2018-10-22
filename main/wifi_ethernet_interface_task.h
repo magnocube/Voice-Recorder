@@ -1,41 +1,39 @@
 //errors might not show up,,, accidently disabled them
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
-	int redLed = shared_buffer->pin_config->led_red;
+	
+		int redLed = shared_buffer->pin_config->led_red;
 	int yellowLed = shared_buffer->pin_config->led_yellow;
 	int greenLed = shared_buffer->pin_config->led_green;
 	int blueLed = shared_buffer->pin_config->led_blue;
 	int detectSd = shared_buffer->pin_config->sdDetect;
 	int detectProtect = shared_buffer->pin_config->sdProtect;
 
-	pca9535 * gh = shared_buffer->gpio_header;
-	gh->pinMode(detectSd,PCA_INPUT,false);
-	gh->pinMode(detectProtect,PCA_INPUT,false);
-	gh->pinMode(redLed,PCA_OUTPUT,false);
-	gh->pinMode(yellowLed,PCA_OUTPUT,false);
-	gh->pinMode(greenLed,PCA_OUTPUT,false);
-	gh->pinMode(blueLed,PCA_OUTPUT,true);
 
 	
 	// shared_buffer->recording = true;
 	// vTaskDelay(5000/portTICK_PERIOD_MS);
 	// shared_buffer->recording = false;
-
+pca9535 * gh = shared_buffer->gpio_header;	
 	while(1){
 			
-			bool one = gh->digitalRead(detectSd,true);
-			bool two = gh->digitalRead(detectProtect,false);
+			// bool one = gh->digitalRead(detectSd,true);
+			// bool two = gh->digitalRead(detectProtect,false);
 		
 
-			if(one == false && two == false){				
-				gh->digitalWrite(redLed,PCA_LOW,false);
-				gh->digitalWrite(yellowLed,PCA_HIGH,false);
-				gh->digitalWrite(greenLed,PCA_HIGH,false);
-				gh->digitalWrite(blueLed,PCA_HIGH,true);
-			} else {
-				gh->digitalWrite(redLed,PCA_HIGH,false);
-				gh->digitalWrite(yellowLed,PCA_LOW,false);
-				gh->digitalWrite(greenLed,PCA_LOW,false);
-				gh->digitalWrite(blueLed,PCA_LOW,true);
+			if(!shared_buffer->SD->isMounted()){	// sd card is in slot
+				shared_buffer->recording = false;
+				//flash led 
+
+				// gh->digitalWrite(redLed,PCA_LOW,false);
+				// gh->digitalWrite(yellowLed,PCA_HIGH,false);
+				// gh->digitalWrite(greenLed,PCA_HIGH,false);
+				// gh->digitalWrite(blueLed,PCA_HIGH,true);
+			} else {							//sd card is not in slot
+				//shared_buffer->SD->isCardMounted = false;
+				// gh->digitalWrite(redLed,PCA_HIGH,false);
+				// gh->digitalWrite(yellowLed,PCA_LOW,false);
+				// gh->digitalWrite(greenLed,PCA_LOW,false);
+				// gh->digitalWrite(blueLed,PCA_LOW,true);
 			}
 			vTaskDelay(200/portTICK_PERIOD_MS);
 

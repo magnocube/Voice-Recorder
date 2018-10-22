@@ -40,6 +40,7 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
 
 void setupI2C(esp_pin_config *pinconfig);
 void setupSPIFFS();
+void configureGPIOExpander();
 void setupNVS();
 void setupPeripherals(esp_pin_config *pinconfig);
 // void recording_task(esp_shared_buffer *shared_buffer);

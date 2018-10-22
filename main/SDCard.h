@@ -22,12 +22,13 @@
 #include <string.h>
 
 #include "settings.h" 
+#include "pca9535.h"
 
 
 
 class SDCard{
     public:
-        SDCard(esp_pin_config *pinC, esp_audio_config *audioC); //constructor, will try to mount the SD card on initialising                                           
+        SDCard(esp_pin_config *pinC, esp_audio_config *audioC,pca9535 * gh); //constructor, will try to mount the SD card on initialising                                           
         bool isCardInSlot();                                    //will check if the SD card is in the slot for writing
         bool isWriteProtectOn();                                //checks if the write protection is on. (card must be in slot for this to give a valid return)
         bool isMounted();                                       //returns if the SD card is mounted to the file System
@@ -36,15 +37,16 @@ class SDCard{
         esp_err_t beginFile();                                  //will make a file on the file system and sets the offset for the header
         esp_err_t addDataToFile(uint8_t *data,int length);      //will add data to the file. (can be time consuming!)
         void endFile();                                         //write out the wav header tho the beginning of the file and close the file
-        void printCardInfo();                                   //print out basic info of the card. might come in handy if some specific card wont work  
-    private:
-        bool isCardMounted;                                     //private variable used by the function: isMounted();
+        void printCardInfo();  
+        bool isCardMounted;                                     //public variable used by the function: isMounted();                         //print out basic info of the card. might come in handy if some specific card wont work  
+    private:       
         void setupSDConfig();                                   //setsup the SD peripheral in 1-line SD mode.
         void generateWavHeader();                               //generates the WAV header. Should be called upon closing the file.
         sdmmc_host_t host;                                      //used for: setupSDConfig();
         sdmmc_slot_config_t slot_config;                        //used for: setupSDConfig();
         esp_pin_config *pinconfig;                              //pingconfig of the device. Gets passed from the constructor
         esp_audio_config *audioConfig;                          //audioconfig of the device. will have up-to-date settings for audio settings 
+        pca9535 *gpio_header;
         esp_vfs_fat_sdmmc_mount_config_t mount_config;          //used for: setupSDConfig();
         sdmmc_card_t* card;                                     //used for: mountCard();
         FILE* file;                                             //the file that will be written too.. start by calling: beginFile();
