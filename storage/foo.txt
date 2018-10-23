@@ -1,1 +1,2 @@
-this is just some horrible HTML webpage -_-
+<!DOCTYPE html><html><body><p>zou jij de HTML code die op dit moment wordt gebruikt voor de webinterface van andere vtaps naar mij kunnen doorsturen?._________</p></body></html>\n
+

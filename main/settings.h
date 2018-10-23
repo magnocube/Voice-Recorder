@@ -18,13 +18,18 @@
 #define PCA_LOW 0
 #define PCA_HIGH 1
 #define PCA_I2C_ADDR 0x20 
-#define PI 3.14159265
 #define WAV_HEADER_SIZE 44 
+
+
+
+#define PIN_PHY_POWER 32    //can also be found in ESP_PIN_CONFIG_DEFAULT.  
+#define PIN_SMI_MDC 23      //can also be found in ESP_PIN_CONFIG_DEFAULT.  
+#define PIN_SMI_MDIO 18     //can also be found in ESP_PIN_CONFIG_DEFAULT.  
 
 //default pin configuration
 #define ESP_PIN_CONFIG_DEFAULT() {\
     .phy_clock = 0, \
-    .phy_clock_OE = 17, \
+    .phy_clock_OE = 32, \
     .sd_D0 = 2, \
     .sd_CLK = 14, \
     .sd_CMD = 15, \

@@ -51,6 +51,15 @@ void app_main()
 							 NULL,												//task handle
 							 1													//task core
 							 );
+    xTaskCreatePinnedToCore((TaskFunction_t)webInterface,		//task function		   //probably the tast that does everything except recording
+							 "webInterface_task", 					//task name 
+							 1024 * 4, 											//stack size
+							 &sb,												//function parameters (struct with pointers to shared classes)
+							 1,													//priority
+							 NULL,												//task handle
+							 1													//task core
+							 );
+   
 
 
 	//while(1){ 											// -- this loop has cost me a couple of hours of hopeless debugging
@@ -157,7 +166,7 @@ void testSPIFFSRead(){
         *pos = '\0';
     }
     ESP_LOGI(TAG, "Read from file: '%s'", line);
-	esp_vfs_spiffs_unregister(NULL);
+	//esp_vfs_spiffs_unregister(NULL);
 	}
 }
 void setupNVS(){
