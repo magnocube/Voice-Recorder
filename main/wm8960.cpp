@@ -18,7 +18,7 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
     errReg = i2c_master_write_byte(cmd,rByte,true);
     errVal = i2c_master_write_byte(cmd,vByte,true);
     i2c_master_stop(cmd);
-    espRc = i2c_master_cmd_begin(I2C_NUM_0, cmd, 100/portTICK_PERIOD_MS);
+    espRc = i2c_master_cmd_begin(I2C_DRIVER_NUM, cmd, 100/portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 
     if(errAddr != ESP_OK){
@@ -150,7 +150,7 @@ void WM8960::printCopyCodecRegisters(){
   
     
 }
-void WM8960::printRegister(uint8_t index, uint16_t value){
+void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debugging the registers in the codec
     printf("register (HEX)%x, (DEC)%d,   with value: (HEX) %03X ,(BIN) 0B", index,index,value); 
 
     unsigned char *b = (unsigned char*) &value;
@@ -168,7 +168,7 @@ void WM8960::printRegister(uint8_t index, uint16_t value){
 
 }
 
-void WM8960::micToHeadsetBypass(){
+void WM8960::micToHeadsetBypass(){ //example config
     
     send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     send_I2C_command(0x19,0b10000000); // vmid 2*250kohm

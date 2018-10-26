@@ -54,7 +54,7 @@ void pca9535::writeDataToI2C(){
     i2c_master_write_byte(cmd,dataToSend,true);
     i2c_master_write_byte(cmd,dataToSend >> 8,true);
     i2c_master_stop(cmd);
-    esp_err_t espRc = i2c_master_cmd_begin(I2C_NUM_0, cmd, 100/portTICK_PERIOD_MS);
+    esp_err_t espRc = i2c_master_cmd_begin(I2C_DRIVER_NUM, cmd, 100/portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 
     if(espRc != ESP_OK){

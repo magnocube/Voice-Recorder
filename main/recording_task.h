@@ -8,7 +8,7 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			if(shared_buffer->SD->isMounted()){						//and the card is acually mounted
 
 			
-			shared_buffer->SD->printCardInfo();
+			//shared_buffer->SD->printCardInfo();
 			shared_buffer->SD->beginFile();
 			int start = esp_log_timestamp();
 			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value

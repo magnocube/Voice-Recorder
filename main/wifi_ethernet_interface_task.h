@@ -7,123 +7,46 @@
 #include "lwip/sys.h"
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
+#include "esp_wifi.h"
  
 #include "webInterface.h"   //code that will handle the web interface
 
 
 
-static void phy_device_power_enable_via_gpio(bool enable);				 //function prototype
-static void eth_gpio_config_rmii(void); 								 //function prototype
-static esp_err_t eth_event_handler(void *ctx, system_event_t *event);    //function prototype
+static void phy_device_power_enable_via_gpio(bool enable);				 //function prototype   -> gets automaticly called from ehternet driver, will allow clock to flow to gpio0
+static void eth_gpio_config_rmii(void); 								 //function prototype   -> gets automaticly called from ehternet driver
+static esp_err_t eth_event_handler(void *ctx, system_event_t *event);    //function prototype   -> event handler. usefull for debugging
+void wifi_init_softap();                                                 //function prototype   -> enable the wifi
+void ethernet_init();                                                    //function prototype   -> enable Ethernet
+static esp_err_t event_handler(void *ctx, system_event_t *event);        // not used yet
+
+static EventGroupHandle_t s_wifi_event_group;
 
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
 
-	 
-   // ESP_ERROR_CHECK( nvs_flash_init() );
-    tcpip_adapter_init();
-
-    ESP_ERROR_CHECK(esp_event_loop_init(eth_event_handler, NULL));
-
-    eth_config_t config = DEFAULT_ETHERNET_PHY_CONFIG;
-    config.phy_addr = static_cast<eth_phy_base_t>(0);
-    config.gpio_config = eth_gpio_config_rmii;
-    config.tcpip_input = tcpip_adapter_eth_input;
-    config.clock_mode = static_cast<eth_clock_mode_t>(0);   //gpio 0 clock in
-
-    /* Replace the default 'power enable' function with an example-specific one
-     that toggles a power GPIO. */
-    config.phy_power_enable = phy_device_power_enable_via_gpio;
-
-
-    ESP_ERROR_CHECK(esp_eth_init(&config));
-    ESP_ERROR_CHECK(esp_eth_enable()) ;
-    vTaskDelay(5000/portTICK_PERIOD_MS);
+    tcpip_adapter_init();                                                       
+    ethernet_init();
+    wifi_init_softap();
     
-	/*webinterface task gets created in main... TODO... call a signal that the task can start*/
-	
-// 		int redLed = shared_buffer->pin_config->led_red;
-// 	int yellowLed = shared_buffer->pin_config->led_yellow;
-// 	int greenLed = shared_buffer->pin_config->led_green;
-// 	int blueLed = shared_buffer->pin_config->led_blue;
-// 	int detectSd = shared_buffer->pin_config->sdDetect;
-// 	int detectProtect = shared_buffer->pin_config->sdProtect;
-
-
-	
-// 	// shared_buffer->recording = true;
-// 	// vTaskDelay(5000/portTICK_PERIOD_MS);
-// 	// shared_buffer->recording = false;
-// pca9535 * gh = shared_buffer->gpio_header;	
-	
 	while(1){
 
-			if(!shared_buffer->SD->isMounted()){	// sd card is in slot
+			if(!shared_buffer->SD->isMounted()){	        // sd card is not in slot
 				shared_buffer->recording = false;
-				//flash led 
-
-				// gh->digitalWrite(redLed,PCA_LOW,false);
-				// gh->digitalWrite(yellowLed,PCA_HIGH,false);
-				// gh->digitalWrite(greenLed,PCA_HIGH,false);
-				// gh->digitalWrite(blueLed,PCA_HIGH,true);
-			} else {							//sd card is not in slot
-				//shared_buffer->SD->isCardMounted = false;
-				// gh->digitalWrite(redLed,PCA_HIGH,false);
-				// gh->digitalWrite(yellowLed,PCA_LOW,false);
-				// gh->digitalWrite(greenLed,PCA_LOW,false);
-				// gh->digitalWrite(blueLed,PCA_LOW,true);
+                /*may the odds be ever in your favor*/
+			} else {						            	//sd card is in slot
+				
 			}
 			vTaskDelay(200/portTICK_PERIOD_MS);
+            ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());
 
 	}
 			 
 
-			// printf("value of pinDetect: %d   and pinProtect: %d \n", gh->digitalRead(detectSd,true),gh->digitalRead(detectProtect,false));	
 
-			  
-	
-	// ESP_LOGI(TAG, "should be off... turning on after 5 seconds");
-	// vTaskDelay(5000/portTICK_PERIOD_MS);
-	// shared_buffer->codec->printCopyCodecRegisters();
-	// shared_buffer->recording = true;
-	// ESP_LOGI(TAG, "should be on... turning off after 60 seconds");
-
-	// 	// esp_err_t err = nvs_open("storage", NVS_READWRITE, &shared_buffer->my_NVS_handle);
-	// 	// if (err != ESP_OK) {
-	// 	// 	printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
-	// 	// }	
-	//     //  err = nvs_set_i32(shared_buffer->my_NVS_handle, "restart_counter", 42069);
-    //     // printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-    //     // printf("Committing updates in NVS ... ");
-    //     // err = nvs_commit(shared_buffer->my_NVS_handle);
-    //     // printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-
-
-
-	// gpio_pad_select_gpio(22);
-    // /* Set the GPIO as a push/pull output */
-    // gpio_set_direction((gpio_num_t)22, GPIO_MODE_OUTPUT);
-	// for(int i = 0; i<100000000;i++){
-	// 	 gpio_set_level((gpio_num_t)22, 0);
-    //     //vTaskDelay(10 / portTICK_PERIOD_MS);
-    //     /* Blink on (output high) */
-    //     gpio_set_level((gpio_num_t)22, 1);
-    //     //vTaskDelay(10 / portTICK_PERIOD_MS);
-	// }
-	// ESP_LOGI(TAG, "stop");
-	// shared_buffer->recording = false;
-
-
-	// while(1){
-		
-	// 	ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());
-	// 	//heap_caps_print_heap_info(MALLOC_CAP_8BIT);
-	// 	vTaskDelay(1000/portTICK_PERIOD_MS);
-	// 	//
-	// }
 }
 
 
-static void phy_device_power_enable_via_gpio(bool enable)
+static void phy_device_power_enable_via_gpio(bool enable) //toggles the chip thats blocks the clock to pass the clock to gpio 0
 {
     assert(DEFAULT_ETHERNET_PHY_CONFIG.phy_power_enable);
 
@@ -134,10 +57,10 @@ static void phy_device_power_enable_via_gpio(bool enable)
     gpio_pad_select_gpio(static_cast<gpio_num_t>(PIN_PHY_POWER));
     gpio_set_direction(static_cast<gpio_num_t>(PIN_PHY_POWER), GPIO_MODE_OUTPUT);
     if (enable == true) {
-        gpio_set_level(static_cast<gpio_num_t>(PIN_PHY_POWER), 1);
+        gpio_set_level(static_cast<gpio_num_t>(PIN_PHY_POWER), 0);
         ESP_LOGI(TAG, "Power On Ethernet PHY");
     } else {
-        gpio_set_level(static_cast<gpio_num_t>(PIN_PHY_POWER), 0);
+        gpio_set_level(static_cast<gpio_num_t>(PIN_PHY_POWER), 1);
         ESP_LOGI(TAG, "Power Off Ethernet PHY");
     }
 
@@ -155,8 +78,70 @@ static void eth_gpio_config_rmii(void)
     phy_rmii_configure_data_interface_pins();
     phy_rmii_smi_configure_pins(PIN_SMI_MDC, PIN_SMI_MDIO);
 }
+static esp_err_t event_handler(void *ctx, system_event_t *event)   //wifi
+{
+    switch(event->event_id) {
+    case SYSTEM_EVENT_AP_STACONNECTED:
+        // ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
+        //          MAC2STR(event->event_info.sta_connected.mac),
+        //         event->event_info.sta_connected.aid);
+                 ESP_LOGI(TAG, "wifi connected");
+        break;
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+        //ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
+        //         MAC2STR(event->event_info.sta_disconnected.mac),
+         //        event->event_info.sta_disconnected.aid);
+         ESP_LOGI(TAG, "wifi disconnected");
+        break;
+    default:
+        break;
+    }
+    return ESP_OK;
+}
+void wifi_init_softap()
+{
+    /*set a static IP*/
+    tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+    tcpip_adapter_ip_info_t ip_info;
+    IP4_ADDR(&ip_info.ip,192,168,1,1);
+    IP4_ADDR(&ip_info.gw,192,168,1,1);
+    IP4_ADDR(&ip_info.netmask,255,255,255,0);
+    printf("set ip ret (0 means OK, others mean FAIL): %d\n", tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &ip_info)); //set static IP
+    tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP); 
 
-static esp_err_t eth_event_handler(void *ctx, system_event_t *event)
+    
+    s_wifi_event_group = xEventGroupCreate(); // not used yet
+    //ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
+	wifi_init_config_t wifiInitializationConfig = WIFI_INIT_CONFIG_DEFAULT(); 
+    esp_wifi_init(&wifiInitializationConfig); 
+    esp_wifi_set_storage(WIFI_STORAGE_RAM); 
+    esp_wifi_set_mode(WIFI_MODE_AP); 
+
+    wifi_ap_config_t acfg = {EXAMPLE_ESP_WIFI_SSID,EXAMPLE_ESP_WIFI_PASS,strlen(EXAMPLE_ESP_WIFI_SSID),0,WIFI_AUTH_WPA_WPA2_PSK,0,2,100};
+    wifi_config_t wifi_config = {acfg};
+	
+ 
+    esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+ 
+    esp_wifi_start();
+    ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
+             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+}
+
+void ethernet_init(){    //configure ethernet ... done currently by using the DHCP service
+    ESP_ERROR_CHECK(esp_event_loop_init(eth_event_handler, NULL));
+    eth_config_t config = DEFAULT_ETHERNET_PHY_CONFIG;   //congigure ethernet driver
+    config.phy_addr = static_cast<eth_phy_base_t>(0);
+    config.gpio_config = eth_gpio_config_rmii;
+    config.tcpip_input = tcpip_adapter_eth_input;
+    config.clock_mode = static_cast<eth_clock_mode_t>(0);   //gpio 0 clock in
+    config.phy_power_enable = phy_device_power_enable_via_gpio; //method for enabling power on the clock
+
+    
+    ESP_ERROR_CHECK(esp_eth_init(&config));
+    ESP_ERROR_CHECK(esp_eth_enable()) ;     // e
+}
+static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event handler (only for debugging)
 {
     tcpip_adapter_ip_info_t ip;
 
@@ -184,6 +169,18 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)
         break;
     case SYSTEM_EVENT_ETH_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");
+        break;
+    case SYSTEM_EVENT_AP_STACONNECTED:
+        // ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
+        //          MAC2STR(event->event_info.sta_connected.mac),
+        //         event->event_info.sta_connected.aid);
+                 ESP_LOGI(TAG, "wifi connected");
+        break;
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+        //ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
+        //         MAC2STR(event->event_info.sta_disconnected.mac),
+         //        event->event_info.sta_disconnected.aid);
+         ESP_LOGI(TAG, "wifi disconnected");
         break;
     default:
         break;

@@ -1,3 +1,9 @@
+/*
+when reading trhough the code, start at settings.h.
+then read main.h and main.cpp
+pressing F12 while selecting a function will jump to the declaration of that funtion (VScode)
+*/
+
 #include "main.h"
 
 extern "C" { 														 //this just needs to be here
@@ -37,23 +43,26 @@ void app_main()
 							 "recording_task", 									//task name 
 							 1024 * 4, 											//stack size
 							 &sb,												//function parameters (struct with pointers to shared classes)
-							 1,													//priority
+							 99,												//priority
 							 NULL,												//task handle
 							 0													//task core
 							 );	
 							 
+                             
 	/*create a "other task", this task will do everything else (wifi,ethernet&test)*/
 	xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the tast that does everything except recording
 							 "Wifi_ethernet_interface_task", 					//task name 
-							 1024 * 2, 											//stack size
+							 1024 * 8, 											//stack size
 							 &sb,												//function parameters (struct with pointers to shared classes)
-							 1,													//priority
+							 2,													//priority
 							 NULL,												//task handle
 							 1													//task core
 							 );
-    xTaskCreatePinnedToCore((TaskFunction_t)webInterface,		//task function		   //probably the tast that does everything except recording
+
+    
+    xTaskCreatePinnedToCore((TaskFunction_t)webInterface,		//task function		   //handles the webpage
 							 "webInterface_task", 					//task name 
-							 1024 * 4, 											//stack size
+							 1024 * 8, 											//stack size
 							 &sb,												//function parameters (struct with pointers to shared classes)
 							 1,													//priority
 							 NULL,												//task handle
@@ -97,8 +106,8 @@ void setupI2C(esp_pin_config *pinconfig)
 	conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
 	conf.master.clk_speed = I2C_CLOCKSPEED;    
 
-	i2c_param_config(I2C_NUM_0, &conf);
-	i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
+	i2c_param_config(I2C_DRIVER_NUM, &conf);
+	i2c_driver_install(I2C_DRIVER_NUM, I2C_MODE_MASTER, 0, 0, 0);
     // ESP_LOGI(TAG, "i2c_clk pin: %d",pinconfig->i2c_clock);
     // ESP_LOGI(TAG, "i2c_data pin: %d",pinconfig->i2c_data);
 }
@@ -108,11 +117,13 @@ void configureGPIOExpander(){
 
 	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
 	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false);
+    gh->pinMode(sb.pin_config->sdPower,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_yellow,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
-    gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,true);
+    gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
+    gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_HIGH,true);
     
 }

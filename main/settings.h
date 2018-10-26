@@ -5,12 +5,18 @@
 // #include "SDCard.h"
 // #include "wm8960.h"
 
+//password and SSID of the voicerecorder... passwordt might be changed to the mac of the device
+#define EXAMPLE_ESP_WIFI_SSID      "voiceRecorder"
+#define EXAMPLE_ESP_WIFI_PASS      "12345678"
+#define EXAMPLE_MAX_STA_CONN       5
+
 //i2c defines
 #define CODEC_I2C_ADDR 0x1a
-#define CODEC_I2S_NUM 0
+#define CODEC_I2S_NUM 0       //driver 0
 #define AUDIO_BUFFER_SIZE 512 //size of the buffers for reading the data from dma and storing it on the SD
-#define I2C_CLOCKSPEED 10000  //0.01mhz
+#define I2C_CLOCKSPEED 10000  //0.01mhz,,, can be configured higher
 
+#define I2C_DRIVER_NUM I2C_NUM_0
 #define MONO 1
 #define STERIO 2
 #define PCA_OUTPUT 0   //configuration register

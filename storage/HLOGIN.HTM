@@ -1,0 +1,50 @@
+<html class="login" lang="en">
+<head>
+	<title>VoIP TAP Login</title>
+</head>
+<body class="yui-skin-sam login">
+<script>
+			function httpGet(theUrl)
+			{
+				var xmlHttp = new XMLHttpRequest();
+				xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+				xmlHttp.send( null );
+				return xmlHttp.responseText;
+			}
+			document.body.innerHTML = httpGet("LOGIN.STY");
+</script>
+<div id="buttons" style="height:32px;">
+<table class="sm" width="100%">
+    <tr><td align='left'><h3>VoIP TAP Login</h3></td><td align="right"><img src="logo.png" align="top"/>
+</table>
+</div>
+<div class="outsidecontent"> <br>
+  <br>
+  <br>
+  <br>
+  <form method='post' id="login-form" action="login.htm">
+    <table class="logon" align='center' border='0' cellspacing="0" cellpadding="0">
+      <tr class="first">
+        <td colspan='2' class='title first last'>Vidicode VoIP TAP</td>
+      <tr>
+        <td colspan='2' class="first last"><div class="messages" style="max-width:25em;"></div>
+      <tr>
+        <td class="first" >User name:</td>
+      </tr>
+      <tr>
+        <td class="last"><input type='text' name='user' id='user'>
+      <tr>
+        <td class="first" >Password:</td>
+      </tr>
+      <tr>
+        <td class="last"><input type='password' name='pass' id='pass'></td>
+      </tr>
+      <tr>
+        <td colspan='2' class="first last">      
+      <tr class="last">
+        <td align='center' colspan='2' class="last"><input type='submit' id="LoginBtn" value='Log in'></td>
+    </table>
+  </form> 
+</div>
+</body>
+</html>
