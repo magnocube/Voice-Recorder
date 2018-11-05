@@ -64,8 +64,8 @@ void WM8960::setupI2S(){  //setup the i2s bus
         .bits_per_sample = static_cast<i2s_bits_per_sample_t>(audioConfig->bits_per_sample),
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //default value, will be overwritten 
         .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // high interrupt priority
-        .dma_buf_count = 3,
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1 , // high interrupt priority
+        .dma_buf_count = I2S_BUFF_COUNT,
         .dma_buf_len = AUDIO_BUFFER_SIZE, // 512
         .use_apll = false,
         .fixed_mclk = 0

@@ -47,7 +47,7 @@ void SDCard::releaseCard(){
 esp_err_t SDCard::beginFile(){
    
     ESP_LOGI(TAG, "Opening file");
-    file = fopen("/sdcard/f1.wav", "w");
+    file = fopen("/sdcard/sixtyS.wav", "w");
     ESP_LOGI(TAG, "file opened");
     return ESP_OK;
 }

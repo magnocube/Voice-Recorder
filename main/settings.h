@@ -14,6 +14,7 @@
 #define CODEC_I2C_ADDR 0x1a
 #define CODEC_I2S_NUM 0       //driver 0
 #define AUDIO_BUFFER_SIZE 512 //size of the buffers for reading the data from dma and storing it on the SD
+#define I2S_BUFF_COUNT 8 //playing it safe
 #define I2C_CLOCKSPEED 10000  //0.01mhz,,, can be configured higher
 
 #define I2C_DRIVER_NUM I2C_NUM_0
@@ -68,7 +69,7 @@
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
     .num_channels = STERIO, \
     .bits_per_sample = 16, \
-    .sample_rate = 48000, \
+    .sample_rate = 16000, \
 }
 
 
