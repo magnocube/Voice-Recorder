@@ -36,9 +36,10 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 
 			if(!shared_buffer->SD->isMounted()){	        // sd card is not in slot... isMounted function takes care of the SD card,, just call it reguarly
 				shared_buffer->recording = false;
+                sb.gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_LOW,true);
                 /*may the odds be ever in your favor*/
 			} else {						            	//sd card is in slot
-				
+				//do nothing... all the leds should already be in the right position... this function can be used to blink the leds?
 			}
 			vTaskDelay(200/portTICK_PERIOD_MS);
             ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());

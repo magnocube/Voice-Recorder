@@ -16,7 +16,7 @@
 #define CODEC_I2S_NUM 0       //driver 0
 #define AUDIO_BUFFER_SIZE 512 //size of the buffers for reading the data from dma and storing it on the SD
 #define I2S_BUFF_COUNT 8 //playing it safe
-#define I2C_CLOCKSPEED 400000  //0.4mhz,,, 
+#define I2C_CLOCKSPEED 200000  //0.2mhz,,, 
 
 #define I2C_DRIVER_NUM I2C_NUM_0
 #define MONO 1

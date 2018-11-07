@@ -24,17 +24,19 @@ static void gpio_task_example(void* arg)
     for(;;) {
         if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             uint32_t timeNow = esp_log_timestamp();
-            if(lastTimeInterrupt - timeNow >= 200){  // to prevent 2 fast interrupts... at least 200 milliseconds between a interrupt
-                lastTimeInterrupt = timeNow;
-                printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level((gpio_num_t)io_num));
+            if(timeNow - lastTimeInterrupt>= 200){  // to prevent 2 fast interrupts... at least 200 milliseconds between a interrupt
+            printf("time since last button: %d",timeNow - lastTimeInterrupt);
+                lastTimeInterrupt = timeNow;                
                 ESP_LOGI(TAG, "Whoop Whoop, Button has been pressed!, Whoop Whoop.");
 
                 if(sb.recording == false){
-                    sb.recording = true;
-                    sb.gpio_header->digitalWrite(pinout.led_green,PCA_HIGH,true);
+                    if(sb.SD->isMounted()){						//and the card is acually mounted
+                        sb.recording = true;
+                    }
+                                            //the recording led will be turned on by the recording task (this funtion does not know if the card is mounted)
                 }else{
                     sb.recording = false;
-                    sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true);
+                    sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
                 }
             } else {
 
@@ -65,7 +67,8 @@ void app_main()
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code)
     // turn on sd card (i hope)    
     pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);					
-	
+    
+    audio_codec_ptr->printCopyCodecRegisters();
 
 	
 
@@ -166,7 +169,7 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
-    gh->digitalWrite(sb.pin_config->led_red,PCA_HIGH,true);
+    gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted)
     
 }
 

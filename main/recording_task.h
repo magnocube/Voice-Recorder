@@ -4,12 +4,15 @@ void recording_task(esp_shared_buffer *shared_buffer){
 	
 	while(1){
 		vTaskDelay(100/portTICK_PERIOD_MS);							// reset watchdog
+		
 		if(shared_buffer->recording == true){						//if the device should be recording
-			if(shared_buffer->SD->isMounted()){						//and the card is acually mounted
-
+		
+			
+		
 			
 			//shared_buffer->SD->printCardInfo();
 			shared_buffer->SD->beginFile();
+			sb.gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_HIGH,true); //enable the green led
 			int start = esp_log_timestamp();
 			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value
 			while(shared_buffer->recording == true){				//while it should be recording,,, take and store 512 samples
@@ -32,7 +35,8 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			printf("written in %d milliSeconds...\n", time);	
 			
 			shared_buffer->SD->endFile();							//write out the wav header and close the stream
-			}
+			
+			//ESP_LOGW(TAG, "4 ");
 			/*should be recording,,, but card is not mounted...*/
 			//flash red led!
 
