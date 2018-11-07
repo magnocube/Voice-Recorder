@@ -52,6 +52,7 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
 esp_shared_buffer sb;               //local variable of the struct above
 esp_audio_config audioConfig;       //local variable of the audio config (used in the 'esp_shared_buffer' and can be found in 'settings.h')
 esp_pin_config pinout;              //local variable of the pinout of the device (used in 'esp_shared_buffer' and can be found in 'settings.h')
+static xQueueHandle gpio_evt_queue = NULL;
 
  #include "recording_task.h"
  #include "wifi_ethernet_interface_task.h"
@@ -64,6 +65,7 @@ void setupSPIFFS();
 void configureGPIOExpander();
 void setupNVS();
 void setupPeripherals(esp_pin_config *pinconfig);
+void setupInterruptBigButton(esp_pin_config *pinconfig);
 // void recording_task(esp_shared_buffer *shared_buffer);
 // void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer);
 

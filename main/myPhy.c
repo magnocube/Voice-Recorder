@@ -121,20 +121,20 @@ const eth_config_t phy_KSZ8081_default_ethernet_config = {
 
 void phy_KSZ8081_dump_registers()
 {
-    ESP_LOGI(TAG, "KSZ8081 Registers:");
-    ESP_LOGI(TAG, "0     0x%04x", esp_eth_smi_read(0x0));
-    ESP_LOGI(TAG, "1     0x%04x", esp_eth_smi_read(0x1));
-    ESP_LOGI(TAG, "2     0x%04x", esp_eth_smi_read(0x2));
-    ESP_LOGI(TAG, "3     0x%04x", esp_eth_smi_read(0x3));
-    ESP_LOGI(TAG, "4     0x%04x", esp_eth_smi_read(0x4));
-    ESP_LOGI(TAG, "5     0x%04x", esp_eth_smi_read(0x5));
-    ESP_LOGI(TAG, "6     0x%04x", esp_eth_smi_read(0x6));
-    ESP_LOGI(TAG, "17    0x%04x", esp_eth_smi_read(0x17));
-    ESP_LOGI(TAG, "18    0x%04x", esp_eth_smi_read(0x18));
-    ESP_LOGI(TAG, "26    0x%04x", esp_eth_smi_read(0x26));
-    ESP_LOGI(TAG, "27    0x%04x", esp_eth_smi_read(0x27));
-    ESP_LOGI(TAG, "29    0x%04x", esp_eth_smi_read(0x29));
-    ESP_LOGI(TAG, "30    0x%04x", esp_eth_smi_read(0x30));
-    ESP_LOGI(TAG, "31    0x%04x", esp_eth_smi_read(0x31));
+    ESP_LOGI(TAG, "KSZ8081 Registers: (uncomment in code to actually read them)(myPhy.c)");
+    // ESP_LOGI(TAG, "0     0x%04x", esp_eth_smi_read(0x0));
+    // ESP_LOGI(TAG, "1     0x%04x", esp_eth_smi_read(0x1));
+    // ESP_LOGI(TAG, "2     0x%04x", esp_eth_smi_read(0x2));
+    // ESP_LOGI(TAG, "3     0x%04x", esp_eth_smi_read(0x3));
+    // ESP_LOGI(TAG, "4     0x%04x", esp_eth_smi_read(0x4));
+    // ESP_LOGI(TAG, "5     0x%04x", esp_eth_smi_read(0x5));
+    // ESP_LOGI(TAG, "6     0x%04x", esp_eth_smi_read(0x6));
+    // ESP_LOGI(TAG, "17    0x%04x", esp_eth_smi_read(0x17));
+    // ESP_LOGI(TAG, "18    0x%04x", esp_eth_smi_read(0x18));
+    // ESP_LOGI(TAG, "26    0x%04x", esp_eth_smi_read(0x26));
+    // ESP_LOGI(TAG, "27    0x%04x", esp_eth_smi_read(0x27));
+    // ESP_LOGI(TAG, "29    0x%04x", esp_eth_smi_read(0x29));
+    // ESP_LOGI(TAG, "30    0x%04x", esp_eth_smi_read(0x30));
+    // ESP_LOGI(TAG, "31    0x%04x", esp_eth_smi_read(0x31));
     
 }

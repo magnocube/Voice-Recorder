@@ -21,26 +21,7 @@ bool SDCard::isCardInSlot(){
     }
     return false; 
 }
-esp_err_t SDCard::mountCard(){
-    gpio_header->digitalWrite(pinconfig->sdPower,PCA_LOW,true); //enable power
-    //vTaskDelay(300/portTICK_PERIOD_MS);
-    isCardMounted = false; //default false 
-    
-    esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
 
-    if (ret != ESP_OK) {
-        isCardMounted = false;
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(TAG, "Failed to mount filesystem, consider a card format(can be done in code,,, but needs to be inplemented");
-        } else {
-            ESP_LOGE(TAG, "Failed to initialize the card: %d", ret);
-        }
-    } else{
-        ESP_LOGI(TAG, "SD card mouted succesfully!");
-        isCardMounted = true;
-    }
-    return ret;
-}
 void SDCard::releaseCard(){
     
 }
@@ -81,39 +62,70 @@ void SDCard::setupSDConfig(){
 void SDCard::printCardInfo(){
     sdmmc_card_print_info(stdout, card);
 }
+esp_err_t SDCard::mountCard(){
+    gpio_header->digitalWrite(pinconfig->sdPower,PCA_LOW,true); //enable power
+    //vTaskDelay(300/portTICK_PERIOD_MS);
+    isCardMounted = false; //default false 
+    
+    esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+
+    if (ret != ESP_OK) {
+        isCardMounted = false;
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount filesystem, consider a card format(can be done in code,,, but needs to be inplemented");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize the card: %d", ret);
+        }
+    } else{
+        ESP_LOGI(TAG, "SD card mouted succesfully!");
+        isCardMounted = true;
+    }
+    return ret;
+}
 bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCardMounted", 
                             //      this variable keeps track of the latest state od the SD since the last check 
+      //                      ESP_LOGW(TAG, "IsMount called, ");
     int one = gpio_header->digitalRead(pinconfig->sdDetect,true);
 	int two = gpio_header->digitalRead(pinconfig->sdProtect,false);
     // printf("pins:  %d   %d", pinconfig->sdDetect, pinconfig->sdProtect);
     // printf("readstatusses: %d ,  %d ",one, two);
     if(one == false && two == false){   //both are low... so the card is in the slot
+    //ESP_LOGW(TAG, "card is in slot, ");
         if(isCardMounted == false){ //the card was not mounted before
+        //ESP_LOGW(TAG, "ismounted = false ");
             mountCard();            //mount the card.. also updates the variable "isCardMounted"
+            //ESP_LOGW(TAG, "MountCard called, ");
             if(isCardMounted){
+                //ESP_LOGW(TAG, "Now true");
                 gpio_header->digitalWrite(pinconfig->led_yellow,PCA_HIGH,false);
                 gpio_header->digitalWrite(pinconfig->led_red,PCA_HIGH,true);
                 return true;
             } else{
+                //ESP_LOGW(TAG, "still false ");
                 
                 return false;
             }
         } else {  // card should be mounted
             //ESP_LOGI(TAG, "should be mounted");
+            //ESP_LOGW(TAG, "should be mounted");
             return true;           
         }
     } else{                            // card is not in the cardholder
+    //ESP_LOGW(TAG, "not in holder, ");
         if(isCardMounted == true) {  //the card was just removed from the cardholder
+        
         isCardMounted = false;
             ESP_LOGW(TAG, "SD card was removed from slot... possible data loss");
             printf(esp_err_to_name(esp_vfs_fat_sdmmc_unmount()));
-            ESP_LOGI(TAG, "Card unmounted");
+            //ESP_LOGI(TAG, "Card unmounted");
             gpio_header->digitalWrite(pinconfig->sdPower,PCA_HIGH,false); //disable power
             gpio_header->digitalWrite(pinconfig->led_yellow,PCA_LOW,false);
             gpio_header->digitalWrite(pinconfig->led_red,PCA_LOW,true);
             return false;
         } else { //the card is out for a while
             // ESP_LOGI(TAG, "not mounted");
+            //ESP_LOGW(TAG, "not mounted, ");
+            isCardMounted = false;
             return false;
         }
     }

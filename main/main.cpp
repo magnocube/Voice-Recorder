@@ -10,7 +10,38 @@ extern "C" { 														 //this just needs to be here
 	void app_main();
 }
 
+void IRAM_ATTR button_isr_handler(void* arg) { //the button on the device will create an interrupt that will be handled here
+	
+    
+	
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+static void gpio_task_example(void* arg)
+{
+    uint32_t lastTimeInterrupt = 0;
+    uint32_t io_num;
+    for(;;) {
+        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            uint32_t timeNow = esp_log_timestamp();
+            if(lastTimeInterrupt - timeNow >= 200){  // to prevent 2 fast interrupts... at least 200 milliseconds between a interrupt
+                lastTimeInterrupt = timeNow;
+                printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level((gpio_num_t)io_num));
+                ESP_LOGI(TAG, "Whoop Whoop, Button has been pressed!, Whoop Whoop.");
 
+                if(sb.recording == false){
+                    sb.recording = true;
+                    sb.gpio_header->digitalWrite(pinout.led_green,PCA_HIGH,true);
+                }else{
+                    sb.recording = false;
+                    sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true);
+                }
+            } else {
+
+            }
+        }
+    }
+}
 
 void app_main()
 {
@@ -68,6 +99,15 @@ void app_main()
 							 NULL,												//task handle
 							 1													//task core
 							 );
+
+    xTaskCreatePinnedToCore((TaskFunction_t)gpio_task_example,		//task function		   //handles the webpage
+							 "button_task", 					//task name 
+							 1024 * 2, 											//stack size
+							 NULL,												//function parameters (struct with pointers to shared classes)
+							 1,													//priority
+							 NULL,												//task handle
+							 1													//task core
+							 );
    
 
 
@@ -82,6 +122,7 @@ void app_main()
 void setupPeripherals(esp_pin_config *pinconfig)
 {
 	ESP_LOGI(TAG, "setting up peripherals");
+    setupInterruptBigButton(pinconfig);
     setupI2C(pinconfig);  
 	setupSPIFFS();
 	setupNVS();			//also does a restart counter
@@ -124,10 +165,26 @@ void configureGPIOExpander(){
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
+    gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_HIGH,true);
     
 }
 
+void setupInterruptBigButton(esp_pin_config *pinconfig){
+    gpio_pad_select_gpio((gpio_num_t)pinconfig->big_button);
+		// set the correct direction
+	gpio_set_direction((gpio_num_t)pinconfig->big_button, GPIO_MODE_INPUT);
+	// enable interrupt on falling (1->0) edge for button pin
+	gpio_set_intr_type((gpio_num_t)pinconfig->big_button, GPIO_INTR_NEGEDGE);	
+	// install ISR service with default configuration
+	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);	
+	// attach the interrupt service routine
+	gpio_isr_handler_add((gpio_num_t)pinconfig->big_button, button_isr_handler, NULL);
+    //create a queue to handle gpio event from isr
+    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    //start gpio task
+   
+}
 void setupSPIFFS(){
 	ESP_LOGI(TAG, "Initializing SPIFFS");
     

@@ -29,9 +29,9 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
     wifi_init_softap();
     
 
-    shared_buffer->recording = true;
-    vTaskDelay(60000/portTICK_PERIOD_MS);
-    shared_buffer->recording = false;
+    // shared_buffer->recording = true;
+    // vTaskDelay(60000/portTICK_PERIOD_MS);
+    // shared_buffer->recording = false;
 	while(1){
 
 			if(!shared_buffer->SD->isMounted()){	        // sd card is not in slot... isMounted function takes care of the SD card,, just call it reguarly

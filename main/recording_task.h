@@ -3,7 +3,7 @@
 void recording_task(esp_shared_buffer *shared_buffer){  
 	
 	while(1){
-		vTaskDelay(10/portTICK_PERIOD_MS);							// reset watchdog
+		vTaskDelay(100/portTICK_PERIOD_MS);							// reset watchdog
 		if(shared_buffer->recording == true){						//if the device should be recording
 			if(shared_buffer->SD->isMounted()){						//and the card is acually mounted
 
