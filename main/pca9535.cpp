@@ -79,7 +79,7 @@ void pca9535::readDataFromI2C(){
     i2c_master_read_byte(cmd,&secondHalf,I2C_MASTER_NACK);   
     i2c_master_stop(cmd);
 
-    esp_err_t espRc = i2c_master_cmd_begin(I2C_NUM_0, cmd, 10/portTICK_PERIOD_MS);
+    esp_err_t espRc = i2c_master_cmd_begin(I2C_DRIVER_NUM, cmd, 10/portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 
     if(espRc != ESP_OK){
@@ -92,8 +92,8 @@ void pca9535::readDataFromI2C(){
         for(int i = 0; i < 8; i++){
             readData[i] = firstHalf >> i && 0x01;
             readData[i+8] = secondHalf >> i && 0x01;
-            // printf(" %d ",readData[2*i]);
-            // printf(" %d ",readData[(2*i)+1]);
+             printf(" %d ",readData[2*i]);
+             printf(" %d ",readData[(2*i)+1]);
         }
     }
 }
@@ -109,7 +109,7 @@ void pca9535::writeConfigToI2C(){
     i2c_master_write_byte(cmd,dataToSend,true);
     i2c_master_write_byte(cmd,dataToSend >> 8,true);
     i2c_master_stop(cmd);
-    esp_err_t espRc = i2c_master_cmd_begin(I2C_NUM_0, cmd, 100/portTICK_PERIOD_MS);
+    esp_err_t espRc = i2c_master_cmd_begin(I2C_DRIVER_NUM, cmd, 100/portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 
     if(espRc != ESP_OK){

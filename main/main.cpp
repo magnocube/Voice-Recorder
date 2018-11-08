@@ -32,6 +32,9 @@ static void gpio_task_example(void* arg)
                 if(sb.recording == false){
                     if(sb.SD->isMounted()){						//and the card is acually mounted
                         sb.recording = true;
+                        ESP_LOGI(TAG, "recording set to true");
+                    } else{
+                        ESP_LOGI(TAG, "not recording... card is not in slot");
                     }
                                             //the recording led will be turned on by the recording task (this funtion does not know if the card is mounted)
                 }else{
@@ -65,8 +68,11 @@ void app_main()
 
 	testSPIFFSRead();	
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code)
-    // turn on sd card (i hope)    
-    pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);					
+    // turn on sd card (i hope)  
+
+    //pca_ptr->digitalWrite(pinout.phy_reset,PCA_HIGH,false); //reset the phy (sometimes it does not work when the device is powered with Power over Ethernet)  -->does now work
+    pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	
+   // pca_ptr->digitalWrite(pinout.phy_reset,PCA_LOW,true);  				
     
     audio_codec_ptr->printCopyCodecRegisters();
 
@@ -160,8 +166,9 @@ void configureGPIOExpander(){
 	// shared_buffer->gpio_header->pinMode(shared_buffer->pin_config->led_red,PCA_INPUT,false);
 
 	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
-	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false);
+	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false); //change this to true... trying to fix a bug
     gh->pinMode(sb.pin_config->sdPower,PCA_OUTPUT,false);
+    //gh->pinMode(sb.pin_config->phy_reset,PCA_OUTPUT,false); 
 	gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_yellow,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);

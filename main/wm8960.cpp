@@ -170,29 +170,29 @@ void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debuggi
 
 void WM8960::micToHeadsetBypass(){ //example config
     
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
    
-    send_I2C_command(0x15,0x00); //reset ? 
-    send_I2C_command(0x15,0x00); //reset2 ? 
-    send_I2C_command(0x25,0x0F0);  
-    send_I2C_command(0x26,0x060);
-    send_I2C_command(0x32,0x000);
-    send_I2C_command(0x33,0x000);  
-    send_I2C_command(0x47,0x00c);  
-    send_I2C_command(0x34,0x080);
-    send_I2C_command(0x37,0x080);
-    send_I2C_command(0x02,0x179);
-    send_I2C_command(0x03,0x179);
-    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    //send_I2C_command(0x15,0x00); //reset ? 
+    send_I2C_command(0xF,0x00); //reset2 ? 
+    send_I2C_command(0x19,0b000000010);  //micbias
+    // send_I2C_command(0x26,0x060);
+    // send_I2C_command(0x32,0x000);
+    // send_I2C_command(0x33,0x000);  
+    // send_I2C_command(0x47,0x00c);  
+    // send_I2C_command(0x34,0x080);
+    // send_I2C_command(0x37,0x080);
+    // send_I2C_command(0x02,0x179);
+    // send_I2C_command(0x03,0x179);
+    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     
     //send_I2C_command(0x1A,0b000000001);  //NOTE... 9 bits //enable pll
     //send_I2C_command(0x04,0b000000001);  //NOTE... 9 bits //clock from pll
