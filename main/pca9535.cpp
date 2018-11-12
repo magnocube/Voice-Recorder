@@ -7,7 +7,7 @@ pca9535::pca9535(esp_pin_config *pinconfig){
     for(int i = 0; i< 16; i++){  //default settings
         writeData[i] = PCA_LOW;
         readData[i] = PCA_LOW;
-        mode[i] = PCA_INPUT;         
+        mode[i] = PCA_OUTPUT;         
     }
 }
  uint16_t pca9535::getRawWriteData(){

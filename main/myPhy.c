@@ -76,6 +76,7 @@ void phy_KSZ8081_power_enable(bool enable)
 esp_err_t phy_KSZ8081_init(void)
 {
     ESP_LOGD(TAG, "phy_KSZ8081_init()");
+    
     phy_KSZ8081_dump_registers();
 
     //esp_eth_smi_write(MII_BASIC_MODE_CONTROL_REG, MII_SOFTWARE_RESET);

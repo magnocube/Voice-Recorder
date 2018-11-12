@@ -179,11 +179,13 @@ void WM8960::micToHeadsetBypass(){ //example config
     // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
     // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
    
     //send_I2C_command(0x15,0x00); //reset ? 
     send_I2C_command(0xF,0x00); //reset2 ? 
-    send_I2C_command(0x19,0b000000010);  //micbias
+
+    send_I2C_command(0x19,0b111000010);  //micbias +vref
+    send_I2C_command(0x19,0b111000010);  //micbias +vref
     // send_I2C_command(0x26,0x060);
     // send_I2C_command(0x32,0x000);
     // send_I2C_command(0x33,0x000);  

@@ -70,9 +70,11 @@ void app_main()
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code)
     // turn on sd card (i hope)  
 
-    //pca_ptr->digitalWrite(pinout.phy_reset,PCA_HIGH,false); //reset the phy (sometimes it does not work when the device is powered with Power over Ethernet)  -->does now work
+    
     pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	
-   // pca_ptr->digitalWrite(pinout.phy_reset,PCA_LOW,true);  				
+    // pca_ptr->digitalWrite(pinout.phy_reset,PCA_LOW,true); 
+    // vTaskDelay(20/portTICK_PERIOD_MS);
+    // pca_ptr->digitalWrite(pinout.phy_reset,PCA_HIGH,true);  				
     
     audio_codec_ptr->printCopyCodecRegisters();
 
@@ -164,11 +166,11 @@ void setupI2C(esp_pin_config *pinconfig)
 void configureGPIOExpander(){
     pca9535 * gh = sb.gpio_header;
 	// shared_buffer->gpio_header->pinMode(shared_buffer->pin_config->led_red,PCA_INPUT,false);
-
+    gh->digitalWrite(pinout.phy_reset,PCA_HIGH,true);
 	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
 	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false); //change this to true... trying to fix a bug
     gh->pinMode(sb.pin_config->sdPower,PCA_OUTPUT,false);
-    //gh->pinMode(sb.pin_config->phy_reset,PCA_OUTPUT,false); 
+    gh->pinMode(sb.pin_config->phy_reset,PCA_OUTPUT,false); 
 	gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_yellow,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
