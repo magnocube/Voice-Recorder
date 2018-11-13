@@ -24,7 +24,7 @@ static void gpio_task_example(void* arg)
     for(;;) {
         if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             uint32_t timeNow = esp_log_timestamp();
-            if(timeNow - lastTimeInterrupt>= 200){  // to prevent 2 fast interrupts... at least 200 milliseconds between a interrupt
+            if(timeNow - lastTimeInterrupt>= 200){  // to prevent 2 fast interrupts... at least 200 milliseconds between a interrupt -> this value might be changed to a higher number
             printf("time since last button: %d",timeNow - lastTimeInterrupt);
                 lastTimeInterrupt = timeNow;                
                 ESP_LOGI(TAG, "Whoop Whoop, Button has been pressed!, Whoop Whoop.");
@@ -50,6 +50,7 @@ static void gpio_task_example(void* arg)
 
 void app_main()
 {
+    vTaskDelay(3000/portTICK_PERIOD_MS);//testing POE
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
 	setupPeripherals(&pinout);						//setup for i2c, etc...
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"

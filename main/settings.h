@@ -70,7 +70,7 @@
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
     .num_channels = STERIO, \
     .bits_per_sample = 16, \
-    .sample_rate = 16000, \
+    .sample_rate = 48000, \
 }
 
 

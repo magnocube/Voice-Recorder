@@ -72,7 +72,7 @@ static void phy_device_power_enable_via_gpio(bool enable) //toggles the chip tha
         ESP_LOGI(TAG, "Power Off Ethernet PHY");
     }
 
-    vTaskDelay(1); // Allow the power up/down to take effect, min 300us
+    vTaskDelay(10/portTICK_PERIOD_MS); // Allow the power up/down to take effect, min 300us
 
     if (enable) {
         /* call the default PHY-specific power on function */
