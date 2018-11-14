@@ -50,7 +50,7 @@ static void gpio_task_example(void* arg)
 
 void app_main()
 {
-    vTaskDelay(3000/portTICK_PERIOD_MS);//testing POE
+    vTaskDelay(1500/portTICK_PERIOD_MS);//testing POE
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
 	setupPeripherals(&pinout);						//setup for i2c, etc...
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
@@ -171,15 +171,18 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
 	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false); //change this to true... trying to fix a bug
     gh->pinMode(sb.pin_config->sdPower,PCA_OUTPUT,false);
-    gh->pinMode(sb.pin_config->phy_reset,PCA_OUTPUT,false); 
-	gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
+    gh->pinMode(sb.pin_config->phy_reset,PCA_OUTPUT,false);
+    gh->pinMode(sb.pin_config->mic_select_0, PCA_OUTPUT,false);    
+    gh->pinMode(sb.pin_config->mic_select_1,PCA_OUTPUT,false); 
+    gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_yellow,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_LOW,false);
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
-    gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted)
+    gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted) (default of gpio header is low.. so this line could be remoced)
     
 }
 

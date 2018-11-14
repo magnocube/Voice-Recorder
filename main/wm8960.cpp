@@ -9,7 +9,7 @@ void WM8960::send_I2C_command(uint8_t reg, uint16_t value){
     uint8_t vByte = value  & 0x00FF; //last 8 bits 
     
     
-    ESP_LOGI(TAG, "writing trough I2C (WM8960)... Register: %d  With data: %d",rByte>>1,vByte);
+    ESP_LOGI(TAG, "writing trough I2C (WM8960)... Register: %d  With data: %d",rByte>>1,value);
 
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     
@@ -51,7 +51,7 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
     setupI2S(); // init i2s driver
   
 
-    micToHeadsetBypass(); //configuration example
+    initialSetupRegisters(); //configuration example
 
 
 }
@@ -153,50 +153,88 @@ void WM8960::printCopyCodecRegisters(){
 void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debugging the registers in the codec
     printf("register (HEX)%x, (DEC)%d,   with value: (HEX) %03X ,(BIN) 0B", index,index,value); 
 
-    unsigned char *b = (unsigned char*) &value;
-    int i, j;
-    int size = 2;
-    for (i=size-1;i>=0;i--)
-    {
-        for (j=8;j>=0;j--)
-        {
-            printf("%u", (b[i] >> j) & 1);
-        }
+    uint16_t valCopy = value;
+   for (int i = 0; i < 16; i++) {
+        printf("%d", (valCopy & 0x8000) >> 15);
+        valCopy <<= 1;
     }
     printf(" ,(DEC) %d",value);
     printf("\n");
 
 }
 
-void WM8960::micToHeadsetBypass(){ //example config
-    
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
-    //send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+void WM8960::initialSetupRegisters(){ //example config
    
-    //send_I2C_command(0x15,0x00); //reset ? 
-    send_I2C_command(0xF,0x00); //reset2 ? 
-
-    send_I2C_command(0x19,0b111000010);  //micbias +vref
-    send_I2C_command(0x19,0b111000010);  //micbias +vref
-    // send_I2C_command(0x26,0x060);
-    // send_I2C_command(0x32,0x000);
-    // send_I2C_command(0x33,0x000);  
-    // send_I2C_command(0x47,0x00c);  
-    // send_I2C_command(0x34,0x080);
-    // send_I2C_command(0x37,0x080);
-    // send_I2C_command(0x02,0x179);
-    // send_I2C_command(0x03,0x179);
-    // send_I2C_command(0x19,0b10000000); // vmid 2*250kohm
+    setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT);  //micbias +vref
+    //setBitsLow(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS);
     
-    //send_I2C_command(0x1A,0b000000001);  //NOTE... 9 bits //enable pll
-    //send_I2C_command(0x04,0b000000001);  //NOTE... 9 bits //clock from pll
-    //send_I2C_command(0x04,0b000000001);  //NOTE... 9 bits //pll power
+    writeRegisters(); //sends registers to codec
+   
+
+    
+
+
 }
+
+void WM8960::writeRegisters(){                                                                                     
+    ESP_LOGI(TAG, "writing out all Codec registers form local Copy to Codec using i2c");
+    send_I2C_command(0xF,0x00); //reset the codec
+
+    send_I2C_command(0, regCopy.R0_Codec_Left_Input_Volume);
+    send_I2C_command(1, regCopy.R1_Codec_Right_Input_Volume);
+    send_I2C_command(2, regCopy.R2_Codec_LOUT1_Volume);
+    send_I2C_command(3, regCopy.R3_Codec_ROUT1_Volume);
+    send_I2C_command(4, regCopy.R4_Codec_Clocking1);
+    send_I2C_command(5, regCopy.R5_Codec_ADC_DAC_Control1);
+    send_I2C_command(6, regCopy.R6_Codec_ADC_DAC_Control2);
+    send_I2C_command(7, regCopy.R7_Codec_Audio_Interface1);
+    send_I2C_command(8, regCopy.R8_Codec_Clocking2);
+    send_I2C_command(9, regCopy.R9_Codec_Audio_interface2);
+    send_I2C_command(10, regCopy.R10_Codec_Left_Dac_Volume);
+    send_I2C_command(11, regCopy.R11_Codec_Right_Dac_Volume);
+   // send_I2C_command(15, regCopy.R15_Codec_Reset);  //DONT UNCOMMENT! ;-P
+    send_I2C_command(16, regCopy.R16_Codec_3D_Conrtol);
+    send_I2C_command(17, regCopy.R17_Codec_ALC1);
+    send_I2C_command(18, regCopy.R18_Codec_ALC2);
+    send_I2C_command(19, regCopy.R19_Codec_ALC3);
+    send_I2C_command(20, regCopy.R20_Codec_Noise_Gate);
+    send_I2C_command(21, regCopy.R21_Codec_Left_ADC_Volume);
+    send_I2C_command(22, regCopy.R22_Codec_Right_ADC_Volume);
+    send_I2C_command(23, regCopy.R23_Codec_Adittional_control1);
+    send_I2C_command(24, regCopy.R24_Codec_Adittional_control2);
+    send_I2C_command(25, regCopy.R25_Codec_Power_Manegement1);
+    send_I2C_command(26, regCopy.R26_Codec_Power_Manegement2);
+    send_I2C_command(27, regCopy.R27_Codec_Additional_control3);
+    send_I2C_command(28, regCopy.R28_Codec_Anti_Pop1);
+    send_I2C_command(29, regCopy.R29_Codec_Anti_Pop2);
+    send_I2C_command(32, regCopy.R32_Codec_ADCL_Signal_Path);
+    send_I2C_command(33, regCopy.R33_Codec_ADCR_Signal_Path);
+    send_I2C_command(34, regCopy.R34_Codec_Left_Out_Mix);
+    send_I2C_command(37, regCopy.R37_Codec_Right_Out_Mix);
+    send_I2C_command(38, regCopy.R38_Codec_Mono_Out_Mix1);
+    send_I2C_command(39, regCopy.R39_Codec_Mono_Out_Mix2);
+    send_I2C_command(40, regCopy.R40_Codec_LOUT1_Volume);
+    send_I2C_command(41, regCopy.R41_Codec_ROUT2_Volume);
+    send_I2C_command(42, regCopy.R42_Codec_MONOOUT_Volume);
+    send_I2C_command(43, regCopy.R43_Codec_Input_Boost_Mixer1);
+    send_I2C_command(44, regCopy.R44_Codec_Input_Boost_Mixer2);
+    send_I2C_command(45, regCopy.R45_Codec_Bypass1);
+    send_I2C_command(46, regCopy.R46_Cocec_Bypass2);
+    send_I2C_command(47, regCopy.R47_Codec_Power_Manegement3);
+    send_I2C_command(48, regCopy.R48_Codec_Additional_Control4);
+    send_I2C_command(49, regCopy.R49_Codec_Class_D_Control1);
+    send_I2C_command(51, regCopy.R51_Codec_Class_D_Control3);
+    send_I2C_command(52, regCopy.R52_Codec_PLL_N);
+    send_I2C_command(53, regCopy.R53_Codec_PLL_K_1);
+    send_I2C_command(54, regCopy.R54_Codec_PLL_K_2);
+    send_I2C_command(55, regCopy.R55_Codec_PLL_K_3);
+}
+void WM8960::setRegister(uint16_t &reg, uint16_t value){
+    reg = value;
+}                                      
+void WM8960::setBitsHigh(uint16_t &reg, uint16_t mask){
+    reg = reg | mask;
+}                                                
+void WM8960::setBitsLow(uint16_t &reg, uint16_t mask){
+    reg = reg & (~mask); //hope i got this right
+}                                                        

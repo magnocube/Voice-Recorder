@@ -25,6 +25,10 @@ the update class wil first make a list of what ALL the registers should be. then
 (this is to have a local copy of all the registers, because the codec does not allow for reading the registers)
 */
 
+#define R25_VMID_SELECT         0b010000000  //2* 50 Ohm
+#define R25_VREF                0b001000000  //on
+#define R25_MIC_BIAS            0b000000010  //on
+
  // copy of registers
 typedef struct{      
     uint16_t R0_Codec_Left_Input_Volume;
@@ -139,9 +143,13 @@ class WM8960{
         
     private:
         void setupI2S();                                                                                    //does the setup.. installs the driver, gets called by the constructor
-        void update();                                                                                      //when parameters in the struct esp_audio_config change, call this function to update the codec
+        void update();                                                                                      //when parameters in the struct esp_audio_config change, call this function to update the corresponding registers
+        void writeRegisters();                                                                              //write out all the registers (to ensure the codec has the same registers as the copy in the struct 'codec_register_copy')
+        void setRegister(uint16_t &reg, uint16_t value);                                                      //overwrites the whole register
+        void setBitsHigh(uint16_t &reg, uint16_t mask);                                                       //only sets the given bits high, ignores other bits
+        void setBitsLow(uint16_t &reg, uint16_t mask);                                                        //only sets the given bits low, ignores other bits
         void send_I2C_command(uint8_t reg, uint16_t value);                                                 //send a value to a register
-        void micToHeadsetBypass();
+        void initialSetupRegisters();
         void printRegister(uint8_t index,uint16_t value);
         esp_audio_config *audioConfig;
         esp_pin_config *pinout;
