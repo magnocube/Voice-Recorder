@@ -25,10 +25,38 @@ the update class wil first make a list of what ALL the registers should be. then
 (this is to have a local copy of all the registers, because the codec does not allow for reading the registers)
 */
 
-#define R25_VMID_SELECT         0b010000000  //2* 50 Ohm
-#define R25_VREF                0b001000000  //on
-#define R25_MIC_BIAS            0b000000010  //on
+#define R25_VMID_SELECT             0b010000000  //2* 50 Ohm
+#define R25_VREF                    0b001000000  //on
+#define R25_MIC_BIAS                0b000000010  //on
+#define R25_POWER_ADCL              0b000001000  //on
+#define R25_POWER_ADCR              0b000000100  //on
 
+#define R7_MODE_SLAVE               0b000000000  //master mode
+#define R7_MODE_MASTER              0b001000000  //master mode
+#define R7_AUDIO_WORD_LENGTH_16     0b000000000  // bit 3 and 2 are the word length. '00' for 16 bit
+#define R7_AUDIO_WORD_LENGTH_24     0b000001000  // bit 3 and 2 are the word length. '10' for 24 bit
+#define R7_AUDIO_WORD_LENGTH_32     0b000001100  // bit 3 and 2 are the word length. '11' for 32 bit
+#define R7_FORMAT_I2S               0b000000010  // bot 0 and 1. "10" for i2s
+
+#define R4_CLOCK_FROM_PLL           0b000000001  //1 for PLL, 0 for MCLK
+#define R4_DIVIDER_ADC_SAMPLE_8KHZ  0b110000000  //first 3 bits -> 8 khz sampling
+#define R4_DIVIDER_ADC_SAMPLE_16KHZ 0b011000000  //first 3 bits -> 16khz sampling
+#define R4_DIVIDER_ADC_SAMPLE_24KHZ 0b010000000  //first 3 bits -> 24khz sampling
+#define R4_DIVIDER_ADC_SAMPLE_32KHZ 0b001000000  //first 3 bits -> 32khz sampling
+#define R4_DIVIDER_ADC_SAMPLE_48KHZ 0b000000000  //first 3 bits -> 48khz sampling
+#define R4_SYS_CLOCK_DIV_2          0b000000100  //divide sysclock by 2
+
+#define R8_BITCLOCK_DIVIDER_1       0b000000000  //bitclock = sysclock (12.288 mhz) -> max word length = 32
+#define R8_BITCLOCK_DIVIDER_4       0b000000100  //bitclock = sysclock /4 (3.072)   ->max word length = 32
+ 
+#define R26_PLL_ENABLE              0b000000001  //mclk -> pll -> sysclock 
+#define R52_PLL_PRESCALE_DIV_1      0b000000000  //(bit4)prescale mclk (/1) before input to PLL
+#define R52_PLL_PRESCALE_DIV_2      0b000010000  //(bit4)prescale mclk (/2) before input to PLL
+#define R52_PLLN                    0b000001000
+#define R52_SDM_FRACTIONAL_MODE     0b000100000
+#define R53_PLLK_23_16              0x31         //see example config datasheet Page 61
+#define R54_PLLK_15_8               0x26         //will make 12.228mhz from 12 mhz
+#define R55_PLLK_7_0                0xE8
  // copy of registers
 typedef struct{      
     uint16_t R0_Codec_Left_Input_Volume;

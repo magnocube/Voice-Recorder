@@ -60,14 +60,14 @@ void WM8960::setupI2S(){  //setup the i2s bus
 
     i2s_config = {
         .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_RX),
-        .sample_rate = audioConfig->sample_rate,
+        .sample_rate = audioConfig->sample_rate, 
         .bits_per_sample = static_cast<i2s_bits_per_sample_t>(audioConfig->bits_per_sample),
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //default value, will be overwritten 
         .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1 , // high interrupt priority
         .dma_buf_count = I2S_BUFF_COUNT,
         .dma_buf_len = AUDIO_BUFFER_SIZE, // 512
-        .use_apll = false,
+        .use_apll = false,  //-> for testing
         .fixed_mclk = 0
     };
     if(audioConfig->num_channels ==1){
@@ -85,7 +85,8 @@ void WM8960::setupI2S(){  //setup the i2s bus
 	i2s_driver_install((i2s_port_t)CODEC_I2S_NUM, &i2s_config, 0, NULL);   //install and start i2s driver
     i2s_set_pin((i2s_port_t)CODEC_I2S_NUM, &pin_config);
 
-
+    // SET_PERI_REG_BITS(I2S_TIMING_REG(0), 0x1, 1, I2S_TX_DSYNC_SW_S);
+    // SET_PERI_REG_BITS(I2S_CONF_REG(0), 0x1, 1, I2S_RX_SLAVE_MOD_S);
 
 }
 void WM8960::read(){                   //read from the dma buffers. make sure to call this function frequently to prevent a buffer overflow
@@ -165,9 +166,19 @@ void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debuggi
 
 void WM8960::initialSetupRegisters(){ //example config
    
-    setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT);  //micbias +vref
-    //setBitsLow(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS);
-    
+    //enable microphone bias and enables power on ADC's
+    setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR);  //micbias +vref
+    //set the clock frequencies
+    setRegister(regCopy.R26_Codec_Power_Manegement2,R26_PLL_ENABLE);
+    setRegister(regCopy.R52_Codec_PLL_N,R52_PLLN|R52_SDM_FRACTIONAL_MODE|R52_PLL_PRESCALE_DIV_1);
+    setRegister(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ|R4_SYS_CLOCK_DIV_2|R4_CLOCK_FROM_PLL);
+    //setRegister(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_1|0b111000000); //speaker class D?
+    setRegister(regCopy.R53_Codec_PLL_K_1,R53_PLLK_23_16);
+    setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
+    setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
+    //sets the audio control interface
+    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_SLAVE|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S);
+    setRegister(regCopy.R48_Codec_Additional_Control4,0b000000000);
     writeRegisters(); //sends registers to codec
    
 
