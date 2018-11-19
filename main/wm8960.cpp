@@ -48,18 +48,18 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
 
     audioBuffer1 = (uint8_t*)malloc(AUDIO_BUFFER_SIZE);
     
-    setupI2S(); // init i2s driver
-  
+    
 
     initialSetupRegisters(); //configuration example
-
+    setupI2S(); // init i2s driver
+  
 
 }
 void WM8960::setupI2S(){  //setup the i2s bus
   
 
     i2s_config = {
-        .mode = static_cast<i2s_mode_t>(I2S_MODE_MASTER | I2S_MODE_RX),
+        .mode = static_cast<i2s_mode_t>(I2S_MODE_SLAVE | I2S_MODE_RX),
         .sample_rate = audioConfig->sample_rate, 
         .bits_per_sample = static_cast<i2s_bits_per_sample_t>(audioConfig->bits_per_sample),
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //default value, will be overwritten 
@@ -156,7 +156,9 @@ void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debuggi
 
     uint16_t valCopy = value;
    for (int i = 0; i < 16; i++) {
+       if(i >= 7){
         printf("%d", (valCopy & 0x8000) >> 15);
+       }
         valCopy <<= 1;
     }
     printf(" ,(DEC) %d",value);
@@ -167,18 +169,34 @@ void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debuggi
 void WM8960::initialSetupRegisters(){ //example config
    
     //enable microphone bias and enables power on ADC's
-    setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR);  //micbias +vref
+    setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR|R25_ENABLE_PGA_BOOST);  //micbias +vref+pgaBoost+adc
+    setRegister(regCopy.R47_Codec_Power_Manegement3,R47_ENABLE_PGA|R47_ENBALE_OUTPUT_MIXER);
     //set the clock frequencies
     setRegister(regCopy.R26_Codec_Power_Manegement2,R26_PLL_ENABLE);
     setRegister(regCopy.R52_Codec_PLL_N,R52_PLLN|R52_SDM_FRACTIONAL_MODE|R52_PLL_PRESCALE_DIV_1);
     setRegister(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ|R4_SYS_CLOCK_DIV_2|R4_CLOCK_FROM_PLL);
-    //setRegister(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_1|0b111000000); //speaker class D?
+    setRegister(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24|0b111000000); //speaker class D?
     setRegister(regCopy.R53_Codec_PLL_K_1,R53_PLLK_23_16);
     setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
     setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
     //sets the audio control interface
-    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_SLAVE|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S);
+    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER/*|R7_INVERT_BCLK*/|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S);
     setRegister(regCopy.R48_Codec_Additional_Control4,0b000000000);
+    //set audio input registers
+    setRegister(regCopy.R0_Codec_Left_Input_Volume,R0_MUTE_DISABLE|R0_DEFAULT_VOLUME);
+    setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_MUTE_DISABLE|R1_DEFAULT_VOLUME);
+    setRegister(regCopy.R21_Codec_Left_ADC_Volume,R21_LEFT_ADC_VOLUME);
+    setRegister(regCopy.R22_Codec_Right_ADC_Volume,R22_RIGHT_ADC_VOLUME);
+    setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN1|R32_ADCL_LMIC_BOOST|R32_CONNECT_TO_BOOST);
+    setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN1|R33_ADCR_RMIC_BOOST|R33_CONNECT_TO_BOOST);
+    
+    //set ALC 
+    setRegister(regCopy.R17_Codec_ALC1,R17_ALC_ENABLE|R17_ALC_MAX_GAIN|R17_ALC_TARGET);
+    setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);
+    setRegister(regCopy.R19_Codec_ALC3,R19_ALC_MODE_ALC|R19_ALC_ATTACK|R19_ALC_DECAY);
+    setRegister(regCopy.R20_Codec_Noise_Gate,R20_NOISE_THRESHOLD_ENABLE|R20_NOISE_THRESHOLD);
+    setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
+    
     writeRegisters(); //sends registers to codec
    
 

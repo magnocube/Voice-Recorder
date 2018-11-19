@@ -30,13 +30,20 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R25_MIC_BIAS                0b000000010  //on
 #define R25_POWER_ADCL              0b000001000  //on
 #define R25_POWER_ADCR              0b000000100  //on
+#define R25_ENABLE_PGA_BOOST        0b000110000
+
+#define R47_ENABLE_PGA              0b000110000
+#define R47_ENBALE_OUTPUT_MIXER     0b000001100
 
 #define R7_MODE_SLAVE               0b000000000  //master mode
 #define R7_MODE_MASTER              0b001000000  //master mode
+#define R7_INVERT_BCLK              0b010000000
 #define R7_AUDIO_WORD_LENGTH_16     0b000000000  // bit 3 and 2 are the word length. '00' for 16 bit
 #define R7_AUDIO_WORD_LENGTH_24     0b000001000  // bit 3 and 2 are the word length. '10' for 24 bit
 #define R7_AUDIO_WORD_LENGTH_32     0b000001100  // bit 3 and 2 are the word length. '11' for 32 bit
 #define R7_FORMAT_I2S               0b000000010  // bot 0 and 1. "10" for i2s
+#define R7_FORMAT_RIGHT_JUSTIFIED   0b000000000  // bot 0 and 1. "10" for i2s
+#define R7_FORMAT_LEFT_JUSTIFIED    0b000000001
 
 #define R4_CLOCK_FROM_PLL           0b000000001  //1 for PLL, 0 for MCLK
 #define R4_DIVIDER_ADC_SAMPLE_8KHZ  0b110000000  //first 3 bits -> 8 khz sampling
@@ -48,6 +55,8 @@ the update class wil first make a list of what ALL the registers should be. then
 
 #define R8_BITCLOCK_DIVIDER_1       0b000000000  //bitclock = sysclock (12.288 mhz) -> max word length = 32
 #define R8_BITCLOCK_DIVIDER_4       0b000000100  //bitclock = sysclock /4 (3.072)   ->max word length = 32
+#define R8_BITCLOCK_DIVIDER_8       0b000000111  //bitclock = sysclock /8 (1.536)   ->max word length = 32
+#define R8_BITCLOCK_DIVIDER_24      0b000001100  //bitclock = sysclock /8 (1.536)   ->max word length = 32
  
 #define R26_PLL_ENABLE              0b000000001  //mclk -> pll -> sysclock 
 #define R52_PLL_PRESCALE_DIV_1      0b000000000  //(bit4)prescale mclk (/1) before input to PLL
@@ -57,6 +66,43 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R53_PLLK_23_16              0x31         //see example config datasheet Page 61
 #define R54_PLLK_15_8               0x26         //will make 12.228mhz from 12 mhz
 #define R55_PLLK_7_0                0xE8
+
+#define R0_MUTE_DISABLE             0b100000000
+#define R0_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC
+#define R1_MUTE_DISABLE             0b100000000
+#define R1_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC
+
+#define R17_ALC_ENABLE              0b110000000
+#define R17_ALC_MAX_GAIN            0b000000000 // -12db
+#define R17_ALC_TARGET              0b000001011 //copied from datasheet
+#define R18_ALC_MINIMUM_GAIN        0b000000000 // -17.25db
+#define R18_ALC_HOLD_TIME           0b000000001 // 2.67ms 
+#define R19_ALC_MODE_ALC            0b000000000 // ALC (change alst bit to 1 to change to limiter mode)
+#define R19_ALC_DECAY               0b000110000 // 196ms
+#define R19_ALC_ATTACK              0b000000010 // 24ms
+#define R20_NOISE_THRESHOLD         0b000000000 // -76.5dBfs
+#define R20_NOISE_THRESHOLD_ENABLE  0b000000001 // -76.5dBfs
+#define R27_ALC_SAMPLE_RATE_16      0b000000011 // 16 khz
+#define R27_ALC_SAMPLE_RATE_48      0b000000000 // 16 khz
+
+#define R21_LEFT_ADC_VOLUME         0b111000011 //default volume -> copied from datasheet
+#define R22_RIGHT_ADC_VOLUME        0b111000011 //default volume -> copied from datasheet
+
+#define R32_ADCL_SIGNAL_PATH_LIN1   0b100000000 //linput1
+#define R32_ADCL_SIGNAL_PATH_LIN3   0b010000000 //linput2
+#define R32_ADCL_SIGNAL_PATH_LIN2   0b001000000 //linput3
+#define R32_ADCL_LMIC_BOOST         0b000000000 // no boost 
+#define R32_CONNECT_TO_BOOST        0b000000100 // connected
+
+#define R33_ADCR_SIGNAL_PATH_RIN1   0b100000000 //linput1
+#define R33_ADCR_SIGNAL_PATH_RIN3   0b010000000 //linput2
+#define R33_ADCR_SIGNAL_PATH_RIN2   0b001000000 //linput3
+#define R33_ADCR_RMIC_BOOST         0b000000000 // no boost 
+#define R33_CONNECT_TO_BOOST        0b000000100 // connected
+
+
+
+
  // copy of registers
 typedef struct{      
     uint16_t R0_Codec_Left_Input_Volume;
