@@ -180,16 +180,17 @@ void WM8960::initialSetupRegisters(){ //example config
     setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
     setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
     //sets the audio control interface
-    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER/*|R7_INVERT_BCLK*/|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S);
+    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER|R7_INVERT_BCLK|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S);
     setRegister(regCopy.R48_Codec_Additional_Control4,0b000000000);
     //set audio input registers
     setRegister(regCopy.R0_Codec_Left_Input_Volume,R0_MUTE_DISABLE|R0_DEFAULT_VOLUME);
     setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_MUTE_DISABLE|R1_DEFAULT_VOLUME);
     setRegister(regCopy.R21_Codec_Left_ADC_Volume,R21_LEFT_ADC_VOLUME);
     setRegister(regCopy.R22_Codec_Right_ADC_Volume,R22_RIGHT_ADC_VOLUME);
-    setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN1|R32_ADCL_LMIC_BOOST|R32_CONNECT_TO_BOOST);
-    setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN1|R33_ADCR_RMIC_BOOST|R33_CONNECT_TO_BOOST);
-    
+    setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN3|R32_ADCL_LMIC_BOOST|R32_CONNECT_TO_BOOST);
+    setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN3|R33_ADCR_RMIC_BOOST|R33_CONNECT_TO_BOOST);
+    setRegister(regCopy.R43_Codec_Input_Boost_Mixer1,R43_LEFT_BOOSTER_GAIN);
+    setRegister(regCopy.R44_Codec_Input_Boost_Mixer2,R44_RIGHT_BOOSTER_GAIN);
     //set ALC 
     setRegister(regCopy.R17_Codec_ALC1,R17_ALC_ENABLE|R17_ALC_MAX_GAIN|R17_ALC_TARGET);
     setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);

@@ -100,6 +100,9 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R33_ADCR_RMIC_BOOST         0b000000000 // no boost 
 #define R33_CONNECT_TO_BOOST        0b000000100 // connected
 
+#define R43_LEFT_BOOSTER_GAIN       0b001111110
+#define R44_RIGHT_BOOSTER_GAIN      0b001111110
+
 
 
 
