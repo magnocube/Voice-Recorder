@@ -180,7 +180,8 @@ void configureGPIOExpander(){
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_LOW,false);
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false);
+    gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted) (default of gpio header is low.. so this line could be remoced)
     

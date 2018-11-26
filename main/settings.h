@@ -14,8 +14,8 @@
 //i2c defines
 #define CODEC_I2C_ADDR 0x1a
 #define CODEC_I2S_NUM 0       //driver 0
-#define AUDIO_BUFFER_SIZE 512 //size of the buffers for reading the data from dma and storing it on the SD
-#define I2S_BUFF_COUNT 8 //playing it safe
+#define AUDIO_BUFFER_SIZE 1024 //size of the buffers for reading the data from dma and storing it on the SD
+#define I2S_BUFF_COUNT 4 //playing it safe
 #define I2C_CLOCKSPEED 40000  //0.04mhz,,, 
 
 #define I2C_DRIVER_NUM I2C_NUM_0

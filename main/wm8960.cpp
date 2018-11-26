@@ -55,7 +55,7 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
   
 
 }
-void WM8960::setupI2S(){  //setup the i2s bus
+void WM8960::setupI2S(){  //setup the i2s bus of the esp32  
   
 
     i2s_config = {
@@ -180,11 +180,11 @@ void WM8960::initialSetupRegisters(){ //example config
     setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
     setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
     //sets the audio control interface
-    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER|R7_INVERT_BCLK|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S);
+    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER/*|R7_INVERT_BCLK*/|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S|R7_MSB_AFTER_FIRST_EDGE|R7_SWAP_CHANNELS);
     setRegister(regCopy.R48_Codec_Additional_Control4,0b000000000);
     //set audio input registers
-    setRegister(regCopy.R0_Codec_Left_Input_Volume,R0_MUTE_DISABLE|R0_DEFAULT_VOLUME);
-    setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_MUTE_DISABLE|R1_DEFAULT_VOLUME);
+    setRegister(regCopy.R0_Codec_Left_Input_Volume,R0_UPDATE_SOUND|R0_DEFAULT_VOLUME);
+    setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_UPDATE_SOUND|R1_DEFAULT_VOLUME);
     setRegister(regCopy.R21_Codec_Left_ADC_Volume,R21_LEFT_ADC_VOLUME);
     setRegister(regCopy.R22_Codec_Right_ADC_Volume,R22_RIGHT_ADC_VOLUME);
     setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN3|R32_ADCL_LMIC_BOOST|R32_CONNECT_TO_BOOST);

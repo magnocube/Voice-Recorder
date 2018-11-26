@@ -44,6 +44,10 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R7_FORMAT_I2S               0b000000010  // bot 0 and 1. "10" for i2s
 #define R7_FORMAT_RIGHT_JUSTIFIED   0b000000000  // bot 0 and 1. "10" for i2s
 #define R7_FORMAT_LEFT_JUSTIFIED    0b000000001
+#define R7_SWAP_CHANNELS            0b000100000 //true
+#define R7_MSB_AFTER_FIRST_EDGE     0b000010000
+
+
 
 #define R4_CLOCK_FROM_PLL           0b000000001  //1 for PLL, 0 for MCLK
 #define R4_DIVIDER_ADC_SAMPLE_8KHZ  0b110000000  //first 3 bits -> 8 khz sampling
@@ -67,15 +71,15 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R54_PLLK_15_8               0x26         //will make 12.228mhz from 12 mhz
 #define R55_PLLK_7_0                0xE8
 
-#define R0_MUTE_DISABLE             0b100000000
+#define R0_UPDATE_SOUND             0b100000000
 #define R0_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC
-#define R1_MUTE_DISABLE             0b100000000
+#define R1_UPDATE_SOUND             0b100000000
 #define R1_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC
 
 #define R17_ALC_ENABLE              0b110000000
-#define R17_ALC_MAX_GAIN            0b000000000 // -12db
+#define R17_ALC_MAX_GAIN            0b001000000 // +12db
 #define R17_ALC_TARGET              0b000001011 //copied from datasheet
-#define R18_ALC_MINIMUM_GAIN        0b000000000 // -17.25db
+#define R18_ALC_MINIMUM_GAIN        0b000110000 // +0.75db
 #define R18_ALC_HOLD_TIME           0b000000001 // 2.67ms 
 #define R19_ALC_MODE_ALC            0b000000000 // ALC (change alst bit to 1 to change to limiter mode)
 #define R19_ALC_DECAY               0b000110000 // 196ms
@@ -85,8 +89,8 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R27_ALC_SAMPLE_RATE_16      0b000000011 // 16 khz
 #define R27_ALC_SAMPLE_RATE_48      0b000000000 // 16 khz
 
-#define R21_LEFT_ADC_VOLUME         0b111000011 //default volume -> copied from datasheet
-#define R22_RIGHT_ADC_VOLUME        0b111000011 //default volume -> copied from datasheet
+#define R21_LEFT_ADC_VOLUME         0b011000011 //default volume -> copied from datasheet
+#define R22_RIGHT_ADC_VOLUME        0b011000011 //default volume -> copied from datasheet
 
 #define R32_ADCL_SIGNAL_PATH_LIN1   0b100000000 //linput1
 #define R32_ADCL_SIGNAL_PATH_LIN3   0b010000000 //linput2
