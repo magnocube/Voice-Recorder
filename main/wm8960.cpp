@@ -192,7 +192,7 @@ void WM8960::initialSetupRegisters(){ //example config
     setRegister(regCopy.R43_Codec_Input_Boost_Mixer1,R43_LEFT_BOOSTER_GAIN);
     setRegister(regCopy.R44_Codec_Input_Boost_Mixer2,R44_RIGHT_BOOSTER_GAIN);
     //set ALC 
-    setRegister(regCopy.R17_Codec_ALC1,R17_ALC_ENABLE|R17_ALC_MAX_GAIN|R17_ALC_TARGET);
+    setRegister(regCopy.R17_Codec_ALC1,/*R17_ALC_ENABLE|*/R17_ALC_MAX_GAIN|R17_ALC_TARGET);
     setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);
     setRegister(regCopy.R19_Codec_ALC3,R19_ALC_MODE_ALC|R19_ALC_ATTACK|R19_ALC_DECAY);
     setRegister(regCopy.R20_Codec_Noise_Gate,R20_NOISE_THRESHOLD_ENABLE|R20_NOISE_THRESHOLD);

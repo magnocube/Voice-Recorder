@@ -55,6 +55,10 @@ void app_main()
 	setupPeripherals(&pinout);						//setup for i2c, etc...
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
 
+    setupDeviceSettingsFromSPIFFS();  //will fill the audioconfig struct with the desired settings
+
+
+
 	pca9535 *pca_ptr = new pca9535(&pinout);
 	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr);
 	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);
@@ -128,6 +132,69 @@ void app_main()
 															// 	  the main from ending and keeping the 2 structs in memory. (i know... i m too lazy to place the
 															//	  structs on the heap and pass a pointer to the required functions): update: i removed the
 															// the structs from the stack. and placed them in the heap... too lazy to remove the comment.
+}
+
+void setupDeviceSettingsFromSPIFFS(){
+    FILE* f = fopen("/spiffs/settings.txt", "r");
+        fseek(f, 0, SEEK_END);
+        int fileSize = ftell(f);
+        fseek(f,0,SEEK_SET);
+        ESP_LOGI(TAG, "size of settigns file: ... size: %d\n", fileSize);
+
+        
+        char buf[100];  // line max 100 chars. if a line in the settings file is longer than 100 chars this variable has to be changed
+        // char* command = (char*)malloc(60); //a name of a variable can be no longer than 60 chars. 
+        // char* data = (char*)malloc(60);  //the acutal value of a variable can be no longer than 60 chars.
+
+        const char s[2] = ":";
+        
+        while (fgets(buf, sizeof(buf), f) != NULL) {
+            if(strchr(buf, ':')){   // the ':' is used to split a variables name and parameter. if a line has no ':', it will probably be empty
+            char* end = strchr(buf, '\0');  // this is the end of the buffer. index is required to remove the new line
+            int indexOfEnd = (int)(end-buf);
+            buf[indexOfEnd-1] = '\0';
+
+
+            char* c = strtok(buf, s);   
+            char* d = strtok(NULL, s);
+                printf( " %s    :%s\n", c,d );
+                
+            //us a switch-case to fill in all the parameters to the right buffers    
+            
+            // char *e;  //pointer to split character
+            // char *n;  //pointer to last character
+            // int index;  //index of split character
+            // int endofbuf;   //index of last character
+            // e = strchr(buf, ':');   // the ':' is used to split a variables name and parameter
+            // n = strchr(buf, '\0');  // this is the end of the buffer. index is required for memcopy
+            // if(e != NULL && n != NULL){         //if a line contains both a split character and a end line character (so there is nog empty line);
+            //     index = (int)(e - buf);         //get the index
+            //     endofbuf = (int)(n-buf) -1;     //get the index... but the 2nd last character (newline) is not needed
+
+            //     memcpy(&command,&buf,index);
+            //     memcpy(&data,e+1,(endofbuf-index+1));
+            //     command[index] = '\0';
+            //     printf(command);
+            //     //data[endofbuf-index] = '\0';
+
+               
+            //     for(int i =0; i<index;i++){
+            //         putchar(command[i]);                    //do something with the first parameter            
+            //     }
+            //     putchar('*');
+            //     for(int i =0; i<endofbuf-index;i++){
+            //        // putchar(data[i]);                     //do something with the second parameter
+            //     }   
+            
+            //      putchar('\n');  // end every line (which has been stripped from the \n) with a \n
+            // }
+           
+            }       
+        }  
+        // free(command);
+        // free(data);               
+        fclose(f);
+
 }
 
 void setupPeripherals(esp_pin_config *pinconfig)

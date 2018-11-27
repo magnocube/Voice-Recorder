@@ -67,6 +67,7 @@
 
 //default audio configuration
 //might be overwritten with spiffs data (to keep the changes from last run)
+// NOTE: these values will be overwritten in the main methond!.
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
     .num_channels = STERIO, \
     .bits_per_sample = 16, \

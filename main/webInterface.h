@@ -82,40 +82,7 @@ while(1){
                         // memcpy(test,"/spiffs/HINDEX.HTM",length);
                         // test[length] = '\0';
                         // sendFileBackToClient(test,cs);
-                        
-
-                        FILE* f = fopen("/spiffs/settings.txt", "r");
-                        fseek(f, 0, SEEK_END);
-                        int fileSize = ftell(f);
-                        fseek(f,0,SEEK_SET);
-                        ESP_LOGI(TAG, "size if that file:... size: %d\n", fileSize);
-
-                        
-                        char buf[100];  // line max 100 chars
-                        int size;
-                        while (size = fgets(buf, sizeof(buf), f) != NULL) {
-                            char *e;  //pointer to split character
-                            char *n;  //pointer to last character
-                            int index;  //index of split character
-                            int endofbuf;   //index of last character
-                            e = strchr(buf, ':');   
-                            n = strchr(buf, '\0');
-                            if(e != NULL && n != NULL){         //if a line contains both a split character and a end line character (so there is nog empty line);
-                                index = (int)(e - buf);         //get the index
-                                endofbuf = (int)(n-buf) -1;     //get the index... but the 2nd last character (newline) is not needed
-                                for(int i =0; i<index;i++){
-                                    putchar(buf[i]);                    //do something with the first parameter            
-                                }
-                                putchar('*');
-                                for(int i =index+1; i<endofbuf;i++){
-                                    putchar(buf[i]);                     //do something with the second parameter
-                                }   
-                            
-                            }
-                            putchar('\n');  // end every line (which has been stripped from the \n) with a \n
-                        }                        
-                        fclose(f);
-                        
+                                            
                         int length = sizeof("/spiffs/settings.txt");
                         memcpy(test,"/spiffs/settings.txt",length);
                         test[length] = '\0';

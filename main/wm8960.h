@@ -95,13 +95,13 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R32_ADCL_SIGNAL_PATH_LIN1   0b100000000 //linput1
 #define R32_ADCL_SIGNAL_PATH_LIN3   0b010000000 //linput2
 #define R32_ADCL_SIGNAL_PATH_LIN2   0b001000000 //linput3
-#define R32_ADCL_LMIC_BOOST         0b000000000 // no boost 
+#define R32_ADCL_LMIC_BOOST         0b000100000 // no boost 
 #define R32_CONNECT_TO_BOOST        0b000000100 // connected
 
 #define R33_ADCR_SIGNAL_PATH_RIN1   0b100000000 //linput1
 #define R33_ADCR_SIGNAL_PATH_RIN3   0b010000000 //linput2
 #define R33_ADCR_SIGNAL_PATH_RIN2   0b001000000 //linput3
-#define R33_ADCR_RMIC_BOOST         0b000000000 // no boost 
+#define R33_ADCR_RMIC_BOOST         0b000100000 // no boost 
 #define R33_CONNECT_TO_BOOST        0b000000100 // connected
 
 #define R43_LEFT_BOOSTER_GAIN       0b001111110
