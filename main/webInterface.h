@@ -1,4 +1,4 @@
-void sendFileBackToClient(char * fileName, int cs); // function prototype
+void sendFileBackToClient(char * fileName, int cs); // function prototype. will take a file from file system (spiffs), and writes it to a client(-socket)
 void webInterface(esp_shared_buffer *shared_buffer){ 
 while(1){
 			ESP_LOGI(TAG,"tcp_server task started \n");
@@ -7,7 +7,7 @@ while(1){
     tcpServerAddr.sin_family = AF_INET;
     tcpServerAddr.sin_port = htons( 80 );
     int s, r;
-    char recv_buf[512];  /// first 512 characters of the request from the browser. (most of the time the entire request)
+    char recv_buf[5120];  /// first 5120 characters of the request from the browser. i hope this is enough for the enitre request... otherwise some strange errors might occour)
     static struct sockaddr_in remote_addr;
     static unsigned int socklen;
     socklen = sizeof(remote_addr);
@@ -76,12 +76,51 @@ while(1){
                         memcpy(test,"/spiffs/HINDEX.HTM",length);
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
-                    } else if(strstr(command,"GET /INDEX.STY HTTP/")){ //ask for the index
-                        printf("why yu ask 4 index|?");
-                        int length = sizeof("/spiffs/HINDEX.HTM");
-                        memcpy(test,"/spiffs/HINDEX.HTM",length);
+                    } else if(strstr(command,"GET /SETTINGS.TXT HTTP/")){ //ask for the index
+                        printf("settings requested. i do a self-test!\n");
+                        // int length = sizeof("/spiffs/HINDEX.HTM");
+                        // memcpy(test,"/spiffs/HINDEX.HTM",length);
+                        // test[length] = '\0';
+                        // sendFileBackToClient(test,cs);
+                        
+
+                        FILE* f = fopen("/spiffs/settings.txt", "r");
+                        fseek(f, 0, SEEK_END);
+                        int fileSize = ftell(f);
+                        fseek(f,0,SEEK_SET);
+                        ESP_LOGI(TAG, "size if that file:... size: %d\n", fileSize);
+
+                        
+                        char buf[100];  // line max 100 chars
+                        int size;
+                        while (size = fgets(buf, sizeof(buf), f) != NULL) {
+                            char *e;  //pointer to split character
+                            char *n;  //pointer to last character
+                            int index;  //index of split character
+                            int endofbuf;   //index of last character
+                            e = strchr(buf, ':');   
+                            n = strchr(buf, '\0');
+                            if(e != NULL && n != NULL){         //if a line contains both a split character and a end line character (so there is nog empty line);
+                                index = (int)(e - buf);         //get the index
+                                endofbuf = (int)(n-buf) -1;     //get the index... but the 2nd last character (newline) is not needed
+                                for(int i =0; i<index;i++){
+                                    putchar(buf[i]);                    //do something with the first parameter            
+                                }
+                                putchar('*');
+                                for(int i =index+1; i<endofbuf;i++){
+                                    putchar(buf[i]);                     //do something with the second parameter
+                                }   
+                            
+                            }
+                            putchar('\n');  // end every line (which has been stripped from the \n) with a \n
+                        }                        
+                        fclose(f);
+                        
+                        int length = sizeof("/spiffs/settings.txt");
+                        memcpy(test,"/spiffs/settings.txt",length);
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
+
                     } else {
                         printf("i cant do anything with this request... nothing will be send back");
                     }
@@ -139,7 +178,9 @@ void sendFileBackToClient(char * fileName, int cs){
                     int numElementsRead = fread(line,1,packetSize, f);
                     currentIndex+=numElementsRead;
                     write(cs , line , numElementsRead);
+                    
                 }
+                
                 
                 fclose(f);
                 // strip newline

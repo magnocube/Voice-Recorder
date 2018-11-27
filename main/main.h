@@ -46,7 +46,6 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
     WM8960 *codec;
     esp_audio_config *audio_config;
     esp_pin_config *pin_config;
-    nvs_handle my_NVS_handle;
 } esp_shared_buffer;
 
 esp_shared_buffer sb;               //local variable of the struct above

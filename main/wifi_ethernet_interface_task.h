@@ -13,9 +13,9 @@
 
 
 
-static void phy_device_power_enable_via_gpio(bool enable);				 //function prototype   -> gets automaticly called from ehternet driver, will allow clock to flow to gpio0
+static void phy_device_power_enable_via_gpio(bool enable);				 //function prototype   -> gets automaticly called from ehternet driver, will allow clock to flow to gpio0 (by default it is blocked)
 static void eth_gpio_config_rmii(void); 								 //function prototype   -> gets automaticly called from ehternet driver
-static esp_err_t eth_event_handler(void *ctx, system_event_t *event);    //function prototype   -> event handler. usefull for debugging
+static esp_err_t eth_event_handler(void *ctx, system_event_t *event);    //function prototype   -> event handler. usefull for debugging. can be commented out when done testing
 void wifi_init_softap();                                                 //function prototype   -> enable the wifi
 void ethernet_init();                                                    //function prototype   -> enable Ethernet
 static esp_err_t event_handler(void *ctx, system_event_t *event);        // not used yet
@@ -26,7 +26,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 
     tcpip_adapter_init();                                                       
     ethernet_init();
-    //wifi_init_softap();
+    wifi_init_softap();
     
 
     // shared_buffer->recording = true;
@@ -44,8 +44,8 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 			} else {						            	//sd card is in slot
 				//do nothing... all the leds should already be in the right position... this function can be used to blink the leds?
 			}
-			vTaskDelay(200/portTICK_PERIOD_MS);
-            ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());
+			vTaskDelay(200/portTICK_PERIOD_MS);  //dont make delay too big,, otherwise led's will respond late
+            ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());  //print free memory. to find leaks early
 
 	}
 			 

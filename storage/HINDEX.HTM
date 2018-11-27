@@ -1,8 +1,66 @@
 <html>
 <head>	
-	<script type="text/javascript" src="CFG.NET"></script>
-	<title>VoIP TAP Settings</title>
-<style>
+		<title>VoIP TAP Settings</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script type="text/javascript">
+        function codeAddress() {
+		
+			var text=httpGet("SETTINGS.TXT");
+			document.body.innerHTML += "<br>";
+			
+			var lines = text.split('\n');
+			for(var line = 0; line < lines.length; line++){
+				var segments = lines[line].split(':');
+			
+			  document.body.innerHTML +="parameter: ";
+			  document.body.innerHTML += segments[0];
+			  document.body.innerHTML +=",   value: ";
+			  document.body.innerHTML += segments[1];				
+			  document.body.innerHTML += "<br>";
+			  
+			
+			  
+			}
+			
+            document.body.innerHTML += text;
+        }
+		function httpGet(theUrl)
+			{
+				var xmlHttp = new XMLHttpRequest();
+				xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+				xmlHttp.send( null );
+				return xmlHttp.responseText;
+			} 
+		function proceed () {
+		<!--generate settings file and post it>
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
+		var toSend = "CONFIG:";
+		toSend += '\n';
+		toSend += "param1:";
+		toSend += 10;
+		toSend += '\n';
+		toSend += "param2:";
+		toSend += 20;
+		toSend +='\n'
+		toSend += "param3:";
+		toSend += 30;
+		toSend += '\n';
+		toSend += "param4:";
+		toSend += 40;
+		toSend +='\n'
+		toSend += "param5:";
+		toSend += 50;
+		toSend += '\n';
+		toSend += "param6:";
+		toSend += 60;
+		toSend +='\n'
+		
+		xhttp.send(toSend);
+		}
+		
+        </script>
+		<style>
 		div#buttons {
 			padding: 0.2em 0.2em 0.2em 0.8em;
 			margin: 0em;
@@ -23,7 +81,7 @@
 			margin: 0;
 			padding: 0;
 			background: #292929;
-			color: #292929;
+			color: #ffffff;
 			font-size: 15px;
 		}
 		outsidecontent {
@@ -109,86 +167,12 @@
 
 	</style>
 </head>
+    
 
-<body class="yui-skin-sam login">
-
- <br>
-		<script>
-			function httpGet(theUrl)
-			{
-				var xmlHttp = new XMLHttpRequest();
-				xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-				xmlHttp.send( null );
-				return xmlHttp.responseText;
-			}
-			
-			var Tables=[];
-			var counter=0;
-			var togglevar=0;
-			var value="";
-			for (var i = 0; i < myMap.length-3; i=i+4) { 
-			
-				if(togglevar==0){
-					Tables[counter]="<tr  style='height:41px'bgcolor='#bbc86a'>";
-					togglevar=1;
-				}else{
-					Tables[counter]="<tr  style='height:41px'bgcolor='#889537'>";
-					togglevar=0;
-				}
-			
-				if(myMap[i]==""&&myMap[i+1]==""&&myMap[i+2]==""&&myMap[i+3]==""){
-					Tables[counter]+="<td colspan='2'><input type='hidden' name='spacer' value='spacer'>&nbsp;</td></tr>";
-					counter++;
-				}else{
-					if( myMap[i+3]=="1" && myMap[i]=="1" ){
-						myMap[i+3]="checkbox";
-						value=" checked";
-					
-					}else if( myMap[i+3]=="1" && myMap[i]=="0" ){
-						myMap[i+3]="checkbox";
-						value="";
-						
-					}else if(myMap[i+3]=="0"){
-						value="readonly value='"+myMap[i]+"'";
-						
-					}else{
-						value="value='"+myMap[i]+"'"
-					}
-				
-					Tables[counter]+="<td border='0'><h1>"+ myMap[i+2] +"</h1></td><td><input form='lanform' type='"+ myMap[i+3] +"' name='"+ myMap[i+1] +"' "+ value +"></td></tr>";
-					counter++;
-				}
-			}		
-			
-</script>
-		</script>
-
-<script>
-	var c=0;
-	var t=0;
-	
-	var text=httpGet("INDEX.STY");
-	text+="<div id='buttons' style='height:32px;'><table class='sm' width='100%'><tr><td align='left'><h3>VoIP TAP Settings -_-  ...  -_-</h3></td><td align='right'><img src='logo.png' align='top'/></table></div><div class='outsidecontent'>";
-	text+="<center><form class='settings' id='lanform' method='post' action='index.htm'><br><table><tr><td valign='top'><table>";
-		
-	for (key in Tables) { 
-		if(c>=(Tables.length/2)&&t==0){
-			t=1;
-			text+="</table></td><td valign='top'><table>";
-		}
-		text+=Tables[key];//.split(' ').join('&nbsp;');		
-		c++;
-	}
-	
-	text+="</td></table></table><br><input id='saveBtn' form='lanform' type='submit' value='Submit'>";
-	text+="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='logOut'>Log out</button></form></center></table></div>";
-
-	document.body.innerHTML = text;
-	document.getElementById("logOut").onclick = function () {
-		location.href = "logout.htm";
-		return false;
-	}
-</script>
+<body onload="codeAddress();">
+<center>
+HELLO WORLD..... JUST DISPLAY THIS MESSAGE!
+<button type="button" onclick="proceed();">submit changes</button> 
 </center>
 
 </body>

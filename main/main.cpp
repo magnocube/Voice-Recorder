@@ -50,7 +50,7 @@ static void gpio_task_example(void* arg)
 
 void app_main()
 {
-    vTaskDelay(1500/portTICK_PERIOD_MS);//testing POE
+    vTaskDelay(1500/portTICK_PERIOD_MS);//testing POE, if this delay is not placed the ethernet is unstable !?!?
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
 	setupPeripherals(&pinout);						//setup for i2c, etc...
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
@@ -63,8 +63,7 @@ void app_main()
 			.SD = SD_ptr,
 			.codec = audio_codec_ptr,
 			.audio_config = &audioConfig,
-			.pin_config = &pinout,
-			.my_NVS_handle = NULL	
+			.pin_config = &pinout	
 			};
 
 	testSPIFFSRead();	
@@ -256,6 +255,7 @@ void testSPIFFSRead(){
 }
 void setupNVS(){
 	// Initialize NVS
+    nvs_handle my_NVS_handle;
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         // NVS partition was truncated and needs to be erased
@@ -269,7 +269,7 @@ void setupNVS(){
     printf("\n");
     printf("Opening Non-Volatile Storage (NVS) handle... ");
     
-    err = nvs_open("storage", NVS_READWRITE, &sb.my_NVS_handle);
+    err = nvs_open("storage", NVS_READWRITE, &my_NVS_handle);
     if (err != ESP_OK) {
         printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
     } else {
@@ -278,7 +278,7 @@ void setupNVS(){
         // Read
         printf("Reading restart counter from NVS ... ");
         int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
-        err = nvs_get_i32(sb.my_NVS_handle, "restart_counter", &restart_counter);
+        err = nvs_get_i32(my_NVS_handle, "restart_counter", &restart_counter);
         switch (err) {
             case ESP_OK:
                 printf("Done\n");
@@ -294,7 +294,7 @@ void setupNVS(){
         // Write
         printf("Updating restart counter in NVS ... ");
         restart_counter++;
-        err = nvs_set_i32(sb.my_NVS_handle, "restart_counter", restart_counter);
+        err = nvs_set_i32(my_NVS_handle, "restart_counter", restart_counter);
         printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 
         // Commit written value.
@@ -302,11 +302,11 @@ void setupNVS(){
         // to flash storage. Implementations may write to storage at other times,
         // but this is not guaranteed.
         printf("Committing updates in NVS ... ");
-        err = nvs_commit(sb.my_NVS_handle);
+        err = nvs_commit(my_NVS_handle);
         printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 
         // Close
-         nvs_close(sb.my_NVS_handle); 
+         nvs_close(my_NVS_handle); 
     }
 
     printf("\n");
