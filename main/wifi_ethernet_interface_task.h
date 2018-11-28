@@ -26,7 +26,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 
     tcpip_adapter_init();                                                       
     ethernet_init();
-    //wifi_init_softap();
+    wifi_init_softap();
     
 
     // shared_buffer->recording = true;
@@ -156,11 +156,15 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
     switch (event->event_id) {
     case SYSTEM_EVENT_ETH_CONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Up");
+        /*NOTE:,, enabling the ethernet led might need to moced to event: ETH_GOT_IP, in stead of ETH_CONNECTED*/
 		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_HIGH,true);
+   
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
 		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_LOW,true);
+        sb.session_data->Ethernet_IP_Adress = "NO ADRESS" ;
+        sb.session_data->Ethernet_Ip_received = false;
         break;
     case SYSTEM_EVENT_ETH_START:
         ESP_LOGI(TAG, "Ethernet Started");
@@ -174,6 +178,12 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
         ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip.netmask));
         ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip.gw));
         ESP_LOGI(TAG, "~~~~~~~~~~~");
+        
+
+        sb.session_data->Ethernet_IP_Adress = inet_ntoa(ip.ip);
+        sb.session_data->Ethernet_Ip_received = true;
+        
+        printf(sb.session_data->Ethernet_IP_Adress);
         break;
     case SYSTEM_EVENT_ETH_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");

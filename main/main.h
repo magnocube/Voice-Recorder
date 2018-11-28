@@ -36,9 +36,6 @@
 
 
 
-
-// nvs_handle my_handle;
-
 typedef struct{         //NOTE: keep the position of this struct below SDCARD.H and wm8960.h.    And above recording_task.h and wifi_ethernet_interface_task.h
     bool recording; 
     pca9535 *gpio_header;      
@@ -46,11 +43,13 @@ typedef struct{         //NOTE: keep the position of this struct below SDCARD.H 
     WM8960 *codec;
     esp_audio_config *audio_config;
     esp_pin_config *pin_config;
+    esp_session_data *session_data;
 } esp_shared_buffer;
 
 esp_shared_buffer sb;               //local variable of the struct above
 esp_audio_config audioConfig;       //local variable of the audio config (used in the 'esp_shared_buffer' and can be found in 'settings.h')
 esp_pin_config pinout;              //local variable of the pinout of the device (used in 'esp_shared_buffer' and can be found in 'settings.h')
+esp_session_data sessionData;       //local variable of the session data struct of the device (used in 'esp_shared_buffer' and can be found in 'settings.h')
 static xQueueHandle gpio_evt_queue = NULL;
 
  #include "recording_task.h"

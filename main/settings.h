@@ -74,7 +74,10 @@
     .sample_rate = 16000, \
 }
 
-
+#define ESP_SESSION_DATA_DEFAULT() {\
+    .Ethernet_IP_Adress = (char*)malloc(15), \
+    .Ethernet_Ip_received = false, \
+}
 
 //TAG used for logging
 static const char* TAG = "Voice Recorder"; 
@@ -124,5 +127,15 @@ typedef struct{
     int enable48V;      //pahnom power 
 } esp_pin_config;
 
+
+/*|||||||||____________SESSION_DATA_______________|||||||||*/
+/*this struct will be updated with all settings specifig to this device
+    -it will be used for the requested IP adress
+    -it will be used for testing the device
+*/
+typedef struct{         
+   char* Ethernet_IP_Adress;    //by default requested by DHCP, 
+   bool Ethernet_Ip_received;
+} esp_session_data;
 
 #endif //SETTINGS_H

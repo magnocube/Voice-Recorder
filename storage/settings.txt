@@ -1,5 +1,6 @@
-line1:1
-line2:2
+sample_rate:16000
+bit_depth:15
+num_channels:2
 line3:23
 line4:11323
 line5:blablabla
@@ -8,7 +9,6 @@ line7:b
 line8:\n
 line9 :ok
 line10:line10
-
 big shaq:lol
 quif mafs:olo
 newline:     testingstrangethings

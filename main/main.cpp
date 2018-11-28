@@ -12,8 +12,6 @@ extern "C" { 														 //this just needs to be here
 
 void IRAM_ATTR button_isr_handler(void* arg) { //the button on the device will create an interrupt that will be handled here
 	
-    
-	
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
@@ -54,8 +52,9 @@ void app_main()
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
 	setupPeripherals(&pinout);						//setup for i2c, etc...
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
-
-    setupDeviceSettingsFromSPIFFS();  //will fill the audioconfig struct with the desired settings
+    sessionData = ESP_SESSION_DATA_DEFAULT();
+   
+    setupDeviceSettingsFromSPIFFS();  //will fill the corresponding config-structs with the desired settings
 
 
 
@@ -67,7 +66,8 @@ void app_main()
 			.SD = SD_ptr,
 			.codec = audio_codec_ptr,
 			.audio_config = &audioConfig,
-			.pin_config = &pinout	
+			.pin_config = &pinout,
+            .session_data = &sessionData	
 			};
 
 	testSPIFFSRead();	
@@ -157,39 +157,26 @@ void setupDeviceSettingsFromSPIFFS(){
 
             char* c = strtok(buf, s);   
             char* d = strtok(NULL, s);
-                printf( " %s    :%s\n", c,d );
+            printf( " %s    :%s\n", c,d );
+
                 
             //us a switch-case to fill in all the parameters to the right buffers    
-            
-            // char *e;  //pointer to split character
-            // char *n;  //pointer to last character
-            // int index;  //index of split character
-            // int endofbuf;   //index of last character
-            // e = strchr(buf, ':');   // the ':' is used to split a variables name and parameter
-            // n = strchr(buf, '\0');  // this is the end of the buffer. index is required for memcopy
-            // if(e != NULL && n != NULL){         //if a line contains both a split character and a end line character (so there is nog empty line);
-            //     index = (int)(e - buf);         //get the index
-            //     endofbuf = (int)(n-buf) -1;     //get the index... but the 2nd last character (newline) is not needed
-
-            //     memcpy(&command,&buf,index);
-            //     memcpy(&data,e+1,(endofbuf-index+1));
-            //     command[index] = '\0';
-            //     printf(command);
-            //     //data[endofbuf-index] = '\0';
-
-               
-            //     for(int i =0; i<index;i++){
-            //         putchar(command[i]);                    //do something with the first parameter            
-            //     }
-            //     putchar('*');
-            //     for(int i =0; i<endofbuf-index;i++){
-            //        // putchar(data[i]);                     //do something with the second parameter
-            //     }   
-            
-            //      putchar('\n');  // end every line (which has been stripped from the \n) with a \n
-            // }
-           
-            }       
+           if(strcmp(c,"sample_rate") == 0){
+                int sample_rate = atoi(d);
+                printf("found sample rate: %d\n", sample_rate);
+                audioConfig.sample_rate = sample_rate;
+           } else if(strcmp(c,"bit_depth") == 0) {
+                int bit_depth = atoi(d);
+                printf("found bit depth: %d\n", bit_depth);
+                audioConfig.bits_per_sample = bit_depth;
+           } else if(strcmp(c,"num_channels") == 0) {
+                int num_channels = atoi(d);
+                printf("found num channels: %d\n", num_channels);
+                audioConfig.num_channels = num_channels;
+           }
+                    
+         
+           }       
         }  
         // free(command);
         // free(data);               

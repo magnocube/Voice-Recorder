@@ -1,4 +1,5 @@
 void sendFileBackToClient(char * fileName, int cs); // function prototype. will take a file from file system (spiffs), and writes it to a client(-socket)
+void sendSettingsToClient(int cs);
 void webInterface(esp_shared_buffer *shared_buffer){ 
 while(1){
 			ESP_LOGI(TAG,"tcp_server task started \n");
@@ -40,16 +41,15 @@ while(1){
             //set O_NONBLOCK so that recv will return, otherwise we need to impliment message end 
             //detection logic. If know the client message format you should instead impliment logic
             //detect the end of message 
-            fcntl(cs,F_SETFL,O_NONBLOCK);
+            fcntl(cs,F_SETFL,O_NONBLOCK);  //TODO: figure this statement out
             do {  //read the start of the packet... only the GET is important
                 bzero(recv_buf, sizeof(recv_buf));
                 r = recv(cs, recv_buf, sizeof(recv_buf)-1,0);
                 for(int i = 0; i < r; i++) {
                     putchar(recv_buf[i]);
                 }
-                // char* index = strstr(recv_buf,"GET /"); //check if this string has a GET
-                              
-                    
+                recv_buf[r] = '\0';
+            
                     int indexOfNewLine = 0;
                    
                     for (int i = 0; i < r; i++){
@@ -83,12 +83,31 @@ while(1){
                         // test[length] = '\0';
                         // sendFileBackToClient(test,cs);
                                             
+                        // int length = sizeof("/spiffs/settings.txt");
+                        // memcpy(test,"/spiffs/settings.txt",length);
+                        // test[length] = '\0';
+                        // sendFileBackToClient(test,cs);
+                        sendSettingsToClient(cs);    // the variable parameters (only ethernet IP for now)
+
                         int length = sizeof("/spiffs/settings.txt");
                         memcpy(test,"/spiffs/settings.txt",length);
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
 
-                    } else {
+                    } else if(strstr(command,"POST /SETTINGS_SAVECONFIG HTTP/")){ //ask for the index
+                        printf("settings received.writte and restart!\n");
+                        char* index =strstr(recv_buf,"CONFIG:");
+
+                        printf("size of index to end: %d", strlen(index));
+                        if(index){
+                            FILE* f = fopen("/spiffs/settings.txt", "w");
+                            fprintf(f,index+sizeof("CONFIG\n")); 
+                            fclose(f);
+                            ESP_LOGI(TAG, "DONE WRITING THE NEW SETTINGS FILE>>>> REBOOT IS NOW REQUIRED!");
+                        }
+                        
+
+                    }else {
                         printf("i cant do anything with this request... nothing will be send back");
                     }
                     free(test);
@@ -157,5 +176,24 @@ void sendFileBackToClient(char * fileName, int cs){
                 // }
                // ESP_LOGI(TAG, "Read from file: '%s'", line);
                 
+        }
 }
+void sendSettingsToClient(int cs){    
+    //*generate the settings file, and send it to the client*//
+    //*client will edit the values, and settings will come back and are stored in spiffs and are applied*//
+    //char str[10];       //for converting int to char*
+    char toSend[1000] = "parameter:value\n";  //might be changed to a bigger or smaller number
+    
+    strcat(toSend,"ethernet_ip:");      strcat(toSend,sb.session_data->Ethernet_IP_Adress);                                 strcat(toSend,"\n");
+    // strcat(toSend,"sample_rate:");      sprintf(str, "%d", sb.audio_config->sample_rate);          strcat(toSend,str);      strcat(toSend,"\n");
+    // strcat(toSend,"bit_deptt:");        sprintf(str, "%d", sb.audio_config->bits_per_sample);      strcat(toSend,str);      strcat(toSend,"\n");
+    // strcat(toSend,"num_channels:");     sprintf(str, "%d", sb.audio_config->num_channels);         strcat(toSend,str);      strcat(toSend,"\n");
+    // strcat(toSend,"a1:b2\n");
+    // strcat(toSend,"a3:b2\n");
+    // strcat(toSend,"a44:b4323\n");
+    // strcat(toSend,"alol:bhihi\n");
+    write(cs , toSend , strlen(toSend));
+
+
+   
 }
