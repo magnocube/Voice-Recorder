@@ -41,14 +41,15 @@ while(1){
             //set O_NONBLOCK so that recv will return, otherwise we need to impliment message end 
             //detection logic. If know the client message format you should instead impliment logic
             //detect the end of message 
-            fcntl(cs,F_SETFL,O_NONBLOCK);  //TODO: figure this statement out
+            //fcntl(cs,F_SETFL,O_NONBLOCK);  //TODO: figure this statement out
             do {  //read the start of the packet... only the GET is important
                 bzero(recv_buf, sizeof(recv_buf));
-                r = recv(cs, recv_buf, sizeof(recv_buf)-1,0);
+                r = read(cs, recv_buf, sizeof(recv_buf)-1);
+                recv_buf[r] = '\0';
                 for(int i = 0; i < r; i++) {
                     putchar(recv_buf[i]);
                 }
-                recv_buf[r] = '\0';
+                
             
                     int indexOfNewLine = 0;
                    
@@ -101,20 +102,27 @@ while(1){
                         printf("size of index to end: %d", strlen(index));
                         if(index){
                             FILE* f = fopen("/spiffs/settings.txt", "w");
-                            fprintf(f,index+sizeof("CONFIG\n")); 
+                            fprintf(f,index+sizeof("CONFIG:"));   //index is a char*, it will be printed
                             fclose(f);
                             ESP_LOGI(TAG, "DONE WRITING THE NEW SETTINGS FILE>>>> REBOOT IS NOW REQUIRED!");
                         }
                         
 
-                    }else {
+                    }else if(strstr(command,"GET /favicon.ico HTTP")){
+                        printf("icon requested. will awnser");
+                        int length = sizeof("/spiffs/favicon.ico");
+                        memcpy(test,"/spiffs/favicon.ico",length);
+                        test[length] = '\0';
+                        sendFileBackToClient(test,cs);
+
+                    }else{
                         printf("i cant do anything with this request... nothing will be send back");
                     }
                     free(test);
                 
              
-            } while(r > 0);   //if the packet has not been read entirely, just read the remaining part again,,, this time there will be no GET and evrything gets ignored (just to clear the buffer)
-            
+            } while(false);   //normaly here would be a check if there is still some data... this quick fix assumes these is no data after the first read (request max 5120 chars). with "fcntl(cs,F_SETFL,O_NONBLOCK);" and a check it will also work, but hevily unriliable on devices with wifi
+            //r >0
             ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
             ESP_LOGI(TAG, "... socket send success");
             close(cs);

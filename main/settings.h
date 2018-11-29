@@ -77,6 +77,7 @@
 #define ESP_SESSION_DATA_DEFAULT() {\
     .Ethernet_IP_Adress = (char*)malloc(15), \
     .Ethernet_Ip_received = false, \
+    .is_in_TestModus = false, \
 }
 
 //TAG used for logging
@@ -136,6 +137,7 @@ typedef struct{
 typedef struct{         
    char* Ethernet_IP_Adress;    //by default requested by DHCP, 
    bool Ethernet_Ip_received;
+   bool is_in_TestModus;          //will check if the device is in test modus. the can be enabled by pressing the large button on startup with SD inside.
 } esp_session_data;
 
 #endif //SETTINGS_H
