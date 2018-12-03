@@ -33,11 +33,11 @@ static const char *TAG = "KSZ8081";
 void phy_KSZ8081_check_phy_init(void)
 {
     phy_KSZ8081_dump_registers();
-    ESP_LOGI(TAG, "start py init check");
+    //ESP_LOGI(TAG, "start py init check");
 
    // esp_eth_smi_wait_set(MII_BASIC_MODE_STATUS_REG, MII_AUTO_NEGOTIATION_COMPLETE, 1000);
   //  esp_eth_smi_wait_set(PHY_SPECIAL_CONTROL_STATUS_REG, AUTO_NEGOTIATION_DONE, 1000);
-    ESP_LOGI(TAG, "py init check done");
+ //   ESP_LOGI(TAG, "py init check done");
 }
 
 eth_speed_mode_t phy_KSZ8081_get_speed_mode(void)
@@ -122,7 +122,7 @@ const eth_config_t phy_KSZ8081_default_ethernet_config = {
 
 void phy_KSZ8081_dump_registers()
 {
-    ESP_LOGI(TAG, "KSZ8081 Registers: (uncomment in code to actually read them)(myPhy.c)");
+   // ESP_LOGI(TAG, "KSZ8081 Registers: (uncomment in code to actually read them)(myPhy.c)");
     // ESP_LOGI(TAG, "0     0x%04x", esp_eth_smi_read(0x0));
     // ESP_LOGI(TAG, "1     0x%04x", esp_eth_smi_read(0x1));
     // ESP_LOGI(TAG, "2     0x%04x", esp_eth_smi_read(0x2));

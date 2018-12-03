@@ -80,8 +80,9 @@
     .is_in_TestModus = false, \
 }
 
-//TAG used for logging
+//TAG used for logging 
 static const char* TAG = "Voice Recorder"; 
+
 
 
 /*|||||||||_____________CORE COMMUNICATION_______________|||||||||*/
@@ -136,7 +137,7 @@ typedef struct{
 */
 typedef struct{         
    char* Ethernet_IP_Adress;    //by default requested by DHCP, 
-   bool Ethernet_Ip_received;
+   bool Ethernet_Ip_received;   //indicates if the interface is connected
    bool is_in_TestModus;          //will check if the device is in test modus. the can be enabled by pressing the large button on startup with SD inside.
 } esp_session_data;
 

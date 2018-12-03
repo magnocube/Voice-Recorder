@@ -65,6 +65,7 @@ void setupNVS();
 void setupPeripherals(esp_pin_config *pinconfig);
 void setupInterruptBigButton(esp_pin_config *pinconfig);
 void setupDeviceSettingsFromSPIFFS();
+void start_mdns_service();
 // void recording_task(esp_shared_buffer *shared_buffer);
 // void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer);
 

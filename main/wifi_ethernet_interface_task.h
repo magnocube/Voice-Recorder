@@ -178,18 +178,18 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
     case SYSTEM_EVENT_ETH_GOT_IP:
         memset(&ip, 0, sizeof(tcpip_adapter_ip_info_t));
         ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(static_cast<tcpip_adapter_if_t>(ESP_IF_ETH), &ip));
-        ESP_LOGI(TAG, "Ethernet Got IP Addr");
-        ESP_LOGI(TAG, "~~~~~~~~~~~");
-        ESP_LOGI(TAG, "ETHIP:" IPSTR, IP2STR(&ip.ip));
-        ESP_LOGI(TAG, "ETHMASK:" IPSTR, IP2STR(&ip.netmask));
-        ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip.gw));
-        ESP_LOGI(TAG, "~~~~~~~~~~~");
+        ESP_LOGD(TAG, "Ethernet Got IP Addr");
+        ESP_LOGD(TAG, "~~~~~~~~~~~");
+        ESP_LOGD(TAG, "ETHIP:" IPSTR, IP2STR(&ip.ip));
+        ESP_LOGD(TAG, "ETHMASK:" IPSTR, IP2STR(&ip.netmask));
+        ESP_LOGD(TAG, "ETHGW:" IPSTR, IP2STR(&ip.gw));
+        ESP_LOGD(TAG, "~~~~~~~~~~~");
         
 
         sb.session_data->Ethernet_IP_Adress = inet_ntoa(ip.ip);
         sb.session_data->Ethernet_Ip_received = true;
         
-        printf(sb.session_data->Ethernet_IP_Adress);
+        //printf(sb.session_data->Ethernet_IP_Adress);
         break;
     case SYSTEM_EVENT_ETH_STOP:
         ESP_LOGI(TAG, "Ethernet Stopped");

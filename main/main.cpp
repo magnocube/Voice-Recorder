@@ -90,7 +90,7 @@ void app_main()
 
 	testSPIFFSRead();	
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code)
-    // turn on sd card (i hope)  
+    start_mdns_service();
 
     
     pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	
@@ -210,6 +210,39 @@ void setupDeviceSettingsFromSPIFFS(){
         // free(data);               
         fclose(f);
 
+}
+void start_mdns_service()
+{
+    // _Static_assert(sizeof(c_config_hostname) < CONFIG_MAIN_TASK_STACK_SIZE/2, "Configured mDNS name consumes more than half of the stack. Please select a shorter host name or extend the main stack size please.");
+    // const size_t config_hostname_len = sizeof(c_config_hostname) - 1; // without term char
+    // char hostname[config_hostname_len + 1 + 3*2 + 1]; // adding underscore + 3 digits + term char
+    // uint8_t mac[6];
+
+    // // adding 3 LSBs from mac addr to setup a board specific name
+    // esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    // snprintf(hostname, sizeof(hostname), "%s_%02x%02X%02X", c_config_hostname, mac[3], mac[4], mac[5]);
+
+    // //initialize mDNS
+    // ESP_ERROR_CHECK( mdns_init() );
+    // //set mDNS hostname (required if you want to advertise services)
+    // ESP_ERROR_CHECK( mdns_hostname_set(hostname) );
+    // ESP_LOGI(TAG, "mdns hostname set to: [%s]", hostname);
+    // //set default mDNS instance name
+    // ESP_ERROR_CHECK( mdns_instance_name_set(EXAMPLE_MDNS_INSTANCE) );
+
+    // //structure with TXT records
+    // mdns_txt_item_t serviceTxtData[3] = {
+    //     {"board","esp32"},
+    //     {"u","user"},
+    //     {"p","password"}
+    // };
+
+    // //initialize service
+    // ESP_ERROR_CHECK( mdns_service_add("ESP32-WebServer", "_http", "_tcp", 80, serviceTxtData, 3) );
+    // //add another TXT item
+    // ESP_ERROR_CHECK( mdns_service_txt_item_set("_http", "_tcp", "path", "/foobar") );
+    // //change TXT item value
+    // ESP_ERROR_CHECK( mdns_service_txt_item_set("_http", "_tcp", "u", "admin") );
 }
 
 void setupPeripherals(esp_pin_config *pinconfig)
