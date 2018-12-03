@@ -2,7 +2,8 @@
 
 
 
-pca9535::pca9535(esp_pin_config *pinconfig){
+pca9535::pca9535(esp_pin_config *pinconfig, esp_session_data *sessionData){
+    session_data = sessionData;
     pinout = pinconfig;
     for(int i = 0; i< 16; i++){  //default settings
         writeData[i] = PCA_LOW;
@@ -85,15 +86,18 @@ void pca9535::readDataFromI2C(){
     if(espRc != ESP_OK){
         ESP_LOGW(TAG, "error in I2C writing the command to PCA9535 (while reading), %d \n" , espRc);
         
-    } else{
+    } else{              //as long as the device is not in test-mode, spam the console with the state of the pins
+             
         // ESP_LOGI(TAG, "data while reading: 1e:  %d  and 2e:  %d",firstHalf,secondHalf);
       
         
         for(int i = 0; i < 8; i++){
             readData[i] = firstHalf >> i && 0x01;
             readData[i+8] = secondHalf >> i && 0x01;
-             printf(" %d ",readData[2*i]);
-             printf(" %d ",readData[(2*i)+1]);
+            if(!session_data->is_in_TestModus){
+                printf(" %d ",readData[2*i]);
+                printf(" %d ",readData[(2*i)+1]);
+            }
         }
     }
 }

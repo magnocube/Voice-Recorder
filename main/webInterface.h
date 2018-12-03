@@ -37,12 +37,18 @@ while(1){
         }
         while(1){                                                       //this loop should never exit
             cs=accept(s,(struct sockaddr *)&remote_addr, &socklen);
+            if(shared_buffer->session_data->Ethernet_Ip_received == true){                       //to indicate activity, if the ethernet IP is received,, the led will be high by default. therefore during handling it will be low
+                shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_LOW,true);     
+            } else {
+                shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_HIGH,true);        //when no ehhernet IP has been received, the led will be low by default. therefore during handling it will be high
+            }
+            
             ESP_LOGI(TAG,"New connection request,Request data:");
             //set O_NONBLOCK so that recv will return, otherwise we need to impliment message end 
             //detection logic. If know the client message format you should instead impliment logic
             //detect the end of message 
             //fcntl(cs,F_SETFL,O_NONBLOCK);  //TODO: figure this statement out
-            do {  //read the start of the packet... only the GET is important
+            //do {  //read the start of the packet... only the GET is important
                 bzero(recv_buf, sizeof(recv_buf));
                 r = read(cs, recv_buf, sizeof(recv_buf)-1);
                 recv_buf[r] = '\0';
@@ -121,8 +127,14 @@ while(1){
                     free(test);
                 
              
-            } while(false);   //normaly here would be a check if there is still some data... this quick fix assumes these is no data after the first read (request max 5120 chars). with "fcntl(cs,F_SETFL,O_NONBLOCK);" and a check it will also work, but hevily unriliable on devices with wifi
+            //} while(false);   //normaly here would be a check if there is still some data... this quick fix assumes these is no data after the first read (request max 5120 chars). with "fcntl(cs,F_SETFL,O_NONBLOCK);" and a check it will also work, but hevily unriliable on devices with wifi
             //r >0
+            
+            if(shared_buffer->session_data->Ethernet_Ip_received == true){                       //if the ethernet IP is received,, the led will be high by default. therefore after handling turn it back high
+                shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_HIGH,true);     
+            } else {
+                shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_LOW,true);        //when no ehhernet IP has been received, the led will be low by default. therefore after handling turn it back low
+            }
             ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
             ESP_LOGI(TAG, "... socket send success");
             close(cs);

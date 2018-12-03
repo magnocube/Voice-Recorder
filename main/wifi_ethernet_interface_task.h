@@ -23,6 +23,8 @@ static esp_err_t event_handler(void *ctx, system_event_t *event);        // not 
 static EventGroupHandle_t s_wifi_event_group;
 
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
+    strcpy(sb.session_data->Ethernet_IP_Adress,"NO ADRESS");
+    sb.session_data->Ethernet_Ip_received = false;
 
     tcpip_adapter_init();                                                       
     ethernet_init();
@@ -45,7 +47,11 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 				//do nothing... all the leds should already be in the right position... this function can be used to blink the leds?
 			}
 			vTaskDelay(200/portTICK_PERIOD_MS);  //dont make delay too big,, otherwise led's will respond late
-            ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());  //print free memory. to find leaks early
+
+            if(!shared_buffer->session_data->is_in_TestModus){              //as long as the device is not in test-mode, spam the console with the free memory
+                ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());  //print free memory. to find leaks early
+            }
+            
 
 	}
 			 
@@ -163,7 +169,7 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
     case SYSTEM_EVENT_ETH_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
 		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_LOW,true);
-        sb.session_data->Ethernet_IP_Adress = "NO ADRESS" ;
+        strcpy(sb.session_data->Ethernet_IP_Adress,"NO ADRESS");
         sb.session_data->Ethernet_Ip_received = false;
         break;
     case SYSTEM_EVENT_ETH_START:

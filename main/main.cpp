@@ -38,6 +38,7 @@ static void gpio_task_example(void* arg)
                 }else{
                     sb.recording = false;
                     sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
+                    /*NOTE: THE RECORDING MAY CONTINUE IF THE SD CARD HAS PROBLEMS, THIS ONLY SETS THE FLAG 'RECORDING' false*/
                 }
             } else {
 
@@ -48,21 +49,38 @@ static void gpio_task_example(void* arg)
 
 void app_main()
 {
-    vTaskDelay(1500/portTICK_PERIOD_MS);//testing POE, if this delay is not placed the ethernet is unstable !?!?
-	pinout = ESP_PIN_CONFIG_DEFAULT(); 				//change default pin-config in "settings.h"
-	setupPeripherals(&pinout);						//setup for i2c, etc...
-	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		//change default audio-config in "settings.h"
-    sessionData = ESP_SESSION_DATA_DEFAULT();
    
-    setupDeviceSettingsFromSPIFFS();  //will fill the corresponding config-structs with the desired settings
+   
+	pinout = ESP_PIN_CONFIG_DEFAULT(); 			                	//change default pin-config in "settings.h"	
+	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"
+    sessionData = ESP_SESSION_DATA_DEFAULT();                       //change default parameters in "settings.h"
+    setupInterruptBigButton(&pinout);                               // must be called before reading the large button to check if the device must be tested. otherwise pin is not configured.
+        
+    ESP_LOGI(TAG,"READING BUTTON (FOR TESTING PURPOSES :D)");
+    sessionData.is_in_TestModus = !gpio_get_level((gpio_num_t)pinout.big_button);                       //read the large button and invert the input
+    ESP_LOGI(TAG, "divice modus. 1=testmodus, 0=normal operatopn: %d", sessionData.is_in_TestModus);
+    if(sessionData.is_in_TestModus){
+        printf("**********************************************\n*\n*\n");
+         printf("DEVICE WILL START IN TEST MODE\n*\n*\n");
+          printf("**********************************************\n");
+        vTaskDelay(5000/portTICK_PERIOD_MS); //make clear device is in test mode
+    } else{
+        printf("**********************************************\n*\n*\n");
+         printf("DEVICE WILL START IN NORMAL OPERATING MODE\n*\n*\n");
+          printf("**********************************************\n");
+        //idk, some startip sound maybe :D?
+    }
 
 
+    setupPeripherals(&pinout);					                	//setup for i2c, etc...
+    setupDeviceSettingsFromSPIFFS();                                //will fill the corresponding config-structs with the desired settings (settings can be cahnged using the browser and a restart, or to reflash the storage-partition)   
+   
 
-	pca9535 *pca_ptr = new pca9535(&pinout);
-	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr);
-	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);
-	sb = {	.recording = false,						//this shared buffer is passed to the tasks that will run each on a core. it contains all the pointers Both tasks might need.
-			.gpio_header = pca_ptr,					
+	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                   //make instance of the i2c-GPIO-expander
+	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr);                            //make instance of the SD card interface
+	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);           //make instance of the audio codec interface
+	sb = {	.recording = false,						                                        //this shared_buffer is passed to the different tasks it contains all the pointers Both tasks need.
+			.gpio_header = pca_ptr,					                                        /*TODO: rename 'shared_buffer' to 'shared_memory'*/
 			.SD = SD_ptr,
 			.codec = audio_codec_ptr,
 			.audio_config = &audioConfig,
@@ -95,7 +113,7 @@ void app_main()
 							 );	
 							 
                              
-	/*create a "other task", this task will do everything else (wifi,ethernet&test)*/
+	/*create a "other task", this task will do everything else (wifi,ethernet)*/
 	xTaskCreatePinnedToCore((TaskFunction_t)Wifi_ethernet_interface_task,		//task function		   //probably the tast that does everything except recording
 							 "Wifi_ethernet_interface_task", 					//task name 
 							 1024 * 8, 											//stack size
@@ -106,8 +124,8 @@ void app_main()
 							 );
 
     
-    xTaskCreatePinnedToCore((TaskFunction_t)webInterface,		//task function		   //handles the webpage
-							 "webInterface_task", 					//task name 
+    xTaskCreatePinnedToCore((TaskFunction_t)webInterface,	                	//task function		   //handles the webpage
+							 "webInterface_task", 					            //task name 
 							 1024 * 8, 											//stack size
 							 &sb,												//function parameters (struct with pointers to shared classes)
 							 1,													//priority
@@ -115,15 +133,25 @@ void app_main()
 							 1													//task core
 							 );
 
-    xTaskCreatePinnedToCore((TaskFunction_t)gpio_task_example,		//task function		   //handles the webpage
-							 "button_task", 					//task name 
+    xTaskCreatePinnedToCore((TaskFunction_t)gpio_task_example,		            //task function		   //hanles the big button on the case(when an interupt is send)
+							 "button_task", 					                //task name 
 							 1024 * 2, 											//stack size
 							 NULL,												//function parameters (struct with pointers to shared classes)
 							 1,													//priority
 							 NULL,												//task handle
 							 1													//task core
 							 );
-   
+
+    if(sessionData.is_in_TestModus){
+        xTaskCreatePinnedToCore((TaskFunction_t)Test_task,		                    //task function		   //using software to determine if all the hardware is working
+                                "test_task", 					                    //task name 
+                                1024 * 2, 											//stack size
+                                &sb,												//function parameters (struct with pointers to shared classes)
+                                1,													//priority
+                                NULL,												//task handle
+                                1													//task core
+                                );
+    }
 
 
 	//while(1){ 											// -- this loop has cost me a couple of hours of hopeless debugging
@@ -187,7 +215,6 @@ void setupDeviceSettingsFromSPIFFS(){
 void setupPeripherals(esp_pin_config *pinconfig)
 {
 	ESP_LOGI(TAG, "setting up peripherals");
-    setupInterruptBigButton(pinconfig);
     setupI2C(pinconfig);  
 	setupSPIFFS();
 	setupNVS();			//also does a restart counter
