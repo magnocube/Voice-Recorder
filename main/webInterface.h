@@ -35,6 +35,17 @@ while(1){
             vTaskDelay(4000 / portTICK_PERIOD_MS);
             continue;
         }
+        
+        // struct timeval receiving_timeout;
+        // receiving_timeout.tv_sec = 5;
+        // receiving_timeout.tv_usec = 0;
+        // if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &receiving_timeout,
+        //         sizeof(receiving_timeout)) < 0) {
+        //     ESP_LOGE(TAG, "... failed to set socket receiving timeout");
+        //     close(s);
+        //     vTaskDelay(4000 / portTICK_PERIOD_MS);
+        //     continue;
+        // }
         while(1){                                                       //this loop should never exit
             cs=accept(s,(struct sockaddr *)&remote_addr, &socklen);
             if(shared_buffer->session_data->Ethernet_Ip_received == true){                       //to indicate activity, if the ethernet IP is received,, the led will be high by default. therefore during handling it will be low
@@ -43,7 +54,9 @@ while(1){
                 shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_HIGH,true);        //when no ehhernet IP has been received, the led will be low by default. therefore during handling it will be high
             }
             
-            ESP_LOGI(TAG,"New connection request,Request data:");
+            if(!shared_buffer->session_data->is_in_TestModus){  //only print random ethernet things when not in testmode (will mess up serial interface when a request comes in)
+                ESP_LOGI(TAG,"New connection request,Request data:");
+            }
             //set O_NONBLOCK so that recv will return, otherwise we need to impliment message end 
             //detection logic. If know the client message format you should instead impliment logic
             //detect the end of message 
@@ -52,8 +65,10 @@ while(1){
                 bzero(recv_buf, sizeof(recv_buf));
                 r = read(cs, recv_buf, sizeof(recv_buf)-1);
                 recv_buf[r] = '\0';
-                for(int i = 0; i < r; i++) {
-                    putchar(recv_buf[i]);
+                if(!shared_buffer->session_data->is_in_TestModus){  //only print random ethernet things when not in testmode
+                    for(int i = 0; i < r; i++) {
+                        putchar(recv_buf[i]);
+                    }
                 }
                 
             
@@ -83,7 +98,7 @@ while(1){
                         memcpy(test,"/spiffs/HINDEX.HTM",length);
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
-                    } else if(strstr(command,"GET /SETTINGS.TXT HTTP/")){ //ask for the index
+                    } else if(strstr(command,"GET /SETTINGS.TXT HTTP/")){ //ask for the settings file
                         printf("settings requested. i do a self-test!\n");
                         // int length = sizeof("/spiffs/HINDEX.HTM");
                         // memcpy(test,"/spiffs/HINDEX.HTM",length);
@@ -101,7 +116,7 @@ while(1){
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
 
-                    } else if(strstr(command,"POST /SETTINGS_SAVECONFIG HTTP/")){ //ask for the index
+                    } else if(strstr(command,"POST /SETTINGS_SAVECONFIG HTTP/")){ //save the new config
                         printf("settings received.writte and restart!\n");
                         char* index =strstr(recv_buf,"CONFIG:");
 
@@ -111,6 +126,10 @@ while(1){
                             fprintf(f,index+sizeof("CONFIG:"));   //index is a char*, it will be printed
                             fclose(f);
                             ESP_LOGI(TAG, "DONE WRITING THE NEW SETTINGS FILE>>>> REBOOT IS NOW REQUIRED!");
+                            char responce[] = "server restarting, please refresh in a while";
+                            write(cs , responce , sizeof(responce));
+                            close(cs); //close the socket because the microcontroller will restart after this function
+                            esp_restart(); /*magic line of code*/
                         }
                         
 
@@ -121,7 +140,7 @@ while(1){
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
 
-                    }else{
+                    }else if(!shared_buffer->session_data->is_in_TestModus){  //only print random ethernet things when not in testmode
                         printf("i cant do anything with this request... nothing will be send back");
                     }
                     free(test);
@@ -135,8 +154,10 @@ while(1){
             } else {
                 shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_LOW,true);        //when no ehhernet IP has been received, the led will be low by default. therefore after handling turn it back low
             }
-            ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
-            ESP_LOGI(TAG, "... socket send success");
+            if(!shared_buffer->session_data->is_in_TestModus){  //only print random ethernet things when not in testmode
+                ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
+                ESP_LOGI(TAG, "... socket send success");
+            }
             close(cs);
         }
         ESP_LOGI(TAG, "connection to client closed. waiting for new connection");
@@ -154,7 +175,7 @@ while(1){
 
 
 void sendFileBackToClient(char * fileName, int cs){
-            int packetSize = 256;   //for testing ... the desired size of a single packet
+            int packetSize = 512;   //for testing ... the desired size of a single packet
             int fileSize;           //size of the Faile
             int currentIndex = 0;   //current index (from 0 to filesize)
             char line[packetSize];  //a single packet to send
@@ -200,9 +221,9 @@ void sendFileBackToClient(char * fileName, int cs){
 }
 void sendSettingsToClient(int cs){    
     //*generate the settings file, and send it to the client*//
-    //*client will edit the values, and settings will come back and are stored in spiffs and are applied*//
+    //*client will edit the values, and settings will come back and are stored in spiffs and are applied (using a restart)*//
     //char str[10];       //for converting int to char*
-    char toSend[1000] = "parameter:value\n";  //might be changed to a bigger or smaller number
+    char toSend[300] = "parameter:value\n";  //might be changed to a bigger or smaller number
     
     strcat(toSend,"ethernet_ip:");      strcat(toSend,sb.session_data->Ethernet_IP_Adress);                                 strcat(toSend,"\n");
     // strcat(toSend,"sample_rate:");      sprintf(str, "%d", sb.audio_config->sample_rate);          strcat(toSend,str);      strcat(toSend,"\n");
@@ -213,6 +234,7 @@ void sendSettingsToClient(int cs){
     // strcat(toSend,"a44:b4323\n");
     // strcat(toSend,"alol:bhihi\n");
     write(cs , toSend , strlen(toSend));
+    //NOTE: the other settings are stored in spiffs, and will be send after this function returns!!!!!
 
 
    

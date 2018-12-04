@@ -34,7 +34,7 @@ class SDCard{
         bool isMounted();                                       //returns if the SD card is mounted to the file System
         esp_err_t mountCard();                                  //will attempt to mount the SD card to the file system
         void releaseCard();                                     //will demount the SD card from the file System
-        esp_err_t beginFile();                                  //will make a file on the file system and sets the offset for the header
+        esp_err_t beginFile(char name[]);                                  //will make a file on the file system and sets the offset for the header
         esp_err_t addDataToFile(uint8_t *data,int length);      //will add data to the file. (can be time consuming!)
         void endFile();                                         //write out the wav header tho the beginning of the file and close the file
         void printCardInfo();  

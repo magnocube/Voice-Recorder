@@ -49,7 +49,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 			vTaskDelay(200/portTICK_PERIOD_MS);  //dont make delay too big,, otherwise led's will respond late
 
             if(!shared_buffer->session_data->is_in_TestModus){              //as long as the device is not in test-mode, spam the console with the free memory
-                ESP_LOGI(TAG, "XfreeHeapSize: %d",xPortGetFreeHeapSize());  //print free memory. to find leaks early
+                ESP_LOGI(TAG, "Heapsize: %d, minimumheapsize: %d",esp_get_free_heap_size(),esp_get_minimum_free_heap_size());  //print free memory. to find leaks early
             }
             
 
@@ -161,7 +161,7 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
 
     switch (event->event_id) {
     case SYSTEM_EVENT_ETH_CONNECTED:
-        ESP_LOGI(TAG, "Ethernet Link Up");
+        printf("Ethernet Link Up\n");
         /*NOTE:,, enabling the ethernet led might need to moced to event: ETH_GOT_IP, in stead of ETH_CONNECTED*/
 		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_HIGH,true);
    

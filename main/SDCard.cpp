@@ -30,10 +30,10 @@ bool SDCard::isCardInSlot(){
 void SDCard::releaseCard(){
     
 }
-esp_err_t SDCard::beginFile(){
+esp_err_t SDCard::beginFile(char name[]){
    
     ESP_LOGI(TAG, "Opening file");
-    file = fopen("/sdcard/sixtyS.wav", "w");
+    file = fopen(name, "w");
     ESP_LOGI(TAG, "file opened");
     return ESP_OK;
 }
@@ -59,6 +59,7 @@ void SDCard::setupSDConfig(){
         .allocation_unit_size = 0 //default
     };
     
+    //external pull-ups are on the hardware, this is just an extra precaution
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_D0,GPIO_PULLUP_ONLY);
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_CLK,GPIO_PULLUP_ONLY);
     gpio_set_pull_mode((gpio_num_t)pinconfig->sd_CMD,GPIO_PULLUP_ONLY);

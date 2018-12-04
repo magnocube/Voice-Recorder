@@ -57,6 +57,8 @@
 		toSend +='\n'
 		
 		xhttp.send(toSend);
+		document.body.innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
+		location.reload();
 		}
 		
         </script>
@@ -172,7 +174,7 @@
 <body onload="codeAddress();">
 <center>
 HELLO WORLD..... JUST DISPLAY THIS MESSAGE!
-<button type="button" onclick="proceed();">submit changes</button> 
+<button type="button" onclick="proceed();">submit and restart</button> 
 </center>
 
 </body>

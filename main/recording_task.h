@@ -11,7 +11,8 @@ void recording_task(esp_shared_buffer *shared_buffer){
 		
 			
 			//shared_buffer->SD->printCardInfo();
-			shared_buffer->SD->beginFile();
+			char name[] = "/sdcard/nexties.wav"; // todo: make dynamic
+			shared_buffer->SD->beginFile(name);
 			sb.gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_HIGH,true); //enable the green led
 			int start = esp_log_timestamp();
 			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value

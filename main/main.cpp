@@ -10,7 +10,7 @@ extern "C" { 														 //this just needs to be here
 	void app_main();
 }
 
-void IRAM_ATTR button_isr_handler(void* arg) { //the button on the device will create an interrupt that will be handled here
+void IRAM_ATTR button_isr_handler(void* arg) { //the button on the device will create an interrupt that will be handled here.
 	
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
@@ -29,8 +29,10 @@ static void gpio_task_example(void* arg)
 
                 if(sb.recording == false){
                     if(sb.SD->isMounted()){						//and the card is acually mounted
-                        sb.recording = true;
-                        ESP_LOGI(TAG, "recording set to true");
+                        if(!sb.session_data->is_in_TestModus){  //when testing use the button for an other function... should not start recording on every interupt
+                            sb.recording = true;
+                            ESP_LOGI(TAG, "recording set to true");
+                        }
                     } else{
                         ESP_LOGI(TAG, "not recording... card is not in slot");
                     }
@@ -39,6 +41,7 @@ static void gpio_task_example(void* arg)
                     sb.recording = false;
                     sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
                     /*NOTE: THE RECORDING MAY CONTINUE IF THE SD CARD HAS PROBLEMS, THIS ONLY SETS THE FLAG 'RECORDING' false*/
+                    /*THE RECORDING TASK COUL BE STUCK ON READING THE I2S BUS*/
                 }
             } else {
 
