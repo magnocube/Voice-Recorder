@@ -36,7 +36,7 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			printf("written in %d milliSeconds...\n", time);	
 			
 			shared_buffer->SD->endFile();							//write out the wav header and close the stream
-			
+			shared_buffer->gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_LOW,true);
 			//ESP_LOGW(TAG, "4 ");
 			/*should be recording,,, but card is not mounted...*/
 			//flash red led!

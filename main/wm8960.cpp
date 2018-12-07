@@ -68,6 +68,7 @@ void WM8960::setupI2S(){  //setup the i2s bus of the esp32
         .dma_buf_count = I2S_BUFF_COUNT,
         .dma_buf_len = AUDIO_BUFFER_SIZE, // 512
         .use_apll = false,  //-> for testing
+        .tx_desc_auto_clear = true,
         .fixed_mclk = 0
     };
     if(audioConfig->num_channels ==1){

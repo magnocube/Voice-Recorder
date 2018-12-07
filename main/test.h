@@ -47,6 +47,14 @@ void Test_task(esp_shared_buffer *shared_buffer){
 
         testReadWrite();
 
+        ESP_LOGI(TEST_TAG, "Testing Audio codec, NOTE: the settings currently stored on the device will be used");
+        ESP_LOGI(TEST_TAG, "Testing for 5 seconds");
+        shared_buffer->recording = true;
+        vTaskDelay(5000/ portTICK_PERIOD_MS);
+        shared_buffer->recording = false;
+        ESP_LOGI(TEST_TAG, "Testing Audio done, please notice that the green LED is off. audio must be chacked manually (for now)");
+        //todo.. check if actually data has been written without using a external user
+
         
 
         for(int i =0; i< 100; i++){printf(".\n");}// clear screen
