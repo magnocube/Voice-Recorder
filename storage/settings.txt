@@ -1,14 +1,5 @@
 sample_rate:16000
-bit_depth:15
+bit_depth:16
 num_channels:2
-line3:23
-line4:11323
-line5:blablabla
-line6:hoihoi
-line7:b
-line8:\n
-line9 :ok
-line10:line10
-big shaq:lol
-quif mafs:olo
-newline:     testingstrangethings
+channel1:BuildIn
+channel2:3.5

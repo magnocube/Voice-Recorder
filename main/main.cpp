@@ -183,12 +183,12 @@ void setupDeviceSettingsFromSPIFFS(){
             if(strchr(buf, ':')){   // the ':' is used to split a variables name and parameter. if a line has no ':', it will probably be empty
             char* end = strchr(buf, '\0');  // this is the end of the buffer. index is required to remove the new line
             int indexOfEnd = (int)(end-buf);
-            buf[indexOfEnd-1] = '\0';
+            buf[indexOfEnd] = '\0';
 
 
             char* c = strtok(buf, s);   
             char* d = strtok(NULL, s);
-            printf( " %s    :%s\n", c,d );
+            printf( " %s    :%s", c,d );
 
                 
             //us a switch-case to fill in all the parameters to the right buffers    

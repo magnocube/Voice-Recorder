@@ -1,84 +1,11 @@
 <html>
+
 <head>	
 		<title>VoIP TAP Settings</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <script type="text/javascript">
-        function codeAddress() {
-		
-			var text=httpGet("SETTINGS.TXT");
-			document.body.innerHTML += "<br>";
-			
-			var lines = text.split('\n');
-			for(var line = 0; line < lines.length; line++){
-				var segments = lines[line].split(':');
-			
-			  document.body.innerHTML +="parameter: ";
-			  document.body.innerHTML += segments[0];
-			  document.body.innerHTML +=",   value: ";
-			  document.body.innerHTML += segments[1];				
-			  document.body.innerHTML += "<br>";
-			  
-			
-			  
-			}
-			
-            document.body.innerHTML += text;
-        }
-		function httpGet(theUrl)
-			{
-				var xmlHttp = new XMLHttpRequest();
-				xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-				xmlHttp.send( null );
-				return xmlHttp.responseText;
-			} 
-		function proceed () {
-		<!--generate settings file and post it>
-		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
-		var toSend = "CONFIG:";
-		toSend += '\n';
-		toSend += "sample_rate:";
-		toSend += 16000;
-		toSend += '\n';
-		toSend += "bit_depth:";
-		toSend += 16;
-		toSend +='\n'
-		toSend += "num_channels:";
-		toSend += 2;
-		toSend += '\n';
-		toSend += "param4:";
-		toSend += 40;
-		toSend +='\n'
-		toSend += "param5:";
-		toSend += 50;
-		toSend += '\n';
-		toSend += "param6:";
-		toSend += 60;
-		toSend +='\n'
-		
-		xhttp.send(toSend);
-		document.body.innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
-		location.reload();
-		}
-		
-        </script>
+        
 		<style>
-		div#buttons {
-			padding: 0.2em 0.2em 0.2em 0.8em;
-			margin: 0em;
-			background-color: #eeeeee;
-			color: #000000;
-		}
-		div#buttons2 {
-			padding: 0em 0.2em 0em 0.8em;
-			margin: 0em;
-			background-color: #292928;
-			color: #969696;
-			height: 70px;
-			line-height: 70px;
-			border-bottom: 0px;
-			font-size: 16px;
-		}		
+	
 		body {
 			margin: 0;
 			padding: 0;
@@ -86,9 +13,7 @@
 			color: #ffffff;
 			font-size: 15px;
 		}
-		outsidecontent {
-			background: #e2e2e2;
-		}
+
 		h1 {
 			font-weight: normal;
 			font-size: 15px;
@@ -107,75 +32,152 @@
 			margin-top: 0.2em;
 			margin-bottom: 0.2em;
 		}
-		input[type='text'], input[type='password'] {
-			height: 25px;
-			line-height: 25px;
-			border-radius: 2px;
-			border: 1px solid #ccc;
-		}
+
 		html {
 			background-color: #292929;
 		}
-		#login-form table.logon .title {
-			font-size: 18px;
-			font-weight: normal;
-		}
-		#login-form table.logon td {
-			background-color: transparent;
-			border: 0;
-			color: #000000;
-			width: 100%;
-			max-width: 100%;
-			padding-left: 0px;
-			padding-right: 0px;
-		}
-		#login-form table.logon td input {
-			width: 100%;
-		}
-		table.sm td {
-			padding: 0em;
-		}
-		table {
-			border-collapse: collapse;
-		}
-		
-		td {
-			padding: 0.6em;
-		}
-		#saveBtn, #logOut{
-			border: 0;
-			background: none;
-			width: 100px;
-		}
-		#saveBtn, #logOut{
-			background-color: #a9b844;
-			color: #fff;
-			background-image: none;
-			border-radius: 5px;
-			width: 100px;
-			height: 45px;
-			line-height: 45px;
-			font-size: 18px;
-			-webkit-transition: all 300ms ease;
-			-moz-transition: all 300ms ease;
-			-ms-transition: all 300ms ease;
-			-o-transition: all 300ms ease;
-			transition: all 300ms ease;
-		}
-		#saveBtn:hover, #logOut:hover{
-			background-color:#8a9731
-		}
+	
 
 
 	</style>
+	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+	<script type="text/javascript">
+        function loadSettingsFromServer()
+			{
+		
+			var text=httpGet("SETTINGS.TXT");
+			document.body.innerHTML += "<br>";
+			var lines = text.split('\n');
+			var IPsegments = lines[0].split(':');
+			document.getElementById(IPsegments[0]).innerHTML = IPsegments[1];
+			
+			for(var line = 1; line < lines.length; line++){
+				let segments = lines[line].split(":");				
+				document.body.innerHTML += segments[0];
+				document.body.innerHTML +=":";
+				document.body.innerHTML += segments[1];
+				document.body.innerHTML += "<br>";
+				let newObject1 = segments[0];
+				let newObject2 = segments[1];
+			
+				<!--var newObject1 = jQuery.extend(true, {}, segments[0]);>
+				<!--var newObject2 = jQuery.extend(true, {}, segments[1]);>
+				SelectElement(newObject1,newObject2);
+				document.getElementById(IPsegments[0]).innerHTML  += " ";
+				
+				$('sample_rate').selectmenu('refresh', true);
+				$('bit_depth').selectmenu('refresh', true);
+				$('num_channels').selectmenu('refresh', true);
+				$('channel1').selectmenu('refresh', true);
+				$('channel2').selectmenu('refresh', true);
+				delete segments;
+			}
+            document.body.innerHTML += text;
+			
+        }
+		
+
+		function SelectElement(id, valueToSelect)
+		{    
+			var op = document.getElementById(id).getElementsByTagName("option");
+			for (var i = 0; i < op.length; i++) {
+			  // lowercase comparison for case-insensitivity
+			  (op[i].value.toLowerCase() == valueToSelect) 
+				? op[i].selected = true 
+				: op[i].selected = false ;
+			}
+		}
+		function httpGet(theUrl)
+			{
+				var xmlHttp = new XMLHttpRequest();
+				xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+				xmlHttp.send( null );
+				return xmlHttp.responseText;
+			} 
+		function safeSettingsToServer() 
+			{
+			<!--generate settings file and post it>
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
+			var toSend = "CONFIG:";
+			toSend += '\n';
+			toSend += "sample_rate:";
+			toSend += document.getElementById("sample_rate").value;
+			toSend += '\n';
+			toSend += "bit_depth:";
+			toSend += document.getElementById("bit_depth").value;
+			toSend +='\n';
+			toSend += "num_channels:";
+			toSend += document.getElementById("num_channels").value;
+			toSend += '\n';
+			toSend += "channel1:";
+			toSend += document.getElementById("channel1").value;
+			toSend +='\n';
+			toSend += "channel2:";
+			toSend += document.getElementById("channel2").value;
+			
+
+			
+			xhttp.send(toSend);
+			document.body.innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
+			location.reload();
+		}
+		
+        </script>
 </head>
     
 
-<body onload="codeAddress();">
+<body onload="loadSettingsFromServer()">
 <center>
-HELLO WORLD..... JUST DISPLAY THIS MESSAGE!
-<button type="button" onclick="proceed();">submit and restart</button> 
-</center>
 
+<button type="button" onclick="safeSettingsToServer();">submit and restart</button> 
+
+<br>
+Ethernet Ip Adress
+<p id="ethernet_ip">Unknown. Settings has not been received.</p>
+
+
+<br>
+Select sample rate.
+<select name="list" id="sample_rate">
+        <option value="16000">16000</option>
+        <option value="48000">48000</option>
+</select>
+
+<br>
+Select recording resolution
+<select name="list" id="bit_depth">
+        <option value="8">8 bit</option>
+        <option value="16">16 bit</option>
+</select>
+
+<br>
+Select mono or stereo mode for recording.
+<select name="list" id="num_channels">
+        <option value="1">Mono</option>
+        <option value="2">Sterio</option>
+</select>
+
+<br>
+Select Channel for recording in mono
+<select name="list" id="channel1">
+        <option value="3.5">3.5mm jack</option>
+        <option value="5">5mm jack</option>
+		<option value="BuildIn">Build in Microphone</option>
+</select>
+
+<br>
+Select Channel 2 for recording in stereo.
+<select name="list" id="channel2">
+        <option value="3.5">3.5mm jack</option>
+        <option value="5">5mm jack</option>
+		<option value="BuildIn">Build in Microphone</option>
+</select>
+
+
+
+
+</center>
 </body>
 </html>

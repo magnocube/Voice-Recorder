@@ -223,7 +223,7 @@ void sendSettingsToClient(int cs){
     //*generate the settings file, and send it to the client*//
     //*client will edit the values, and settings will come back and are stored in spiffs and are applied (using a restart)*//
     //char str[10];       //for converting int to char*
-    char toSend[300] = "parameter:value\n";  //might be changed to a bigger or smaller number
+    char toSend[300] = "";  //might be changed to a bigger or smaller number
     
     strcat(toSend,"ethernet_ip:");      strcat(toSend,sb.session_data->Ethernet_IP_Adress);                                 strcat(toSend,"\n");
     // strcat(toSend,"sample_rate:");      sprintf(str, "%d", sb.audio_config->sample_rate);          strcat(toSend,str);      strcat(toSend,"\n");
