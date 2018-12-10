@@ -14,25 +14,6 @@
 			font-size: 15px;
 		}
 
-		h1 {
-			font-weight: normal;
-			font-size: 15px;
-			margin-top: 1px;
-			margin-bottom: 1px;
-		}
-		h2 {
-			font-size: 230%;
-			font-weight: bold;
-			margin-top: 0.8em;
-			margin-bottom: 0.8em;
-			}
-		h3 {
-			font-size: 134%;
-			font-weight: norm;
-			margin-top: 0.2em;
-			margin-bottom: 0.2em;
-		}
-
 		html {
 			background-color: #292929;
 		}
@@ -40,60 +21,46 @@
 
 
 	</style>
-	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-	<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+	
 	<script type="text/javascript">
         function loadSettingsFromServer()
 			{
-		
+			
 			var text=httpGet("SETTINGS.TXT");
-			document.body.innerHTML += "<br>";
-			var lines = text.split('\n');
+			
+			<!-- split settings into lines (each line contains a setting)>
+			var lines = text.split('\r\n');
+			
+			<!-- lines[0] contains the IP. this should not be placed in a dropdown (therefore this hardcoded solution) ->these 2 lines work perfectly>
 			var IPsegments = lines[0].split(':');
 			document.getElementById(IPsegments[0]).innerHTML = IPsegments[1];
-			
-			for(var line = 1; line < lines.length; line++){
-				let segments = lines[line].split(":");				
-				document.body.innerHTML += segments[0];
-				document.body.innerHTML +=":";
-				document.body.innerHTML += segments[1];
-				document.body.innerHTML += "<br>";
-				let newObject1 = segments[0];
-				let newObject2 = segments[1];
-			
-				<!--var newObject1 = jQuery.extend(true, {}, segments[0]);>
-				<!--var newObject2 = jQuery.extend(true, {}, segments[1]);>
-				SelectElement(newObject1,newObject2);
-				document.getElementById(IPsegments[0]).innerHTML  += " ";
-				
-				$('sample_rate').selectmenu('refresh', true);
-				$('bit_depth').selectmenu('refresh', true);
-				$('num_channels').selectmenu('refresh', true);
-				$('channel1').selectmenu('refresh', true);
-				$('channel2').selectmenu('refresh', true);
-				delete segments;
+		
+		
+			<!-- translate string to usable array>
+			var myArray = [];
+			for (l = 0; l < lines.length; l++) {
+				var s = lines[l].split(":");
+				myArray[l] = s;
 			}
-            document.body.innerHTML += text;
 			
+			
+			<!-- go through each line. and set the dropdown to the right index>
+			for(var line = 1; line < lines.length; line++){
+				document.getElementById(myArray[line][0]).value = myArray[line][1];
+			}
+            			
         }
 		
 
-		function SelectElement(id, valueToSelect)
-		{    
-			var op = document.getElementById(id).getElementsByTagName("option");
-			for (var i = 0; i < op.length; i++) {
-			  // lowercase comparison for case-insensitivity
-			  (op[i].value.toLowerCase() == valueToSelect) 
-				? op[i].selected = true 
-				: op[i].selected = false ;
-			}
-		}
 		function httpGet(theUrl)
 			{
-				var xmlHttp = new XMLHttpRequest();
-				xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-				xmlHttp.send( null );
-				return xmlHttp.responseText;
+				var xmlHttp = new XMLHttpRequest(); 
+				xmlHttp.open( "GET", theUrl, false ); 
+				xmlHttp.send( null ); 
+ 				return xmlHttp.responseText; 
+				
+			
 			} 
 		function safeSettingsToServer() 
 			{
@@ -101,19 +68,19 @@
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
 			var toSend = "CONFIG:";
-			toSend += '\n';
+			toSend += '\r\n';
 			toSend += "sample_rate:";
 			toSend += document.getElementById("sample_rate").value;
-			toSend += '\n';
+			toSend += '\r\n';
 			toSend += "bit_depth:";
 			toSend += document.getElementById("bit_depth").value;
-			toSend +='\n';
+			toSend +='\r\n';
 			toSend += "num_channels:";
 			toSend += document.getElementById("num_channels").value;
-			toSend += '\n';
+			toSend += '\r\n';
 			toSend += "channel1:";
 			toSend += document.getElementById("channel1").value;
-			toSend +='\n';
+			toSend +='\r\n';
 			toSend += "channel2:";
 			toSend += document.getElementById("channel2").value;
 			
@@ -140,28 +107,28 @@ Ethernet Ip Adress
 
 <br>
 Select sample rate.
-<select name="list" id="sample_rate">
+<select id="sample_rate">
         <option value="16000">16000</option>
         <option value="48000">48000</option>
 </select>
 
 <br>
 Select recording resolution
-<select name="list" id="bit_depth">
+<select id="bit_depth">
         <option value="8">8 bit</option>
         <option value="16">16 bit</option>
 </select>
 
 <br>
 Select mono or stereo mode for recording.
-<select name="list" id="num_channels">
+<select id="num_channels">
         <option value="1">Mono</option>
         <option value="2">Sterio</option>
 </select>
 
 <br>
 Select Channel for recording in mono
-<select name="list" id="channel1">
+<select id="channel1">
         <option value="3.5">3.5mm jack</option>
         <option value="5">5mm jack</option>
 		<option value="BuildIn">Build in Microphone</option>
@@ -169,15 +136,21 @@ Select Channel for recording in mono
 
 <br>
 Select Channel 2 for recording in stereo.
-<select name="list" id="channel2">
+<select id="channel2">
         <option value="3.5">3.5mm jack</option>
         <option value="5">5mm jack</option>
 		<option value="BuildIn">Build in Microphone</option>
 </select>
 
+<button onclick="document.getElementById('channel2').selectedIndex=2">Force test mic build in</button>
+<button onclick="document.getElementById('channel2').selectedIndex=0">Force test 3.5mm</button>
+<button onclick="document.getElementById('channel2').selectedIndex=1">Force test 5mm</button>
+
 
 
 
 </center>
+
+<div id="workaround"> </div>
 </body>
 </html>

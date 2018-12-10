@@ -2,4 +2,4 @@ sample_rate:16000
 bit_depth:16
 num_channels:2
 channel1:BuildIn
-channel2:3.5
+channel2:BuildIn
