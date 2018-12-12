@@ -35,7 +35,7 @@
 #define DEFAULT_ETHERNET_PHY_CONFIG phy_KSZ8081_default_ethernet_config
 
 
-
+/*This shard buffer will be passed to the RTOS tasks. so all the tasks have acces to the parameters of the shared buffer*/
 typedef struct{         //NOTE: keep the position of this struct below SDCARD.H and wm8960.h.    And above recording_task.h and wifi_ethernet_interface_task.h
     bool recording; 
     pca9535 *gpio_header;      

@@ -6,31 +6,42 @@ pressing F12 while selecting a function will jump to the declaration of that fun
 
 #include "main.h"
 
-extern "C" { 														 //this just needs to be here
+extern "C" { 	
 	void app_main();
 }
 
-void IRAM_ATTR button_isr_handler(void* arg) { //the button on the device will create an interrupt that will be handled here.
-	
+
+/* Whenever the button on the device is pressed, this interrupt handler will be called. 
+* It will send a signal to that will be received by the 'gpio_task_example'. 
+* The 'gpio_task_example' contains the logic that should happen when the button is pressed.*/
+void IRAM_ATTR button_isr_handler(void* arg) { 
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
+
+/* This function will implement the logic that handles the pressing of the botton on top of the case.
+* It contains an infinity loop (because it is a task runned by RTOS) that every time it starts checks if there has been a signal from the button.
+* If a signal from the button (interupt handler) has been received the funtion will check if some time has been passed (default 1000ms).
+* This is because the interrupt handler might send multiple signals when the button is not pressed perfectly.
+* After that the logic is preformed.:
+* If the device is not recording., it will check if a SD is mounted and sets a global recording variable on 'true'
+* Else it will turn that recording variable to false.*/
 static void gpio_task_example(void* arg)
 {
     uint32_t lastTimeInterrupt = 0;
-    uint32_t io_num;
+    uint32_t io_num; // to store the argument of the interupt handler
     for(;;) {
-        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-            uint32_t timeNow = esp_log_timestamp();
-            if(timeNow - lastTimeInterrupt>= 200){  // to prevent 2 fast interrupts... at least 200 milliseconds between a interrupt -> this value might be changed to a higher number
-            printf("time since last button: %d",timeNow - lastTimeInterrupt);
+        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) { // continues if a signal from the interrupt handler has been send.
+            uint32_t timeNow = esp_log_timestamp();                 
+            if(timeNow - lastTimeInterrupt >= 1000){  // to prevent 2 fast interrupts... at least 1000 milliseconds between a interrupt (minimum recording length is 1 second... and 1 second between each recording)
+                printf("time since last button: %d",timeNow - lastTimeInterrupt);
                 lastTimeInterrupt = timeNow;                
                 ESP_LOGI(TAG, "Whoop Whoop, Button has been pressed!, Whoop Whoop.");
 
-                if(sb.recording == false){
+                if(sb.recording == false){                      //when the device is not in recording mode.
                     if(sb.SD->isMounted()){						//and the card is acually mounted
-                        if(!sb.session_data->is_in_TestModus){  //when testing use the button for an other function... should not start recording on every interupt
-                            sb.recording = true;
+                        if(!sb.session_data->is_in_TestModus){  //when testing the button sould not be used for starting a recoding (this might let the test fail).
+                            sb.recording = true;                
                             ESP_LOGI(TAG, "recording set to true");
                         }
                     } else{
@@ -41,15 +52,17 @@ static void gpio_task_example(void* arg)
                     sb.recording = false;
                     sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
                     /*NOTE: THE RECORDING MAY CONTINUE IF THE SD CARD HAS PROBLEMS, THIS ONLY SETS THE FLAG 'RECORDING' false*/
-                    /*THE RECORDING TASK COUL BE STUCK ON READING THE I2S BUS*/
+                    /*THE RECORDING TASK COULD BE STUCK ON READING THE I2S BUS*/
                 }
             } else {
 
             }
         }
+        vTaskDelay(100/portTICK_PERIOD_MS);; //prevent lost of CPU power
     }
 }
 
+/*The app main runs every time the program is started. see the flow diagram for the logic. */
 void app_main()
 {
    
@@ -57,17 +70,22 @@ void app_main()
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 			                	//change default pin-config in "settings.h"	
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"
     sessionData = ESP_SESSION_DATA_DEFAULT();                       //change default parameters in "settings.h"
-    strcpy(sessionData.Ethernet_IP_Adress,"/sdcard/notDefined.wav");
-    setupInterruptBigButton(&pinout);                               // must be called before reading the large button to check if the device must be tested. otherwise pin is not configured.
+    strcpy(sessionData.last_file_name,"/sdcard/notDefined.wav");    //set the default value of the file name.
+    strcpy(sessionData.Ethernet_IP_Adress,"NO ADRESS");        //set the default value of the Ethernet IP (for the browser)
+    setupInterruptBigButton(&pinout);                               //setup the big button on top of the case (set pinmode and assign interrupt handler)
         
+
+    /*
+    * this block will see of the button is pressed( when de diveice has just booted up) and then determines if the divice should be in test mode.
+    */    
     ESP_LOGI(TAG,"READING BUTTON (FOR TESTING PURPOSES :D)");
-    sessionData.is_in_TestModus = !gpio_get_level((gpio_num_t)pinout.big_button);                       //read the large button and invert the input
+    sessionData.is_in_TestModus = !gpio_get_level((gpio_num_t)pinout.big_button);          //read the large button and invert the input
     ESP_LOGI(TAG, "divice modus. 1=testmodus, 0=normal operatopn: %d", sessionData.is_in_TestModus);
     if(sessionData.is_in_TestModus){
         printf("**********************************************\n*\n*\n");
          printf("DEVICE WILL START IN TEST MODE\n*\n*\n");
           printf("**********************************************\n");
-        vTaskDelay(5000/portTICK_PERIOD_MS); //make clear device is in test mode
+        vTaskDelay(5000/portTICK_PERIOD_MS); //make clear device is in test mode. keep this test some seconds on the screen.
     } else{
         printf("**********************************************\n*\n*\n");
          printf("DEVICE WILL START IN NORMAL OPERATING MODE\n*\n*\n");
@@ -76,15 +94,15 @@ void app_main()
     }
 
 
-    setupPeripherals(&pinout);					                	//setup for i2c, etc...
-    setupDeviceSettingsFromSPIFFS();                                //will fill the corresponding config-structs with the desired settings (settings can be cahnged using the browser and a restart, or to reflash the storage-partition)   
+    setupPeripherals(&pinout);					                	//setup for i2c, etc... 
+    setupDeviceSettingsFromSPIFFS();                                //will fill the corresponding config-structs with the desired settings (settings can be changed using the browser and a restart, or to reflash the storage-partition)   
    
 
-	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                   //make instance of the i2c-GPIO-expander
-	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr,&sessionData);                            //make instance of the SD card interface
+	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                  //make instance of the i2c-GPIO-expander
+	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr,&sessionData);               //make instance of the SD card interface
 	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);           //make instance of the audio codec interface
 	sb = {	.recording = false,						                                        //this shared_buffer is passed to the different tasks it contains all the pointers Both tasks need.
-			.gpio_header = pca_ptr,					                                        /*TODO: rename 'shared_buffer' to 'shared_memory'*/
+			.gpio_header = pca_ptr,					                                        /*TODO: rename 'shared_buffer' to 'shared_memory'*/  
 			.SD = SD_ptr,
 			.codec = audio_codec_ptr,
 			.audio_config = &audioConfig,
@@ -92,17 +110,14 @@ void app_main()
             .session_data = &sessionData	
 			};
 
-	testSPIFFSRead();	
-    configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code)
-    start_mdns_service();
+	testSPIFFSRead();	      //TODO... delete or move this to test code. 
+    configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code) to make sure all the hardware connected to it start up correctly.
+    start_mdns_service();     //TODO... delete or implement this (does nothing now)
 
     
-    pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	
-    // pca_ptr->digitalWrite(pinout.phy_reset,PCA_LOW,true); 
-    // vTaskDelay(20/portTICK_PERIOD_MS);
-    // pca_ptr->digitalWrite(pinout.phy_reset,PCA_HIGH,true);  				
-    
-    audio_codec_ptr->printCopyCodecRegisters();
+    pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	//enables power on the SD card
+
+    audio_codec_ptr->printCopyCodecRegisters();             //print out a copy of the codec registers. this is to verify the the programmed config with the data to be printed.
 
 	
 
@@ -166,6 +181,11 @@ void app_main()
 															// the structs from the stack. and placed them in the heap... too lazy to remove the comment.
 }
 
+
+/*
+*This method will read the settings.txt from the spiffs memory.
+*It will analyse it line by line and sets the struct to the good position.
+*/
 void setupDeviceSettingsFromSPIFFS(){
     FILE* f = fopen("/spiffs/settings.txt", "r");
         fseek(f, 0, SEEK_END);
