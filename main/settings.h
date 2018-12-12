@@ -27,7 +27,7 @@
 #define PCA_HIGH 1
 #define PCA_I2C_ADDR 0x20 
 #define WAV_HEADER_SIZE 44 
-
+#define FILE_NAME_LENGTH 9
 
 
 #define PIN_PHY_POWER 32    //can also be found in ESP_PIN_CONFIG_DEFAULT.  
@@ -78,6 +78,7 @@
     .Ethernet_IP_Adress = (char*)malloc(15), \
     .Ethernet_Ip_received = false, \
     .is_in_TestModus = false, \
+    .last_file_name = (char*)malloc(FILE_NAME_LENGTH +20), \
 }
 
 //TAG used for logging 
@@ -139,6 +140,7 @@ typedef struct{
    char* Ethernet_IP_Adress;    //by default requested by DHCP, 
    bool Ethernet_Ip_received;   //indicates if the interface is connected
    bool is_in_TestModus;          //will check if the device is in test modus. the can be enabled by pressing the large button on startup with SD inside.
+   char* last_file_name;
 } esp_session_data;
 
 #endif //SETTINGS_H

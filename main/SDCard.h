@@ -17,6 +17,7 @@
 #include "driver/sdmmc_host.h"
 #include "sdmmc_cmd.h"
 #include "esp_vfs_fat.h"
+#include "nvs_flash.h"
 #include "esp_log.h"
 #include "esp_err.h"
 #include <string.h>
@@ -28,13 +29,14 @@
 
 class SDCard{
     public:
-        SDCard(esp_pin_config *pinC, esp_audio_config *audioC,pca9535 * gh); //constructor, will try to mount the SD card on initialising                                           
+        SDCard(esp_pin_config *pinC, esp_audio_config *audioC,pca9535 * gh, esp_session_data *sessionD); //constructor, will try to mount the SD card on initialising                                           
         bool isCardInSlot();                                    //will check if the SD card is in the slot for writing
         bool isWriteProtectOn();                                //checks if the write protection is on. (card must be in slot for this to give a valid return)
         bool isMounted();                                       //returns if the SD card is mounted to the file System
         esp_err_t mountCard();                                  //will attempt to mount the SD card to the file system
         void releaseCard();                                     //will demount the SD card from the file System
         esp_err_t beginFile(char name[]);                                  //will make a file on the file system and sets the offset for the header
+        void generateNextFileName();                            //generate new file name and pit it in session data
         esp_err_t addDataToFile(uint8_t *data,int length);      //will add data to the file. (can be time consuming!)
         void endFile();                                         //write out the wav header tho the beginning of the file and close the file
         void printCardInfo();  
@@ -46,6 +48,7 @@ class SDCard{
         sdmmc_slot_config_t slot_config;                        //used for: setupSDConfig();
         esp_pin_config *pinconfig;                              //pingconfig of the device. Gets passed from the constructor
         esp_audio_config *audioConfig;                          //audioconfig of the device. will have up-to-date settings for audio settings 
+        esp_session_data *sessionData;
         pca9535 *gpio_header;
         esp_vfs_fat_sdmmc_mount_config_t mount_config;          //used for: setupSDConfig();
         sdmmc_card_t* card;                                     //used for: mountCard();

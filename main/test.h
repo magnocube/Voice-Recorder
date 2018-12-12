@@ -53,12 +53,11 @@ void Test_task(esp_shared_buffer *shared_buffer){
         vTaskDelay(5000/ portTICK_PERIOD_MS);
         shared_buffer->recording = false;
         ESP_LOGI(TEST_TAG, "Testing Audio done, please notice that the green LED is off. audio must be chacked manually (for now)");
-        //todo.. check if actually data has been written without using a external user
-
+        //todo.. play the recorded sond back using the audio jack to veryfy the analog cirquit
         
 
         for(int i =0; i< 100; i++){printf(".\n");}// clear screen
-
+        vTaskDelay(300/ portTICK_PERIOD_MS);
 
         ESP_LOGI(TEST_TAG, "**********************************************");
         ESP_LOGI(TEST_TAG, "*TEST CODE COMPLETED.");

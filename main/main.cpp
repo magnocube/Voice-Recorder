@@ -57,6 +57,7 @@ void app_main()
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 			                	//change default pin-config in "settings.h"	
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"
     sessionData = ESP_SESSION_DATA_DEFAULT();                       //change default parameters in "settings.h"
+    strcpy(sessionData.Ethernet_IP_Adress,"/sdcard/notDefined.wav");
     setupInterruptBigButton(&pinout);                               // must be called before reading the large button to check if the device must be tested. otherwise pin is not configured.
         
     ESP_LOGI(TAG,"READING BUTTON (FOR TESTING PURPOSES :D)");
@@ -80,7 +81,7 @@ void app_main()
    
 
 	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                   //make instance of the i2c-GPIO-expander
-	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr);                            //make instance of the SD card interface
+	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr,&sessionData);                            //make instance of the SD card interface
 	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);           //make instance of the audio codec interface
 	sb = {	.recording = false,						                                        //this shared_buffer is passed to the different tasks it contains all the pointers Both tasks need.
 			.gpio_header = pca_ptr,					                                        /*TODO: rename 'shared_buffer' to 'shared_memory'*/
@@ -296,7 +297,7 @@ void configureGPIOExpander(){
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false);
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false);  
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted) (default of gpio header is low.. so this line could be remoced)

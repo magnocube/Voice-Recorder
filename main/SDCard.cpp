@@ -2,10 +2,10 @@
 
 
 
-SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC,pca9535 * gh){ 
+SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC,pca9535 * gh, esp_session_data *sessionD){ 
     pinconfig = pinC;
     audioConfig = audioC;
-    
+    sessionData = sessionD;
     gpio_header = gh;
 
     setupSDConfig();
@@ -177,4 +177,90 @@ void SDCard::generateWavHeader()
     printf("Size of the written file it bytes: %d\n", size);
 
 
+}
+void SDCard::generateNextFileName(){
+    	// Initialize NVS not needed. has already been done in main.cpp during the update of the restart counter. (which needs to be removed)
+  
+
+    nvs_handle my_NVS_handle;
+    esp_err_t err;
+
+    printf("Opening Non-Volatile Storage (NVS) handle... ");
+    
+    err = nvs_open("storage", NVS_READWRITE, &my_NVS_handle);
+    if (err != ESP_OK) {
+        printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+    } else {
+        printf("Done\n");
+
+        // Read
+        printf("Reading file counter from NVS ... ");
+        int32_t file_counter = 0; // value will default to 0, if not set yet in NVS
+        
+
+        err = nvs_get_i32(my_NVS_handle, "file_counter", &file_counter);
+        switch (err) {
+            case ESP_OK:
+                printf("Done\n");
+                printf("file counter = %d\n", file_counter);
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                printf("The file counter is not initialized yet, the counter will be put back to 0!\n");
+                break;
+            default :
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+        }
+
+        // Write
+                           
+        printf("Updating file counter in NVS ... ");
+        file_counter++;
+        err = nvs_set_i32(my_NVS_handle, "file_counter", file_counter);
+        printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+                           
+        // Commit written value.
+        // After setting any values, nvs_commit() must be called to ensure changes are written
+        // to flash storage. Implementations may write to storage at other times,
+        // but this is not guaranteed.
+       
+            
+        int32_t file_counter_copy = file_counter;
+        int count = 0;
+        while(file_counter_copy != 0)
+        {
+            file_counter_copy /= 10;
+            ++count;
+        } 
+        
+        
+        char name[FILE_NAME_LENGTH +20] = "/sdcard/"; //fault  = here!
+        for(int i = 0; i< FILE_NAME_LENGTH - count; i++){
+             strcat(name,"0");        
+        } 
+        char numbers[FILE_NAME_LENGTH+1];
+                                
+        itoa(file_counter,numbers,10);
+      
+
+        strcat(name,numbers);
+        strcat(name,".wav");
+        strcpy(sessionData->last_file_name,name);
+
+        printf("generated name that will be used for the file: ");
+        printf(name);
+        printf("\n");
+
+
+
+
+        printf("Committing updates in NVS ... ");
+        err = nvs_commit(my_NVS_handle);
+        printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+        // Close
+         nvs_close(my_NVS_handle); 
+     
+
+    }
+    
+    printf("\n");
 }
