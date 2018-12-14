@@ -112,7 +112,6 @@ void app_main()
 
 	testSPIFFSRead();	      //TODO... delete or move this to test code. 
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code) to make sure all the hardware connected to it start up correctly.
-    start_mdns_service();     //TODO... delete or implement this (does nothing now)
 
     
     pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	//enables power on the SD card
@@ -161,7 +160,7 @@ void app_main()
 							 1													//task core
 							 );
 
-    if(sessionData.is_in_TestModus){
+    if(sessionData.is_in_TestModus){                                                                       //only create this thread when the device should start in test mode.
         xTaskCreatePinnedToCore((TaskFunction_t)Test_task,		                    //task function		   //using software to determine if all the hardware is working
                                 "test_task", 					                    //task name 
                                 1024 * 2, 											//stack size
@@ -194,17 +193,15 @@ void setupDeviceSettingsFromSPIFFS(){
         ESP_LOGI(TAG, "size of settigns file: ... size: %d\n", fileSize);
 
         
-        char buf[100];  // line max 100 chars. if a line in the settings file is longer than 100 chars this variable has to be changed
-        // char* command = (char*)malloc(60); //a name of a variable can be no longer than 60 chars. 
-        // char* data = (char*)malloc(60);  //the acutal value of a variable can be no longer than 60 chars.
-
+        char buf[100]; 
+      
         const char s[2] = ":";
         
         while (fgets(buf, sizeof(buf), f) != NULL) {
             if(strchr(buf, ':')){   // the ':' is used to split a variables name and parameter. if a line has no ':', it will probably be empty
             char* end = strchr(buf, '\0');  // this is the end of the buffer. index is required to remove the new line
             int indexOfEnd = (int)(end-buf);
-            buf[indexOfEnd] = '\0';
+            buf[indexOfEnd] = '\0'; // just to make sure ;-)
 
 
             char* c = strtok(buf, s);   
@@ -226,6 +223,7 @@ void setupDeviceSettingsFromSPIFFS(){
                 printf("found num channels: %d\n", num_channels);
                 audioConfig.num_channels = num_channels;
            }
+           //:TODO: add more settings
                     
          
            }       
@@ -235,54 +233,15 @@ void setupDeviceSettingsFromSPIFFS(){
         fclose(f);
 
 }
-void start_mdns_service()
-{
-    // _Static_assert(sizeof(c_config_hostname) < CONFIG_MAIN_TASK_STACK_SIZE/2, "Configured mDNS name consumes more than half of the stack. Please select a shorter host name or extend the main stack size please.");
-    // const size_t config_hostname_len = sizeof(c_config_hostname) - 1; // without term char
-    // char hostname[config_hostname_len + 1 + 3*2 + 1]; // adding underscore + 3 digits + term char
-    // uint8_t mac[6];
-
-    // // adding 3 LSBs from mac addr to setup a board specific name
-    // esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    // snprintf(hostname, sizeof(hostname), "%s_%02x%02X%02X", c_config_hostname, mac[3], mac[4], mac[5]);
-
-    // //initialize mDNS
-    // ESP_ERROR_CHECK( mdns_init() );
-    // //set mDNS hostname (required if you want to advertise services)
-    // ESP_ERROR_CHECK( mdns_hostname_set(hostname) );
-    // ESP_LOGI(TAG, "mdns hostname set to: [%s]", hostname);
-    // //set default mDNS instance name
-    // ESP_ERROR_CHECK( mdns_instance_name_set(EXAMPLE_MDNS_INSTANCE) );
-
-    // //structure with TXT records
-    // mdns_txt_item_t serviceTxtData[3] = {
-    //     {"board","esp32"},
-    //     {"u","user"},
-    //     {"p","password"}
-    // };
-
-    // //initialize service
-    // ESP_ERROR_CHECK( mdns_service_add("ESP32-WebServer", "_http", "_tcp", 80, serviceTxtData, 3) );
-    // //add another TXT item
-    // ESP_ERROR_CHECK( mdns_service_txt_item_set("_http", "_tcp", "path", "/foobar") );
-    // //change TXT item value
-    // ESP_ERROR_CHECK( mdns_service_txt_item_set("_http", "_tcp", "u", "admin") );
-}
 
 void setupPeripherals(esp_pin_config *pinconfig)
 {
 	ESP_LOGI(TAG, "setting up peripherals");
     setupI2C(pinconfig);  
 	setupSPIFFS();
-	setupNVS();			//also does a restart counter
+	setupNVS();			//this does not a setup, but increments a restart counter.
 	ESP_LOGI(TAG, "done setting up peripherals");
  
-    
-
-
-	//testsetup adc... can be deleted later
-	adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_0,ADC_ATTEN_DB_0);
 
 
 }
@@ -301,9 +260,11 @@ void setupI2C(esp_pin_config *pinconfig)
     // ESP_LOGI(TAG, "i2c_clk pin: %d",pinconfig->i2c_clock);
     // ESP_LOGI(TAG, "i2c_data pin: %d",pinconfig->i2c_data);
 }
+
+/*The GPIO expander is the i2c gpio (pca9535) IC. 
+See pinconfig or hardware schematic to see where pins are connected.*/
 void configureGPIOExpander(){
     pca9535 * gh = sb.gpio_header;
-	// shared_buffer->gpio_header->pinMode(shared_buffer->pin_config->led_red,PCA_INPUT,false);
     gh->digitalWrite(pinout.phy_reset,PCA_HIGH,true);
 	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
 	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false); //change this to true... trying to fix a bug
@@ -324,6 +285,8 @@ void configureGPIOExpander(){
     
 }
 
+/*The Button on top of the case is used for recordings, whenever the button gets pressed a interrupt must be send. 
+The interrupt will be handled by the interrupt handler ('button_isr_handler')*/
 void setupInterruptBigButton(esp_pin_config *pinconfig){
     gpio_pad_select_gpio((gpio_num_t)pinconfig->big_button);
 		// set the correct direction
@@ -336,9 +299,9 @@ void setupInterruptBigButton(esp_pin_config *pinconfig){
 	gpio_isr_handler_add((gpio_num_t)pinconfig->big_button, button_isr_handler, NULL);
     //create a queue to handle gpio event from isr
     gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    //start gpio task
-   
+      
 }
+/*SPIFFS = SPI Fat FileSystem. it acts like the SD card, but needs a seperate setup*/
 void setupSPIFFS(){
 	ESP_LOGI(TAG, "Initializing SPIFFS");
     
@@ -372,6 +335,8 @@ void setupSPIFFS(){
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
 }
+
+/*redunant function... the testcode in 'test.h' does the same thing.. this can be deleted*/
 void testSPIFFSRead(){
 	ESP_LOGI(TAG, "Reading file");
     FILE* f = fopen("/spiffs/foo.txt", "r");
@@ -391,6 +356,8 @@ void testSPIFFSRead(){
 	//esp_vfs_spiffs_unregister(NULL);
 	}
 }
+
+/*this function does increment a restart counter, while at the same time it indicates if there are problems with spiffs*/
 void setupNVS(){
 	// Initialize NVS
     nvs_handle my_NVS_handle;
