@@ -114,7 +114,7 @@ void app_main()
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code) to make sure all the hardware connected to it start up correctly.
 
     
-    pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	//enables power on the SD card
+    //pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	//enables power on the SD card
 
     audio_codec_ptr->printCopyCodecRegisters();             //print out a copy of the codec registers. this is to verify the the programmed config with the data to be printed.
 
@@ -295,9 +295,9 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
-    gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false);  
-    gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false);
+    gh->digitalWrite(sb.pin_config->sdPower,PCA_LOW,false);
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_LOW,false); //high = build in ,, low = extern (3.5mm)
+    gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted) (default of gpio header is low.. so this line could be remoced)
     

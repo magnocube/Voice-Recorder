@@ -232,6 +232,7 @@ class WM8960{
         void send_I2C_command(uint8_t reg, uint16_t value);                                                 //send a value to a register
         void initialSetupRegisters();
         void printRegister(uint8_t index,uint16_t value);
+        void setupMicPath();
         esp_audio_config *audioConfig;
         esp_pin_config *pinout;
         SDCard *SD;

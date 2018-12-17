@@ -81,6 +81,7 @@ esp_err_t SDCard::mountCard(){
             ESP_LOGE(TAG, "Failed to mount filesystem, consider a card format(can be done in code,,, but needs to be inplemented");
         } else {
             ESP_LOGE(TAG, "Failed to initialize the card: %d", ret);
+            gpio_header->digitalWrite(pinconfig->sdPower,PCA_HIGH,true); //disable power
         }
     } else{
         ESP_LOGI(TAG, "SD card mouted succesfully!");

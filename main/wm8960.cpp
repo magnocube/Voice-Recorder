@@ -51,9 +51,34 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
     
 
     initialSetupRegisters(); //configuration example
+    setupMicPath(); //sets the microphones in the correct position (connects the right microphones)
     setupI2S(); // init i2s driver
   
 
+}
+/*TODO... implement all this*/
+void WM8960::setupMicPath(){
+    if(audioConfig->num_channels == MONO){
+        if(audioConfig->channel1 == MIC_EXTERNAL_3_5_mm){
+
+        } else if(audioConfig->channel1 == MIC_BUILD_IN){
+
+        } else if(audioConfig->channel1 == MIC_EXTERNAL_5_0_mm){
+
+        }
+    } else if(audioConfig->num_channels == STERIO){
+        if(audioConfig->channel1 == MIC_EXTERNAL_3_5_mm){
+
+        } else if(audioConfig->channel1 == MIC_BUILD_IN){
+
+        } 
+
+        if(audioConfig->channel1 == MIC_EXTERNAL_3_5_mm){
+
+        } else if(audioConfig->channel1 == MIC_EXTERNAL_5_0_mm){
+            
+        }
+    }
 }
 /*setup the i2s bus with the correct settings. 
 the audio settings are stored in the struct audioConfig

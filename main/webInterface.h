@@ -38,7 +38,7 @@ while(1){
         
         // struct timeval receiving_timeout;
         // receiving_timeout.tv_sec = 5;
-        // receiving_timeout.tv_usec = 0;
+        // receiving_timeout.tv_usec = 100000;
         // if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &receiving_timeout,
         //         sizeof(receiving_timeout)) < 0) {
         //     ESP_LOGE(TAG, "... failed to set socket receiving timeout");
@@ -62,7 +62,7 @@ while(1){
             //detect the end of message 
             //fcntl(cs,F_SETFL,O_NONBLOCK);  //TODO: figure this statement out
             //do {  //read the start of the packet... only the GET is important
-                bzero(recv_buf, sizeof(recv_buf));
+                //bzero(recv_buf, sizeof(recv_buf));
                 r = read(cs, recv_buf, sizeof(recv_buf)-1);
                 recv_buf[r] = '\0';
                 if(!shared_buffer->session_data->is_in_TestModus){  //only print random ethernet things when not in testmode
@@ -158,7 +158,7 @@ while(1){
                 ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
                 ESP_LOGI(TAG, "... socket send success");
             }
-            close(cs);
+            lwip_close(cs);
         }
         ESP_LOGI(TAG, "connection to client closed. waiting for new connection");
         	// vTaskDelay(1000/portTICK_PERIOD_MS);

@@ -136,8 +136,8 @@ void wifi_init_softap()
 	
  
     esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
- 
     esp_wifi_start();
+     esp_wifi_set_ps(WIFI_PS_NONE);
     ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
              EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 }
