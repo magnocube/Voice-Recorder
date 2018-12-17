@@ -87,7 +87,7 @@
 
 			
 			xhttp.send(toSend);
-			document.body.innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
+			document.getElementById("messagePlace").innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
 			location.reload();
 		}
 		
@@ -98,7 +98,7 @@
 <body onload="loadSettingsFromServer()">
 <center>
 
-<button type="button" onclick="safeSettingsToServer();">submit and restart</button> 
+
 
 <br>
 Ethernet Ip Adress
@@ -142,11 +142,12 @@ Select Channel 2 for recording in stereo.
 		<option value="BuildIn">Build in Microphone</option>
 </select>
 
-<button onclick="document.getElementById('channel2').selectedIndex=2">Force test mic build in</button>
-<button onclick="document.getElementById('channel2').selectedIndex=0">Force test 3.5mm</button>
-<button onclick="document.getElementById('channel2').selectedIndex=1">Force test 5mm</button>
+</br>
+</br>
+<button type="button" onclick="safeSettingsToServer();">submit and restart</button> 
 
-
+<div id = "messagePlace">
+</div>
 
 
 </center>

@@ -55,6 +55,9 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
   
 
 }
+/*setup the i2s bus with the correct settings. 
+the audio settings are stored in the struct audioConfig
+the pins used for the i2s communication are stored in the struct pinout*/
 void WM8960::setupI2S(){  //setup the i2s bus of the esp32  
   
 
@@ -67,7 +70,7 @@ void WM8960::setupI2S(){  //setup the i2s bus of the esp32
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1 , // high interrupt priority
         .dma_buf_count = I2S_BUFF_COUNT,
         .dma_buf_len = AUDIO_BUFFER_SIZE, // 512
-        .use_apll = false,  //-> for testing
+        .use_apll = false,  //codec has own clock
         .tx_desc_auto_clear = true,
         .fixed_mclk = 0
     };
@@ -175,8 +178,16 @@ void WM8960::initialSetupRegisters(){ //example config
     //set the clock frequencies
     setRegister(regCopy.R26_Codec_Power_Manegement2,R26_PLL_ENABLE);
     setRegister(regCopy.R52_Codec_PLL_N,R52_PLLN|R52_SDM_FRACTIONAL_MODE|R52_PLL_PRESCALE_DIV_1);
-    setRegister(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ|R4_SYS_CLOCK_DIV_2|R4_CLOCK_FROM_PLL);
-    setRegister(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24|0b111000000); //speaker class D?
+    setRegister(regCopy.R4_Codec_Clocking1,R4_SYS_CLOCK_DIV_2|R4_CLOCK_FROM_PLL);
+    setRegister(regCopy.R8_Codec_Clocking2,0b111000000); //speaker class D?
+    if(audioConfig->sample_rate == 16000){
+        setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
+        setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
+    } else if(audioConfig->sample_rate == 48000){
+        setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_48KHZ);
+        setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_8);
+    }
+
     setRegister(regCopy.R53_Codec_PLL_K_1,R53_PLLK_23_16);
     setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
     setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
@@ -193,11 +204,11 @@ void WM8960::initialSetupRegisters(){ //example config
     setRegister(regCopy.R43_Codec_Input_Boost_Mixer1,R43_LEFT_BOOSTER_GAIN);
     setRegister(regCopy.R44_Codec_Input_Boost_Mixer2,R44_RIGHT_BOOSTER_GAIN);
     //set ALC 
-    setRegister(regCopy.R17_Codec_ALC1,/*R17_ALC_ENABLE|*/R17_ALC_MAX_GAIN|R17_ALC_TARGET);
+    setRegister(regCopy.R17_Codec_ALC1,R17_ALC_ENABLE|R17_ALC_MAX_GAIN|R17_ALC_TARGET);
     setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);
     setRegister(regCopy.R19_Codec_ALC3,R19_ALC_MODE_ALC|R19_ALC_ATTACK|R19_ALC_DECAY);
     setRegister(regCopy.R20_Codec_Noise_Gate,R20_NOISE_THRESHOLD_ENABLE|R20_NOISE_THRESHOLD);
-    setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
+    setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_48);
     
     writeRegisters(); //sends registers to codec
    

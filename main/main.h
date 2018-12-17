@@ -26,24 +26,25 @@
 #include "SDCard.h"
 #include "pca9535.h"
 
-
-#define MESSAGE "Hello TCP Client!!"
+/*used in setting up the socket... still have to figure out what it does*/
 #define LISTENQ 2
 
 
-#include "myPhy.h" //testing,,, this will become the ksz-PHY
+
+/*the ksz8951 ethernet Phy*/
+#include "myPhy.h"
 #define DEFAULT_ETHERNET_PHY_CONFIG phy_KSZ8081_default_ethernet_config
 
 
-/*This shard buffer will be passed to the RTOS tasks. so all the tasks have acces to the parameters of the shared buffer*/
-typedef struct{         //NOTE: keep the position of this struct below SDCARD.H and wm8960.h.    And above recording_task.h and wifi_ethernet_interface_task.h
-    bool recording; 
-    pca9535 *gpio_header;      
-    SDCard *SD;
-    WM8960 *codec;
-    esp_audio_config *audio_config;
-    esp_pin_config *pin_config;
-    esp_session_data *session_data;
+/*This shard buffer will be passed to the RTOS tasks, so all the tasks have acces to the parameters of the shared buffer*/
+typedef struct{         
+    bool recording;                         //global variable to indicate if the device should be recording
+    pca9535 *gpio_header;                   //a gpio expander IC. 
+    SDCard *SD;                             //pointer to the SD class
+    WM8960 *codec;                          //pointer to the Codec class
+    esp_audio_config *audio_config;         //audio config struct (how the recording should happen)
+    esp_pin_config *pin_config;             //pin config struct (the entire pinout of the hardware (mainly used to control leds and to (de)activate components))
+    esp_session_data *session_data;         //relevant data about this particular boot (Ehternet IP, number of errors and all other things to keep track of)
 } esp_shared_buffer;
 
 esp_shared_buffer sb;               //local variable of the struct above
@@ -66,8 +67,7 @@ void setupPeripherals(esp_pin_config *pinconfig);
 void setupInterruptBigButton(esp_pin_config *pinconfig);
 void setupDeviceSettingsFromSPIFFS();
 void start_mdns_service(); //not used... need to remove
-// void recording_task(esp_shared_buffer *shared_buffer);
-// void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer);
+
 
 void testSPIFFSRead();
 

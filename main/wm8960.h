@@ -72,9 +72,9 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R55_PLLK_7_0                0xE8
 
 #define R0_UPDATE_SOUND             0b100000000
-#define R0_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC
+#define R0_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC (I hope)
 #define R1_UPDATE_SOUND             0b100000000
-#define R1_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC
+#define R1_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC (I hope)
 
 #define R17_ALC_ENABLE              0b110000000
 #define R17_ALC_MAX_GAIN            0b001000000 // +12db
@@ -87,7 +87,7 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R20_NOISE_THRESHOLD         0b000000000 // -76.5dBfs
 #define R20_NOISE_THRESHOLD_ENABLE  0b000000001 // -76.5dBfs
 #define R27_ALC_SAMPLE_RATE_16      0b000000011 // 16 khz
-#define R27_ALC_SAMPLE_RATE_48      0b000000000 // 16 khz
+#define R27_ALC_SAMPLE_RATE_48      0b000000000 // 48 khz
 
 #define R21_LEFT_ADC_VOLUME         0b011000011 //default volume -> copied from datasheet
 #define R22_RIGHT_ADC_VOLUME        0b011000011 //default volume -> copied from datasheet

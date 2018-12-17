@@ -5,7 +5,7 @@
 // #include "SDCard.h"
 // #include "wm8960.h"
 
-//password and SSID of the voicerecorder... passwordt might be changed to the mac of the device
+//password and SSID of the voicerecorder... password might be changed to the mac of the device
 #define EXAMPLE_ESP_WIFI_SSID      "voiceRecorder"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_MAX_STA_CONN       5
@@ -15,12 +15,10 @@
 #define CODEC_I2C_ADDR 0x1a
 #define CODEC_I2S_NUM 0       //driver 0
 #define AUDIO_BUFFER_SIZE 1024 //size of the buffers for reading the data from dma and storing it on the SD
-#define I2S_BUFF_COUNT 4 //playing it safe
-#define I2C_CLOCKSPEED 40000  //0.04mhz,,, 
+#define I2S_BUFF_COUNT 10 //playing it safe
+#define I2C_CLOCKSPEED 400000  //0.4mhz,,, 
 
 #define I2C_DRIVER_NUM I2C_NUM_0
-#define MONO 1
-#define STERIO 2
 #define PCA_OUTPUT 0   //configuration register
 #define PCA_INPUT 1    //configuration register
 #define PCA_LOW 0
@@ -28,6 +26,12 @@
 #define PCA_I2C_ADDR 0x20 
 #define WAV_HEADER_SIZE 44 
 #define FILE_NAME_LENGTH 9
+
+#define MONO 1
+#define STERIO 2
+#define MIC_BUILD_IN 0
+#define MIC_EXTERNAL_3_5_mm 1 
+#define MIC_EXTERNAL_5_0_mm 2
 
 
 #define PIN_PHY_POWER 32    //can also be found in ESP_PIN_CONFIG_DEFAULT.  
@@ -46,7 +50,7 @@
     .i2s_WS = 16, \
     .i2s_DOUT = 33, \
     .analogIn = 35, \
-    .i2c_clock = 12, \
+    .i2c_clock = 17, \
     .i2c_data = 13, \
     .MDIO = 18, \
     .MDC = 23, \
@@ -68,10 +72,13 @@
 //default audio configuration
 //might be overwritten with spiffs data (to keep the changes from last run)
 // NOTE: these values will be overwritten in the main methond!.
+// NOTE: channel2 will not be used when device is in mono mode.
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
     .num_channels = STERIO, \
     .bits_per_sample = 16, \
     .sample_rate = 16000, \
+    .channel1 = MIC_BUILD_IN, \
+    .channel2 = MIC_BUILD_IN, \
 }
 
 #define ESP_SESSION_DATA_DEFAULT() {\
@@ -86,9 +93,9 @@ static const char* TAG = "Voice Recorder";
 
 
 
-/*|||||||||_____________CORE COMMUNICATION_______________|||||||||*/
+/*|||||||||_____________CORE SPECIFICATION_______________|||||||||*/
 //every fonction called on a specific core will be executed on that core. core 1 (which should be handling the interface).
-//should not handle recording and writing to the SD card. therefore this shared buffer will indicate what eacht task should do
+//should not handle recording and writing to the SD card (which should happen on core 1).
 
 
 /*|||||||||_____________AUDIO SETTINGS_______________|||||||||*/
@@ -96,6 +103,8 @@ typedef struct{
     short num_channels;
     short bits_per_sample;
     int sample_rate;
+    int channel1;
+    int channel2;
 } esp_audio_config;
 
 

@@ -94,7 +94,7 @@ void app_main()
     }
 
 
-    setupPeripherals(&pinout);					                	//setup for i2c, etc... 
+    setupPeripherals(&pinout);					                	//setup for i2c and spiffs... all other peripherals have been moved to other classes
     setupDeviceSettingsFromSPIFFS();                                //will fill the corresponding config-structs with the desired settings (settings can be changed using the browser and a restart, or to reflash the storage-partition)   
    
 
@@ -160,7 +160,7 @@ void app_main()
 							 1													//task core
 							 );
 
-    if(sessionData.is_in_TestModus){                                                                       //only create this thread when the device should start in test mode.
+    if(sessionData.is_in_TestModus){                                                                       /*only create this thread when the device should start in test mode.*/
         xTaskCreatePinnedToCore((TaskFunction_t)Test_task,		                    //task function		   //using software to determine if all the hardware is working
                                 "test_task", 					                    //task name 
                                 1024 * 2, 											//stack size
@@ -222,7 +222,25 @@ void setupDeviceSettingsFromSPIFFS(){
                 int num_channels = atoi(d);
                 printf("found num channels: %d\n", num_channels);
                 audioConfig.num_channels = num_channels;
-           }
+           } else if(strcmp(c,"channel1") == 0) {
+               if(strcmp(d,"BuildIn") == 0) {
+                    audioConfig.channel1 = MIC_BUILD_IN;
+               } else if(strcmp(d,"3.5") == 0) {
+                    audioConfig.channel1 = MIC_EXTERNAL_3_5_mm;
+               } else if(strcmp(d,"5.0") == 0) {
+                    audioConfig.channel1 = MIC_EXTERNAL_5_0_mm;
+               }             
+                printf("channel1 value: %d\n", audioConfig.channel1);
+           } else if(strcmp(c,"channel2") == 0) {
+               if(strcmp(d,"BuildIn") == 0) {
+                    audioConfig.channel2 = MIC_BUILD_IN;
+               } else if(strcmp(d,"3.5") == 0) {
+                    audioConfig.channel2 = MIC_EXTERNAL_3_5_mm;
+               } else if(strcmp(d,"5") == 0) {
+                    audioConfig.channel2 = MIC_EXTERNAL_5_0_mm;
+               }             
+                printf("channel2 value: %d\n", audioConfig.channel2);
+           } 
            //:TODO: add more settings
                     
          
