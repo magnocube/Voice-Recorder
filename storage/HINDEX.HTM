@@ -49,7 +49,10 @@
 			for(var line = 1; line < lines.length; line++){
 				document.getElementById(myArray[line][0]).value = myArray[line][1];
 			}
-            			
+			
+			
+			<!-- set the unselectable options non-selectable >
+            makeNonSelectable();
         }
 		
 
@@ -90,6 +93,25 @@
 			document.getElementById("messagePlace").innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
 			location.reload();
 		}
+		function makeNonSelectable()
+			{
+			<!--prevent changing channel 2 when recording in Stereo. and in Stereo the 5mm connection is not anvailable on channel 1>
+				if(document.getElementById("num_channels").value == 1){
+					document.getElementById("channel2").disabled = true;
+					document.getElementById("channel1").options[1].disabled = false;
+				} else {
+					document.getElementById("channel2").disabled = false;
+					document.getElementById("channel1").options[1].disabled = true;
+					if(document.getElementById("channel1").value == "5"){
+						document.getElementById("channel1").value = "3.5";
+					}
+				}
+				
+				
+				
+				
+			}
+			
 		
         </script>
 </head>
@@ -121,7 +143,7 @@ Select recording resolution
 
 <br>
 Select mono or stereo mode for recording.
-<select id="num_channels">
+<select id="num_channels" onchange="makeNonSelectable();">
         <option value="1">Mono</option>
         <option value="2">Sterio</option>
 </select>
@@ -137,7 +159,6 @@ Select Channel for recording in mono
 <br>
 Select Channel 2 for recording in stereo.
 <select id="channel2">
-        <option value="3.5">3.5mm jack</option>
         <option value="5">5mm jack</option>
 		<option value="BuildIn">Build in Microphone</option>
 </select>

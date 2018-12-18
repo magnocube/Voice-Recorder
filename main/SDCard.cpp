@@ -234,7 +234,7 @@ void SDCard::generateNextFileName(){
         } 
         
         
-        char name[FILE_NAME_LENGTH +20] = "/sdcard/"; //fault  = here!
+        char name[FILE_NAME_LENGTH +20] = "/sdcard/";
         for(int i = 0; i< FILE_NAME_LENGTH - count; i++){
              strcat(name,"0");        
         } 

@@ -94,16 +94,16 @@ void WM8960::setupI2S(){  //setup the i2s bus of the esp32
         .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1 , // high interrupt priority
         .dma_buf_count = I2S_BUFF_COUNT,
-        .dma_buf_len = AUDIO_BUFFER_SIZE, // 512
+        .dma_buf_len = AUDIO_BUFFER_SIZE, // 1024
         .use_apll = false,  //codec has own clock
         .tx_desc_auto_clear = true,
         .fixed_mclk = 0
     };
-    if(audioConfig->num_channels ==1){
-        i2s_config.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
-    } else if(audioConfig->num_channels == 2){
-        i2s_config.channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT;
-    }
+    // if(audioConfig->num_channels ==1){   //          
+    //     i2s_config.channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT;
+    // } else if(audioConfig->num_channels == 2){
+    //     i2s_config.channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT;
+    // }
      pin_config = {
         .bck_io_num = pinout->i2s_BCLK,
         .ws_io_num = pinout->i2s_WS,

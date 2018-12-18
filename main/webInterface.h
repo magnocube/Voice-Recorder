@@ -13,6 +13,9 @@ while(1){
     static unsigned int socklen;
     socklen = sizeof(remote_addr);
     int cs;//client socket
+
+    vTaskDelay(5000/portTICK_PERIOD_MS);  //wait before wifi is connected... (quick fix)
+    ESP_LOGI(TAG,"sockets are being opened \n");
     //xEventGroupWaitBits(wifi_event_group,CONNECTED_BIT,false,true,portMAX_DELAY);
    
         s = socket(AF_INET, SOCK_STREAM, 0);
@@ -48,7 +51,7 @@ while(1){
         // }
         while(1){                                                       //this loop should never exit
             cs=accept(s,(struct sockaddr *)&remote_addr, &socklen);
-            if(shared_buffer->session_data->Ethernet_Ip_received == true){                       //to indicate activity, if the ethernet IP is received,, the led will be high by default. therefore during handling it will be low
+            if(shared_buffer->session_data->Ethernet_Ip_received == true){                    //to indicate activity, if the ethernet IP is received,, the led will be high by default. therefore during handling it will be low
                 shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_LOW,true);     
             } else {
                 shared_buffer->gpio_header->digitalWrite(pinout.led_blue,PCA_HIGH,true);        //when no ehhernet IP has been received, the led will be low by default. therefore during handling it will be high
@@ -158,7 +161,8 @@ while(1){
                 ESP_LOGI(TAG, "... done reading from socket. Last read return=%d errno=%d\r\n", r, errno);
                 ESP_LOGI(TAG, "... socket send success");
             }
-            lwip_close(cs);
+            close(cs);
+            
         }
         ESP_LOGI(TAG, "connection to client closed. waiting for new connection");
         	// vTaskDelay(1000/portTICK_PERIOD_MS);
@@ -225,7 +229,7 @@ void sendSettingsToClient(int cs){
     //char str[10];       //for converting int to char*
     char toSend[300] = "";  //might be changed to a bigger or smaller number
     
-    strcat(toSend,"ethernet_ip:");      strcat(toSend,sb.session_data->Ethernet_IP_Adress);                                 strcat(toSend,"\r");
+    strcat(toSend,"ethernet_ip:");      strcat(toSend,sb.session_data->Ethernet_IP_Adress);                                 strcat(toSend,"\r");//strcat(toSend,"\n");
     // strcat(toSend,"sample_rate:");      sprintf(str, "%d", sb.audio_config->sample_rate);          strcat(toSend,str);      strcat(toSend,"\n");
     // strcat(toSend,"bit_deptt:");        sprintf(str, "%d", sb.audio_config->bits_per_sample);      strcat(toSend,str);      strcat(toSend,"\n");
     // strcat(toSend,"num_channels:");     sprintf(str, "%d", sb.audio_config->num_channels);         strcat(toSend,str);      strcat(toSend,"\n");

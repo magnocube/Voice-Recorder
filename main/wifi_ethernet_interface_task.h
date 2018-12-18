@@ -46,7 +46,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 			} else {						            	//sd card is in slot
 				//do nothing... all the leds should already be in the right position... this function can be used to blink the leds?
 			}
-			vTaskDelay(200/portTICK_PERIOD_MS);  //dont make delay too big,, otherwise led's will respond late
+			vTaskDelay(250/portTICK_PERIOD_MS);  //dont make delay too big,, otherwise led's will respond late
 
             if(!shared_buffer->session_data->is_in_TestModus){              //as long as the device is not in test-mode, spam the console with the free memory
                 ESP_LOGI(TAG, "Heapsize: %d, minimumheapsize: %d",esp_get_free_heap_size(),esp_get_minimum_free_heap_size());  //print free memory. to find leaks early
@@ -100,6 +100,12 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)   //wifi
         //          MAC2STR(event->event_info.sta_connected.mac),
         //         event->event_info.sta_connected.aid);
                  ESP_LOGI(TAG, "wifi connected");
+                    /*horrible quick fix, but this seens to improve the wifi connection*/
+                  ip_addr_t ip_Addr;
+                    IP_ADDR4( &ip_Addr, 0,0,0,0 );
+                    dns_gethostbyname("example.com", &ip_Addr, NULL, NULL );
+                    vTaskDelay(1000/ portTICK_PERIOD_MS);
+                    dns_gethostbyname("example.com", &ip_Addr, NULL, NULL );
         break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
         //ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",

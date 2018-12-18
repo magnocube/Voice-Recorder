@@ -94,10 +94,10 @@ void pca9535::readDataFromI2C(){
         for(int i = 0; i < 8; i++){
             readData[i] = firstHalf >> i && 0x01;
             readData[i+8] = secondHalf >> i && 0x01;
-            if(!session_data->is_in_TestModus){
-                printf(" %d ",readData[2*i]);
-                printf(" %d ",readData[(2*i)+1]);
-            }
+            // if(!session_data->is_in_TestModus){
+            //     printf(" %d ",readData[2*i]);
+            //     printf(" %d ",readData[(2*i)+1]);
+            // }
         }
     }
 }

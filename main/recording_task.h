@@ -1,7 +1,7 @@
 
 // now it will only do a write test with values from the adc
 void recording_task(esp_shared_buffer *shared_buffer){  
-	
+	uint8_t* monoData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/2);
 	while(1){
 		vTaskDelay(100/portTICK_PERIOD_MS);							// reset watchdog
 		
@@ -18,10 +18,21 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value
 			while(shared_buffer->recording == true){				//while it should be recording,,, take and store 512 samples
 				shared_buffer->codec->read();
-				uint8_t* data = shared_buffer->codec->audioBuffer1;				
-				shared_buffer->SD->addDataToFile(data,AUDIO_BUFFER_SIZE);
+				uint8_t* data = shared_buffer->codec->audioBuffer1;		
+				if(shared_buffer->audio_config->num_channels == 2){
+					shared_buffer->SD->addDataToFile(data,AUDIO_BUFFER_SIZE);
+				}else {
+					for (int i = 0; i < AUDIO_BUFFER_SIZE; i+=4)  //records only first channel
+					{
+						monoData[i/2]   = data[i];
+						monoData[i/2+1] =  data[i+1];
+						
+					}
+					shared_buffer->SD->addDataToFile(monoData,AUDIO_BUFFER_SIZE/2);
+				}	
 				
-
+				
+				// /shared_buffer->audio_config->num_channels == 2
 				// uint8_t* m = (uint8_t *)malloc(512);	
 				// for(int i = 0; i < 512; i+=2){						
 				// 	int16_t data = adc1_get_raw(ADC1_CHANNEL_4) - cal ;  
