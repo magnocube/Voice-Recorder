@@ -172,6 +172,8 @@ void app_main()
     }
 
 
+
+
 	//while(1){ 											// -- this loop has cost me a couple of hours of hopeless debugging
 	//	vTaskDelay(1000/portTICK_PERIOD_MS);   				//    when the main ends the structs pinconfig and audioconfig will be removed from the stack
 	//}														//    and overwritten by other memory... took me some time to figure that out... this loop prevents

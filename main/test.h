@@ -47,6 +47,11 @@ void Test_task(esp_shared_buffer *shared_buffer){
 
         testReadWrite();
 
+
+        ESP_LOGI(TEST_TAG, "Please remove the Ethernet cable");
+        while(shared_buffer->session_data->Ethernet_Ip_received){vTaskDelay(500/portTICK_PERIOD_MS);}   // the boolean Ethernet_Ip_received is only true when there is a succesfull connection with the network
+
+
         ESP_LOGI(TEST_TAG, "Testing Audio codec, NOTE: the settings currently stored on the device will be used");
         ESP_LOGI(TEST_TAG, "Testing for 5 seconds");
         shared_buffer->recording = true;

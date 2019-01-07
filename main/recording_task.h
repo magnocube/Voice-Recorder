@@ -1,27 +1,27 @@
 
 // now it will only do a write test with values from the adc
 void recording_task(esp_shared_buffer *shared_buffer){  
-	uint8_t* monoData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/2);
+	uint8_t* monoData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/2);  // a buffer to store the data when recording in mono.
 	while(1){
-		vTaskDelay(100/portTICK_PERIOD_MS);							// reset watchdog
+		vTaskDelay(100/portTICK_PERIOD_MS);						
 		
 		if(shared_buffer->recording == true){						//if the device should be recording
 		
 			
 		
 			
-			//shared_buffer->SD->printCardInfo();
-			shared_buffer->SD->generateNextFileName(); // generate a file name and places it into session_data->last_file_name;
+			shared_buffer->SD->printCardInfo();
+			shared_buffer->SD->generateNextFileName();										  // generate a file name and places it into session_data->last_file_name;
 			shared_buffer->SD->beginFile(shared_buffer->session_data->last_file_name);
-			sb.gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_HIGH,true); //enable the green led
-			int start = esp_log_timestamp();
+			sb.gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_HIGH,true); //enable the green led to indicate the recording has started
+			int start = esp_log_timestamp();												  //time to indicate the time the device has been recording								
 			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value
-			while(shared_buffer->recording == true){				//while it should be recording,,, take and store 512 samples
-				shared_buffer->codec->read();
-				uint8_t* data = shared_buffer->codec->audioBuffer1;		
-				if(shared_buffer->audio_config->num_channels == 2){
-					shared_buffer->SD->addDataToFile(data,AUDIO_BUFFER_SIZE);
-				}else {
+			while(shared_buffer->recording == true){				//while it should be recording,,, take and store AUDIO_BUFFER_SIZE samples
+				shared_buffer->codec->read();						//reads the content from the i2s bus, and stores it into 'audioBuffer1'
+				uint8_t* data = shared_buffer->codec->audioBuffer1;		//aqquire a pointer to that buffer (TODO: the buffer location won't change... aqquiering the pointer should only be done once when the recording starts)
+				if(shared_buffer->audio_config->num_channels == 2){								//when recording in Stereo
+					shared_buffer->SD->addDataToFile(data,AUDIO_BUFFER_SIZE);					//just write the raw i2s data to SD
+				}else {																			//else it is recording with mono settings... the codec still delivers a stereo signal
 					for (int i = 0; i < AUDIO_BUFFER_SIZE; i+=4)  //records only first channel
 					{
 						monoData[i/2]   = data[i];
@@ -51,6 +51,8 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			//ESP_LOGW(TAG, "4 ");
 			/*should be recording,,, but card is not mounted...*/
 			//flash red led!
+
+		} else { //the device should not be recording. so let's check for sound to automaticly activate
 
 		}
 		// /vTaskDelay(100000/portTICK_PERIOD_MS);
