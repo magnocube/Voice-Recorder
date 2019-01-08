@@ -21,6 +21,8 @@
 
 
 
+
+#include "dns.h"
 #include "settings.h"
 #include "wm8960.h"
 #include "SDCard.h"

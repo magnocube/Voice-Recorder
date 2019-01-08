@@ -68,7 +68,7 @@ void app_main()
    
    
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 			                	//change default pin-config in "settings.h"	
-	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"
+	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"  --> this config will be changed after loading the settings from spiffs
     sessionData = ESP_SESSION_DATA_DEFAULT();                       //change default parameters in "settings.h"
     strcpy(sessionData.last_file_name,"/sdcard/notDefined.wav");    //set the default value of the file name.
     strcpy(sessionData.Ethernet_IP_Adress,"NO ADRESS");        //set the default value of the Ethernet IP (for the browser)
@@ -80,7 +80,7 @@ void app_main()
     */    
     ESP_LOGI(TAG,"READING BUTTON (FOR TESTING PURPOSES :D)");
     sessionData.is_in_TestModus = !gpio_get_level((gpio_num_t)pinout.big_button);          //read the large button and invert the input
-    ESP_LOGI(TAG, "divice modus. 1=testmodus, 0=normal operatopn: %d", sessionData.is_in_TestModus);
+    ESP_LOGI(TAG, "divice modus. 1=testmodus, 0=normal operatopn:  %d", sessionData.is_in_TestModus);
     if(sessionData.is_in_TestModus){
         printf("**********************************************\n*\n*\n");
          printf("DEVICE WILL START IN TEST MODE\n*\n*\n");
@@ -90,7 +90,7 @@ void app_main()
         printf("**********************************************\n*\n*\n");
          printf("DEVICE WILL START IN NORMAL OPERATING MODE\n*\n*\n");
           printf("**********************************************\n");
-        //idk, some startip sound maybe :D?
+        //idk, Windows XP startup sound maybe :D?
     }
 
 
@@ -160,6 +160,8 @@ void app_main()
 							 1													//task core
 							 );
 
+    captdnsInit(); // just testing... this should provide dns... please just remove and use a static IP if this is not desired. currently it will only send a static IP on every request
+
     if(sessionData.is_in_TestModus){                                                                       /*only create this thread when the device should start in test mode.*/
         xTaskCreatePinnedToCore((TaskFunction_t)Test_task,		                    //task function		   //using software to determine if all the hardware is working
                                 "test_task", 					                    //task name 
@@ -206,8 +208,8 @@ void setupDeviceSettingsFromSPIFFS(){
             buf[indexOfEnd] = '\0'; // just to make sure ;-)
 
 
-            char* c = strtok(buf, s);   
-            char* d = strtok(NULL, s);
+            char* c = strtok(buf, s);   //command
+            char* d = strtok(NULL, s);   //data
             printf( " %s    :%s", c,d );
 
                 

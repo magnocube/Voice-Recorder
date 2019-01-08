@@ -93,7 +93,7 @@ while(1){
                     printf(command);
                     
 
-                    char* test = (char*)malloc(50);
+                    char* test = (char*)malloc(50);  // this will be the file that will be loaded from spiffs and send back to the client
 
                     if(strstr(command,"GET / HTTP/")){   //just a empty default request
                         printf("the client request a new webpage... this should reply");
@@ -102,31 +102,22 @@ while(1){
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
                     } else if(strstr(command,"GET /SETTINGS.TXT HTTP/")){ //ask for the settings file
-                        printf("settings requested. i do a self-test!\n");
-                        // int length = sizeof("/spiffs/HINDEX.HTM");
-                        // memcpy(test,"/spiffs/HINDEX.HTM",length);
-                        // test[length] = '\0';
-                        // sendFileBackToClient(test,cs);
-                                            
-                        // int length = sizeof("/spiffs/settings.txt");
-                        // memcpy(test,"/spiffs/settings.txt",length);
-                        // test[length] = '\0';
-                        // sendFileBackToClient(test,cs);
-                        sendSettingsToClient(cs);    // the variable parameters (only ethernet IP for now)
+                        printf("settings requested.\n");
+                        sendSettingsToClient(cs);    // the variable parameters (only ethernet IP for now). the static config will be send after the variables have been send
 
                         int length = sizeof("/spiffs/settings.txt");
                         memcpy(test,"/spiffs/settings.txt",length);
                         test[length] = '\0';
                         sendFileBackToClient(test,cs);
 
-                    } else if(strstr(command,"POST /SETTINGS_SAVECONFIG HTTP/")){ //save the new config
+                    } else if(strstr(command,"POST /SETTINGS_SAVECONFIG HTTP/")){ //save the new config from the client
                         printf("settings received.writte and restart!\n");
-                        char* index =strstr(recv_buf,"CONFIG:");
+                        char* index =strstr(recv_buf,"CONFIG:");  //the index in the POST where the setting file is located
 
-                        printf("size of index to end: %d", strlen(index));
+                        printf("size of index to end: %d", strlen(index)); //same as size of the config file
                         if(index){
                             FILE* f = fopen("/spiffs/settings.txt", "w");
-                            fprintf(f,index+sizeof("CONFIG:"));   //index is a char*, it will be printed
+                            fprintf(f,index+sizeof("CONFIG:"));   //index is a char*, but skipp the first 7 characters because the word "config" does not have to be in the setting file.
                             fclose(f);
                             ESP_LOGI(TAG, "DONE WRITING THE NEW SETTINGS FILE>>>> REBOOT IS NOW REQUIRED!");
                             char responce[] = "server restarting, please refresh in a while";
