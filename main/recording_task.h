@@ -1,5 +1,5 @@
 
-// now it will only do a write test with values from the adc
+
 void recording_task(esp_shared_buffer *shared_buffer){  
 	uint8_t* monoData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/2);  // a buffer to store the data when recording in mono.
 	while(1){

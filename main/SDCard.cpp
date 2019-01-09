@@ -179,8 +179,9 @@ void SDCard::generateWavHeader()
 
 
 }
+/*This function will generate a new file name based on the value of file counter. the file counter is stored in NVS, and needs to be incremented before use*/
 void SDCard::generateNextFileName(){
-    	// Initialize NVS not needed. has already been done in main.cpp during the update of the restart counter. (which needs to be removed)
+    	
   
 
     nvs_handle my_NVS_handle;
@@ -188,7 +189,7 @@ void SDCard::generateNextFileName(){
 
     printf("Opening Non-Volatile Storage (NVS) handle... ");
     
-    err = nvs_open("storage", NVS_READWRITE, &my_NVS_handle);
+    err = nvs_open("storage", NVS_READWRITE, &my_NVS_handle);   
     if (err != ESP_OK) {
         printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
     } else {
@@ -227,15 +228,15 @@ void SDCard::generateNextFileName(){
             
         int32_t file_counter_copy = file_counter;
         int count = 0;
-        while(file_counter_copy != 0)
+        while(file_counter_copy != 0)   // little loop in order to count the 0's in front of the file name.
         {
             file_counter_copy /= 10;
             ++count;
         } 
         
         
-        char name[FILE_NAME_LENGTH +20] = "/sdcard/";
-        for(int i = 0; i< FILE_NAME_LENGTH - count; i++){
+        char name[FILE_NAME_LENGTH +20] = "/sdcard/";   //FILE_NAME_LENGTH = the length of the file on the sd card.. the +20 is to add a path to it
+        for(int i = 0; i< FILE_NAME_LENGTH - count; i++){ //write out the 0s before the file number
              strcat(name,"0");        
         } 
         char numbers[FILE_NAME_LENGTH+1];

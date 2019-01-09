@@ -16,6 +16,7 @@ void Test_task(esp_shared_buffer *shared_buffer){
 
         ESP_LOGI(TEST_TAG, "**********************************************");
         ESP_LOGI(TEST_TAG, "*DEVICE WILL START IN TEST MODE.");
+        ESP_LOGI(TEST_TAG, "*Version: 1.0.0");
         ESP_LOGI(TEST_TAG, "*Please follow instructions. if the device happens to crash, the cause can most likely be determined by the last action (stack trace will point it out)");
         ESP_LOGI(TEST_TAG, "*The device will still work as normal, only some statistics will be logged here. Please only follow the instructions");
         ESP_LOGI(TEST_TAG, "*this test is runned automaticly, you will be asked to do something when needed");

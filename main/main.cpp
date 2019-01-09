@@ -40,14 +40,14 @@ static void gpio_task_example(void* arg)
 
                 if(sb.recording == false){                      //when the device is not in recording mode.
                     if(sb.SD->isMounted()){						//and the card is acually mounted
-                        if(!sb.session_data->is_in_TestModus){  //when testing the button sould not be used for starting a recoding (this might let the test fail).
+                        if(!sb.session_data->is_in_TestModus){  //when testing the button should not be used for starting a recoding.
                             sb.recording = true;                
                             ESP_LOGI(TAG, "recording set to true");
                         }
                     } else{
                         ESP_LOGI(TAG, "not recording... card is not in slot");
                     }
-                                            //the recording led will be turned on by the recording task (this funtion does not know if the card is mounted)
+                                            
                 }else{
                     sb.recording = false;
                     sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
@@ -58,29 +58,29 @@ static void gpio_task_example(void* arg)
 
             }
         }
-        vTaskDelay(100/portTICK_PERIOD_MS);; //prevent lost of CPU power
+        vTaskDelay(100/portTICK_PERIOD_MS);; //prevent loss of CPU power
     }
 }
 
 /*The app main runs every time the program is started. see the flow diagram for the logic. */
 void app_main()
 {
-   
+    
    
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 			                	//change default pin-config in "settings.h"	
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"  --> this config will be changed after loading the settings from spiffs
     sessionData = ESP_SESSION_DATA_DEFAULT();                       //change default parameters in "settings.h"
     strcpy(sessionData.last_file_name,"/sdcard/notDefined.wav");    //set the default value of the file name.
-    strcpy(sessionData.Ethernet_IP_Adress,"NO ADRESS");        //set the default value of the Ethernet IP (for the browser)
+    strcpy(sessionData.Ethernet_IP_Adress,"NO ADRESS");             //set the default value of the Ethernet IP (for the browser)
     setupInterruptBigButton(&pinout);                               //setup the big button on top of the case (set pinmode and assign interrupt handler)
         
 
     /*
-    * this block will see of the button is pressed( when de diveice has just booted up) and then determines if the divice should be in test mode.
+    * this block will see of the button is pressed( when de device has just booted up) and then determines if the divice should be in test mode.
     */    
     ESP_LOGI(TAG,"READING BUTTON (FOR TESTING PURPOSES :D)");
     sessionData.is_in_TestModus = !gpio_get_level((gpio_num_t)pinout.big_button);          //read the large button and invert the input
-    ESP_LOGI(TAG, "divice modus. 1=testmodus, 0=normal operatopn:  %d", sessionData.is_in_TestModus);
+    ESP_LOGI(TAG, "divice modus. 1=testmodus, 0=normal operation:  %d", sessionData.is_in_TestModus);
     if(sessionData.is_in_TestModus){
         printf("**********************************************\n*\n*\n");
          printf("DEVICE WILL START IN TEST MODE\n*\n*\n");
@@ -113,8 +113,6 @@ void app_main()
 	testSPIFFSRead();	      //TODO... delete or move this to test code. 
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code) to make sure all the hardware connected to it start up correctly.
 
-    
-    //pca_ptr->digitalWrite(pinout.sdPower,PCA_HIGH,true);	//enables power on the SD card
 
     audio_codec_ptr->printCopyCodecRegisters();             //print out a copy of the codec registers. this is to verify the the programmed config with the data to be printed.
 
