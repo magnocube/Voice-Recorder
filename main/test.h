@@ -36,7 +36,7 @@ void Test_task(esp_shared_buffer *shared_buffer){
         
 
         ESP_LOGI(TEST_TAG, "testing GPIO expander. Please note the blinkling led's on de voicerecorder");
-        testGPIOExpander(5);
+        testGPIOExpander(5); // 5 times before proceeding.. this can not be checked with software, and needs to be inspected manually
 
 
         ESP_LOGI(TEST_TAG, "testing the SD Card. Please make sure the SD card is in the slot");
@@ -58,8 +58,8 @@ void Test_task(esp_shared_buffer *shared_buffer){
         shared_buffer->recording = true;
         vTaskDelay(5000/ portTICK_PERIOD_MS);
         shared_buffer->recording = false;
-        ESP_LOGI(TEST_TAG, "Testing Audio done, please notice that the green LED is off. audio must be chacked manually (for now)");
-        //todo.. play the recorded sond back using the audio jack to veryfy the analog cirquit
+        ESP_LOGI(TEST_TAG, "Testing Audio done, please notice that the green LED is off. audio must be checked manually (for now)");
+        //todo.. play the recorded sond back using the audio jack to verify the analog cirquit
         
 
         for(int i =0; i< 100; i++){printf(".\n");}// clear screen
@@ -78,7 +78,7 @@ void Test_task(esp_shared_buffer *shared_buffer){
         for(int i =0; i< 50; i++){      
             printf(".");      
             fflush(stdout); 
-            vTaskDelay(1000/portTICK_PERIOD_MS); //make clear device is in test mode
+            vTaskDelay(1000/portTICK_PERIOD_MS); //make clear device is still running
         }
         printf(".\n");
         
@@ -92,7 +92,7 @@ void testReadWrite(){
         static const char* TEST_TAG = "*******************SELF-TEST: ";
         ESP_LOGI(TEST_TAG, "testing a write action to the SD card. Test message will be written to a file on the SD card");
         char fileName[] = "/sdcard/test.txt";
-        char textToWrite[] = "I doubt that the person who is reading this is doing what he should be doing. Have a nice day!";
+        char textToWrite[] = "This text is placed during an auto-test of the device. This file can be removed";
 
         FILE* f = fopen(fileName, "w");
         fprintf(f,textToWrite);   
@@ -102,7 +102,7 @@ void testReadWrite(){
 
         f = fopen(fileName, "r");
         if (f == NULL) {
-            ESP_LOGE(TAG, "The file can not be opened. this however is most likely a software issue");
+            ESP_LOGE(TAG, "The file can not be opened. this however is most likely a software issue (dont't expect this ever to show up)");
         
         } else {
             char line[100];
