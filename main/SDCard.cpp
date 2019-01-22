@@ -18,7 +18,7 @@ bool SDCard::isCardInSlot(){
     //check for voltage on CardDetectPin
     int one = gpio_header->digitalRead(pinconfig->sdDetect,true);
 	int two = gpio_header->digitalRead(pinconfig->sdProtect,false);
-    if(one == false && two == false){
+    if(one == false && two == false){ //low
         return true;
     }else{
         return false;

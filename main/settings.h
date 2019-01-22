@@ -136,7 +136,7 @@ typedef struct{
     int sdPower;        //pullup and vcc to SD card
     int sdDetect;       //sd card in slot
     int sdProtect;      //wirte protection pin
-    int enable48V;      //pahnom power 
+    int enable48V;      //phantom power 
 } esp_pin_config;
 
 

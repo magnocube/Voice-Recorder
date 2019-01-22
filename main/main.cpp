@@ -65,7 +65,7 @@ static void gpio_task_example(void* arg)
 /*The app main runs every time the program is started. see the flow diagram for the logic. */
 void app_main()
 {
-    
+
    
 	pinout = ESP_PIN_CONFIG_DEFAULT(); 			                	//change default pin-config in "settings.h"	
 	audioConfig = ESP_AUDIO_CONFIG_DEFAULT();		                //change default audio-config in "settings.h"  --> this config will be changed after loading the settings from spiffs
@@ -158,7 +158,7 @@ void app_main()
 							 1													//task core
 							 );
 
-    captdnsInit(); // just testing... this should provide dns... please just remove and use a static IP if this is not desired. currently it will only send a static IP on every request
+    //captdnsInit(); // just testing... this should provide dns... please just remove and use a static IP if this is not desired. currently it will only send a static IP on every request
 
     if(sessionData.is_in_TestModus){                                                                       /*only create this thread when the device should start in test mode.*/
         xTaskCreatePinnedToCore((TaskFunction_t)Test_task,		                    //task function		   //using software to determine if all the hardware is working
@@ -286,6 +286,7 @@ See pinconfig or hardware schematic to see where pins are connected.*/
 void configureGPIOExpander(){
     pca9535 * gh = sb.gpio_header;
     gh->digitalWrite(pinout.phy_reset,PCA_HIGH,true);
+    gh->pinMode(sb.pin_config->enable48V,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->sdDetect,PCA_INPUT,false);
 	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false); //change this to true... trying to fix a bug
     gh->pinMode(sb.pin_config->sdPower,PCA_OUTPUT,false);
@@ -297,6 +298,7 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
+    gh->digitalWrite(sb.pin_config->enable48V,PCA_LOW,false);
     gh->digitalWrite(sb.pin_config->sdPower,PCA_LOW,false);
     gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
@@ -377,7 +379,7 @@ void testSPIFFSRead(){
 	}
 }
 
-/*this function does increment a restart counter, while at the same time it indicates if there are problems with spiffs*/
+/*this function does increment a restart counter, while at the same time it indicates if there are problems with NVS*/
 void setupNVS(){
 	// Initialize NVS
     nvs_handle my_NVS_handle;

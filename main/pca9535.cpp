@@ -11,7 +11,7 @@ pca9535::pca9535(esp_pin_config *pinconfig, esp_session_data *sessionData){
         mode[i] = PCA_OUTPUT;         
     }
 }
- uint16_t pca9535::getRawWriteData(){
+ uint16_t pca9535::getRawWriteData(){  //does not update from gpio expander.. only local data
     uint16_t ret = 0;
     for(int i=0; i<16; i++){
          ret |= writeData[i] << i;
@@ -72,7 +72,7 @@ void pca9535::readDataFromI2C(){
     
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd,(PCA_I2C_ADDR << 1) | I2C_MASTER_WRITE, true /* expect ack */);     // codec adress + write
-    i2c_master_write_byte(cmd,0,true); // command byte 2
+    i2c_master_write_byte(cmd,0,true); // command byte 0
 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd,(PCA_I2C_ADDR << 1) | 0x01, true /* expect ack */); 
@@ -91,13 +91,29 @@ void pca9535::readDataFromI2C(){
         // ESP_LOGI(TAG, "data while reading: 1e:  %d  and 2e:  %d",firstHalf,secondHalf);
       
         
-        for(int i = 0; i < 8; i++){
-            readData[i] = firstHalf >> i && 0x01;
-            readData[i+8] = secondHalf >> i && 0x01;
-            // if(!session_data->is_in_TestModus){
-            //     printf(" %d ",readData[2*i]);
-            //     printf(" %d ",readData[(2*i)+1]);
-            // }
+        if(!session_data->is_in_TestModus){
+            printf(" %d  ", firstHalf);
+            printf(" %d    ", secondHalf);
+        }
+               
+        // for(int i = 0; i < 8; i++){                     //store the 2 bytes in a eazy-to-read array
+        //     readData[i] = (firstHalf >> i) && 0x01;
+        //     readData[i+8] = (secondHalf >> i) && 0x01;
+        // }
+
+        for (int i = 6; i >= 0; i--) {
+            readData[i] = (firstHalf & (1 << i)) != 0;
+        }
+        for (int i = 6; i >= 0; i--) {
+            readData[i+8] = (secondHalf & (1 << i)) != 0;
+        }
+       if(!session_data->is_in_TestModus){
+            // printf(" %d  ", firstHalf);
+            // printf(" %d    ", secondHalf);
+            for(int i = 0; i < 8; i++){
+                printf(" %d ",readData[2*i]);
+                printf(" %d ",readData[(2*i)+1]);
+            }
         }
     }
 }
