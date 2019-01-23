@@ -41,11 +41,36 @@ static void gpio_task_example(void* arg)
                 if(sb.recording == false){                      //when the device is not in recording mode.
                     if(sb.SD->isMounted()){						//and the card is acually mounted
                         if(!sb.session_data->is_in_TestModus){  //when testing the button should not be used for starting a recoding.
-                            sb.recording = true;                
-                            ESP_LOGI(TAG, "recording set to true");
+
+                                
+                                
+                                
+                               //TODO"::::::::::::: implement free file size detection and handling  (this is just a test to indicate it's working)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+                                FATFS *fs;
+                                DWORD fre_clust, fre_sect, tot_sect;
+                                /* Get volume information and free clusters of drive 0 */
+                                f_getfree("0:", &fre_clust, &fs);
+                                /* Get total sectors and free sectors */
+                                tot_sect = (fs->n_fatent - 2) * fs->csize;
+                                fre_sect = fre_clust * fs->csize;
+                                /* Print the free space (assuming 512 bytes/sector) */
+                                printf("\n\n\n\n%10lu KiB total drive space.\n%10lu KiB available.\n\n\n",tot_sect / 2, fre_sect / 2);
+
+
+
+
+
+                            if(sb.session_data->SD_Write_Protect_on == false){
+                                 sb.recording = true;                
+                                ESP_LOGI(TAG, "recording set to true");
+                            }else{
+                                ESP_LOGE(TAG, "ERROR. write protection is on... can't start a recording");
+                            }
+                        } else{
+                             ESP_LOGI(TAG, "ERROR. device is in test mode. can't start a recording with the button during testing");
                         }
                     } else{
-                        ESP_LOGI(TAG, "not recording... card is not in slot");
+                        ESP_LOGE(TAG, "not recording... card is not in slot");
                     }
                                             
                 }else{
@@ -300,7 +325,7 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->enable48V,PCA_LOW,false);
     gh->digitalWrite(sb.pin_config->sdPower,PCA_LOW,false);
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_LOW,false); //high = build in ,, low = extern (3.5mm)
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted) (default of gpio header is low.. so this line could be remoced)

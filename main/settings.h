@@ -86,6 +86,7 @@
     .Ethernet_Ip_received = false, \
     .is_in_TestModus = false, \
     .last_file_name = (char*)malloc(FILE_NAME_LENGTH +20), \
+    .SD_Write_Protect_on = false, \
 }
 
 //TAG used for logging 
@@ -150,6 +151,7 @@ typedef struct{
    bool Ethernet_Ip_received;   //indicates if the interface is connected
    bool is_in_TestModus;          //will check if the device is in test modus. the can be enabled by pressing the large button on startup with SD inside.
    char* last_file_name;
+   bool SD_Write_Protect_on;
 } esp_session_data;
 
 #endif //SETTINGS_H

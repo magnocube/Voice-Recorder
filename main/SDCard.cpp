@@ -17,8 +17,8 @@ SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC,pca9535 * gh, esp_
 bool SDCard::isCardInSlot(){
     //check for voltage on CardDetectPin
     int one = gpio_header->digitalRead(pinconfig->sdDetect,true);
-	int two = gpio_header->digitalRead(pinconfig->sdProtect,false);
-    if(one == false && two == false){ //low
+	//int two = gpio_header->digitalRead(pinconfig->sdProtect,false);
+    if(one == false/* && two == false*/){ //low
         return true;
     }else{
         return false;
@@ -102,7 +102,9 @@ bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCa
             if(isCardMounted){
                 //ESP_LOGW(TAG, "Now true");
                 
-                gpio_header->digitalWrite(pinconfig->led_red,PCA_HIGH,true);
+                gpio_header->digitalWrite(pinconfig->led_red,PCA_HIGH,true); // turn led off
+                
+                
                 return true;
             } else{
                 // ESP_LOGW(TAG, "still false ");
@@ -112,6 +114,12 @@ bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCa
         } else {  // card should be mounted
             //ESP_LOGI(TAG, "should be mounted");
             //ESP_LOGW(TAG, "should be mounted");
+            if(gpio_header->digitalRead(pinconfig->sdProtect,false) == true){ //HIGH,,, so write protect is enabled
+                    sessionData->SD_Write_Protect_on = true;
+                    gpio_header->digitalWrite(pinconfig->led_red,!gpio_header->digitalRead(pinconfig->led_red,false),true); // turn led off
+            } else {
+                    sessionData->SD_Write_Protect_on = false;
+            }
             return true;           
         }
     } else{                            // card is not in the cardholder

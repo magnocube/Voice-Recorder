@@ -28,7 +28,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 
     tcpip_adapter_init();                                                       
     ethernet_init();
-    //wifi_init_softap();
+    wifi_init_softap();
     
 
     // shared_buffer->recording = true;
