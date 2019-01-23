@@ -175,11 +175,12 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
         printf("Ethernet Link Up\n");
         /*NOTE:,, enabling the ethernet led might need to moced to event: ETH_GOT_IP, in stead of ETH_CONNECTED*/
 		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_HIGH,true);
-   
+        sb.gpio_header->digitalWrite(sb.pin_config->ethernet_up_led,PCA_LOW,true);
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
-		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_LOW,true);
+		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_LOW,false);
+        sb.gpio_header->digitalWrite(sb.pin_config->ethernet_up_led,PCA_HIGH,true);
         strcpy(sb.session_data->Ethernet_IP_Adress,"NO ADRESS");
         sb.session_data->Ethernet_Ip_received = false;
         break;

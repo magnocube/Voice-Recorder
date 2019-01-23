@@ -95,8 +95,8 @@ static const char* TAG = "Voice Recorder";
 
 
 /*|||||||||_____________CORE SPECIFICATION_______________|||||||||*/
-//every fonction called on a specific core will be executed on that core. core 1 (which should be handling the interface).
-//should not handle recording and writing to the SD card (which should happen on core 1).
+//every function called on a specific core will be executed on that core. core 1 (which should be handling the interface).
+//should not handle recording and writing to the SD card (which should happen on core 0).
 
 
 /*|||||||||_____________AUDIO SETTINGS_______________|||||||||*/
