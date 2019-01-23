@@ -165,14 +165,14 @@ void app_main()
 							 );
 
     
-    xTaskCreatePinnedToCore((TaskFunction_t)webInterface,	                	//task function		   //handles the webpage
-							 "webInterface_task", 					            //task name 
-							 1024 * 8, 											//stack size
-							 &sb,												//function parameters (struct with pointers to shared classes)
-							 1,													//priority
-							 NULL,												//task handle
-							 1													//task core
-							 );
+    // xTaskCreatePinnedToCore((TaskFunction_t)webInterface,	                	//task function		   //handles the webpage   --> does not exist anymore
+	// 						 "webInterface_task", 					            //task name 
+	// 						 1024 * 8, 											//stack size
+	// 						 &sb,												//function parameters (struct with pointers to shared classes)
+	// 						 1,													//priority
+	// 						 NULL,												//task handle
+	// 						 1													//task core
+	// 						 );
 
     xTaskCreatePinnedToCore((TaskFunction_t)gpio_task_example,		            //task function		   //hanles the big button on the case(when an interupt is send)
 							 "button_task", 					                //task name 
@@ -323,9 +323,9 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
-    gh->digitalWrite(sb.pin_config->enable48V,PCA_LOW,false);
+    gh->digitalWrite(sb.pin_config->enable48V,PCA_HIGH,false);  // HIGH = on, LOW = off
     gh->digitalWrite(sb.pin_config->sdPower,PCA_LOW,false);
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_LOW,false); //high = build in ,, low = extern (3.5mm)
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->led_red,PCA_LOW,true); //enable the red led. let the device decice when to turn it off (only happens if a sd card is mounted) (default of gpio header is low.. so this line could be remoced)

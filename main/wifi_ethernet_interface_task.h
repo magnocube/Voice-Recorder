@@ -8,7 +8,9 @@
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
 #include "esp_wifi.h"
- 
+
+#include <sys/param.h>
+#include <esp_http_server.h> 
 #include "webInterface.h"   //code that will handle the web interface
 
 
@@ -18,6 +20,7 @@ static void eth_gpio_config_rmii(void); 								 //function prototype   -> gets 
 static esp_err_t eth_event_handler(void *ctx, system_event_t *event);    //function prototype   -> event handler. usefull for debugging. can be commented out when done testing
 void wifi_init_softap();                                                 //function prototype   -> enable the wifi
 void ethernet_init();                                                    //function prototype   -> enable Ethernet
+
 static esp_err_t event_handler(void *ctx, system_event_t *event);        // not used yet
 
 static EventGroupHandle_t s_wifi_event_group;
@@ -29,6 +32,9 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
     tcpip_adapter_init();                                                       
     ethernet_init();
     wifi_init_softap();
+    // server starts when IP is found... search for event handler wifi
+    vTaskDelay(2000/portTICK_PERIOD_MS); 
+    setupWebserver();                           //normal we should wait for an interface to be connected... but the delay on the previous line works fine too!
     
 
     // shared_buffer->recording = true;
@@ -58,7 +64,6 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 
 
 }
-
 
 static void phy_device_power_enable_via_gpio(bool enable) //toggles the chip thats blocks the clock to pass the clock to gpio 0
 {

@@ -6,7 +6,7 @@
 // #include "wm8960.h"
 
 //password and SSID of the voicerecorder... password might be changed to the mac of the device
-#define EXAMPLE_ESP_WIFI_SSID      "voiceRecorder"
+#define EXAMPLE_ESP_WIFI_SSID      "Stefan_Lan_Mic"
 #define EXAMPLE_ESP_WIFI_PASS      "12345678"
 #define EXAMPLE_MAX_STA_CONN       5
 #define ESP_INTR_FLAG_DEFAULT 0

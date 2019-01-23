@@ -70,9 +70,8 @@
 			<!--generate settings file and post it (typo's in the settings file might brick the recorder ;-)>
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
-			var toSend = "CONFIG:";
-			toSend += '\r\n';
-			toSend += "sample_rate:";
+			
+			var toSend = "sample_rate:";
 			toSend += document.getElementById("sample_rate").value;
 			toSend += '\r\n';
 			toSend += "bit_depth:";
@@ -86,6 +85,7 @@
 			toSend +='\r\n';
 			toSend += "channel2:";
 			toSend += document.getElementById("channel2").value;
+			toSend +='\r\n';
 			
 
 			
