@@ -267,7 +267,11 @@ void setupDeviceSettingsFromSPIFFS(){
                     audioConfig.channel2 = MIC_EXTERNAL_5_0_mm;
                }             
                 printf("channel2 value: %d\n", audioConfig.channel2);
-           } 
+           } else if(strcmp(c,"enablePhantom") == 0) {
+                int state = atoi(d);
+                printf("found phantom state: %d\n", state);
+                audioConfig.enablePhantom = state;
+           }
            //:TODO: add more settings
                     
          
@@ -307,7 +311,8 @@ void setupI2C(esp_pin_config *pinconfig)
 }
 
 /*The GPIO expander is the i2c gpio (pca9535) IC. 
-See pinconfig or hardware schematic to see where pins are connected.*/
+See pinconfig or hardware schematic to see where pins are connected.
+these are only the defaults... and will be overwritten very soon*/
 void configureGPIOExpander(){
     pca9535 * gh = sb.gpio_header;
     gh->digitalWrite(pinout.phy_reset,PCA_HIGH,true);
@@ -324,7 +329,7 @@ void configureGPIOExpander(){
     gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);
     gh->pinMode(sb.pin_config->ethernet_up_led,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
-    gh->digitalWrite(sb.pin_config->enable48V,PCA_HIGH,false);  // HIGH = on, LOW = off
+    gh->digitalWrite(sb.pin_config->enable48V,PCA_LOW,false);  // HIGH = on, LOW = off
     gh->digitalWrite(sb.pin_config->sdPower,PCA_LOW,false);
     gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)

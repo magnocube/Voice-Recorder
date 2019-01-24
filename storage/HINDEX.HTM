@@ -86,6 +86,9 @@
 			toSend += "channel2:";
 			toSend += document.getElementById("channel2").value;
 			toSend +='\r\n';
+			toSend += "enablePhantom:";
+			toSend += document.getElementById("enablePhantom").value;
+			toSend +='\r\n';
 			
 
 			
@@ -161,6 +164,14 @@ Select Channel 2 for recording in stereo.
 <select id="channel2">
         <option value="5">5mm jack</option>
 		<option value="BuildIn">Build in Microphone</option>
+</select>
+
+</br>
+
+Enable Phantom power during recording on 5 mm jack
+<select id="enablePhantom">
+        <option value="1">On</option>
+		<option value="0">Off</option>
 </select>
 
 </br>

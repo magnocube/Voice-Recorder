@@ -13,6 +13,10 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			shared_buffer->SD->printCardInfo();
 			shared_buffer->SD->generateNextFileName();										  // generate a file name and places it into session_data->last_file_name;
 			shared_buffer->SD->beginFile(shared_buffer->session_data->last_file_name);
+
+			if(sb.audio_config->enablePhantom){														//can be configured with the web interface. 
+				sb.gpio_header->digitalWrite(shared_buffer->pin_config->enable48V,PCA_HIGH,false);  // enable the phantom power cirquit
+			}
 			sb.gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_HIGH,true); //enable the green led to indicate the recording has started
 			int start = esp_log_timestamp();												  //time to indicate the time the device has been recording								
 			//int cal = adc1_get_raw(ADC1_CHANNEL_4); 				//12 bit adc value,. gpio32. this is a quick calibration value
@@ -47,7 +51,8 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			printf("written in %d milliSeconds...\n", time);	
 			
 			shared_buffer->SD->endFile();							//write out the wav header and close the stream
-			shared_buffer->gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_LOW,true);
+			shared_buffer->gpio_header->digitalWrite(shared_buffer->pin_config->enable48V,PCA_LOW,false);   // disable phanton power( regarding if it was on or not)
+			shared_buffer->gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_LOW,true);	// indicate that the recodring is done (green led goes off)
 			//ESP_LOGW(TAG, "4 ");
 			/*should be recording,,, but card is not mounted...*/
 			//flash red led!
