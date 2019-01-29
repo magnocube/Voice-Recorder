@@ -26,64 +26,64 @@ void IRAM_ATTR button_isr_handler(void* arg) {
 * After that the logic is preformed.:
 * If the device is not recording., it will check if a SD is mounted and sets a global recording variable on 'true'
 * Else it will turn that recording variable to false.*/
-static void gpio_task_example(void* arg)
+static void gpio_task_example(void* arg)  // might need some cleaning
 {
     uint32_t lastTimeInterrupt = 0;
     uint32_t io_num; // to store the argument of the interupt handler
     for(;;) {
         if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) { // continues if a signal from the interrupt handler has been send.
-            uint32_t timeNow = esp_log_timestamp();                 
-            if(timeNow - lastTimeInterrupt >= 1000){  // to prevent 2 fast interrupts... at least 1000 milliseconds between a interrupt (minimum recording length is 1 second... and 1 second between each recording)
-                printf("time since last button: %d",timeNow - lastTimeInterrupt);
-                lastTimeInterrupt = timeNow;                
-                ESP_LOGI(TAG, "Whoop Whoop, Button has been pressed!, Whoop Whoop.");
-
-                if(sb.recording == false){                      //when the device is not in recording mode.
-                    if(sb.SD->isMounted()){						//and the card is acually mounted
-                        if(!sb.session_data->is_in_TestModus){  //when testing the button should not be used for starting a recoding.
-
-                                
-                                
-                                
-                               //TODO"::::::::::::: implement free file size detection and handling  (this is just a test to indicate it's working)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-                                FATFS *fs;
-                                DWORD fre_clust, fre_sect, tot_sect;
-                                /* Get volume information and free clusters of drive 0 */
-                                f_getfree("0:", &fre_clust, &fs);
-                                /* Get total sectors and free sectors */
-                                tot_sect = (fs->n_fatent - 2) * fs->csize;
-                                fre_sect = fre_clust * fs->csize;
-                                /* Print the free space (assuming 512 bytes/sector) */
-                                printf("\n\n\n\n%10lu KiB total drive space.\n%10lu KiB available.\n\n\n",tot_sect / 2, fre_sect / 2);
-
-
-
+            if(!sb.session_data->is_in_TestModus){
+                uint32_t timeNow = esp_log_timestamp();                 
+                if(timeNow - lastTimeInterrupt >= 1000){  // to prevent 2 fast interrupts... at least 1000 milliseconds between a interrupt (minimum recording length is 1 second... and 1 second between each recording)
+                    
+                    printf("time since last button: %d",timeNow - lastTimeInterrupt);
+                    lastTimeInterrupt = timeNow;                
+                    ESP_LOGI(TAG, "Whoop Whoop, Button has been pressed!, Whoop Whoop.");
+                    
+                    if(sb.recording == false){                      //when the device is not in recording mode.
+                        if(sb.SD->isMounted()){						//and the card is acually mounted
+                            
+                                    
+                                    
+                                    
+                                //TODO"::::::::::::: implement free file size detection and handling  (this is just a test to indicate it's working)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+                                    FATFS *fs;
+                                    DWORD fre_clust, fre_sect, tot_sect;
+                                    /* Get volume information and free clusters of drive 0 */
+                                    f_getfree("0:", &fre_clust, &fs);
+                                    /* Get total sectors and free sectors */
+                                    tot_sect = (fs->n_fatent - 2) * fs->csize;
+                                    fre_sect = fre_clust * fs->csize;
+                                    /* Print the free space (assuming 512 bytes/sector) */
+                                    printf("\n\n\n\n%10lu KiB total drive space.\n%10lu KiB available.\n\n\n",tot_sect / 2, fre_sect / 2);
 
 
-                            if(sb.session_data->SD_Write_Protect_on == false){
-                                 sb.recording = true;                
-                                ESP_LOGI(TAG, "recording set to true");
-                            }else{
-                                ESP_LOGE(TAG, "ERROR. write protection is on... can't start a recording");
-                            }
+
+
+
+                                if(sb.session_data->SD_Write_Protect_on == false){
+                                    sb.recording = true;                
+                                    ESP_LOGI(TAG, "recording set to true");
+                                }else{
+                                    ESP_LOGE(TAG, "ERROR. write protection is on... can't start a recording");
+                                }
+                            
                         } else{
-                             ESP_LOGI(TAG, "ERROR. device is in test mode. can't start a recording with the button during testing");
+                            ESP_LOGE(TAG, "not recording... card is not in slot");
                         }
-                    } else{
-                        ESP_LOGE(TAG, "not recording... card is not in slot");
+                                                
+                    }else{
+                        sb.recording = false;
+                        sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
+                        /*NOTE: THE RECORDING MAY CONTINUE IF THE SD CARD HAS PROBLEMS, THIS ONLY SETS THE FLAG 'RECORDING' false*/
+                        /*THE RECORDING TASK COULD BE STUCK ON READING THE I2S BUS*/
                     }
-                                            
-                }else{
-                    sb.recording = false;
-                    sb.gpio_header->digitalWrite(pinout.led_green,PCA_LOW,true); //turn of the recording led
-                    /*NOTE: THE RECORDING MAY CONTINUE IF THE SD CARD HAS PROBLEMS, THIS ONLY SETS THE FLAG 'RECORDING' false*/
-                    /*THE RECORDING TASK COULD BE STUCK ON READING THE I2S BUS*/
-                }
-            } else {
+                } else {
 
+                }
             }
+            vTaskDelay(100/portTICK_PERIOD_MS);; //prevent loss of CPU power
         }
-        vTaskDelay(100/portTICK_PERIOD_MS);; //prevent loss of CPU power
     }
 }
 
@@ -330,7 +330,7 @@ void configureGPIOExpander(){
     gh->pinMode(sb.pin_config->ethernet_up_led,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->enable48V,PCA_LOW,false);  // HIGH = on, LOW = off
-    gh->digitalWrite(sb.pin_config->sdPower,PCA_LOW,false);
+    gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);  //low = on, High = off
     gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);

@@ -4,9 +4,38 @@ void testReadWrite();   //function prototype
 bool bDNSFound = false;   //local needed variable (for testing)
 ip_addr_t ip_Addr;
 void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+
+//clear the screen and display a message
+void startTest(char* name){
+    for(int i =0; i< 100; i++){printf("\n");}// clear screen
+    printf("############################################## Test: ");
+    printf(name);
+    printf(" ##############################################\n");
+}
+//ask for a button press and display some dots.
+void stopTest(esp_shared_buffer *shared_buffer, char* message){
+    printf("############################################## Test: ");
+    printf(message);
+    printf(" ##############################################\n");
+    
+    printf("############################################## Test Completed. Please press the button to continue ##############################################n");
+    while(gpio_get_level((gpio_num_t)pinout.big_button)){ // high signal will generate 'True' (not pressed because of pullup)
+        printf(".");
+        fflush(stdout);
+        vTaskDelay(300/portTICK_PERIOD_MS);
+    }
+    printf("\n");
+
+}
+
+
+
 void Test_task(esp_shared_buffer *shared_buffer){   
-    static const char* TEST_TAG = "*******************SELF-TEST: "; 
+    static const char* TEST_TAG = "Test: "; 
     vTaskDelay(1500/portTICK_PERIOD_MS);
+
+    char* finishMessage = (char*)malloc(100);
+    char* startMessage = (char*)malloc(100);
     
 	while(1){
         
@@ -18,48 +47,83 @@ void Test_task(esp_shared_buffer *shared_buffer){
         ESP_LOGI(TEST_TAG, "*DEVICE WILL START IN TEST MODE.");
         ESP_LOGI(TEST_TAG, "*Version: 1.0.0");
         ESP_LOGI(TEST_TAG, "*Please follow instructions. if the device happens to crash, the cause can most likely be determined by the last action (stack trace will point it out)");
-        ESP_LOGI(TEST_TAG, "*The device will still work as normal, only some statistics will be logged here. Please only follow the instructions");
-        ESP_LOGI(TEST_TAG, "*this test is runned automaticly, you will be asked to do something when needed");
+        ESP_LOGI(TEST_TAG, "*The device will still work as normal, You will be prompted to to various actions when needed. Please only follow the instructions");
+        ESP_LOGI(TEST_TAG, "*this test is runned automaticly, you will be asked press the big button on top of the case to continue");
+        ESP_LOGI(TEST_TAG, "*NOTE: it is possible that some other peripherals will log their data during testing... this data will make no sense regarding the test and can be ignored");
         ESP_LOGI(TEST_TAG, "**********************************************");
         ESP_LOGI(TEST_TAG, "the following is a description of the version of the IDF on which this code has been compiled");
-        printf(esp_get_idf_version());
-        printf("\n");
+        const char* v = esp_get_idf_version();
+        ESP_LOGI(TEST_TAG, "%s",v);
+        strcpy(finishMessage,"End of Instructions page");
+        stopTest(shared_buffer,finishMessage);
 
-
-
+        strcpy(startMessage,"Ethernet cable Check");
+        startTest(startMessage);
         ESP_LOGI(TEST_TAG, "Testing ethernet connection. Please make sure a ethernet cable is inserted");
         while(!shared_buffer->session_data->Ethernet_Ip_received){vTaskDelay(500/portTICK_PERIOD_MS);}   // the boolean Ethernet_Ip_received is only true when there is a succesfull connection with the network
         ESP_LOGI(TEST_TAG, "Received a IP from DHCP!");
         ESP_LOGI(TEST_TAG, "Testing ethernet connectivity. using dns to resolve vidicode website IP");
         char url[] = "www.vidicode.com";
         testDNS(url);
-        
+        strcpy(finishMessage,"The Ip on the previous line should NOT be 0.0.0.0");
+        stopTest(shared_buffer,finishMessage);
 
+        strcpy(startMessage,"Led's Check");
+        startTest(startMessage);
         ESP_LOGI(TEST_TAG, "testing GPIO expander. Please note the blinkling led's on de voicerecorder");
-        testGPIOExpander(5); // 5 times before proceeding.. this can not be checked with software, and needs to be inspected manually
+        testGPIOExpander(10); // 5 times before proceeding.. this can not be checked with software, and needs to be inspected manually
+        int redLed = sb.pin_config->led_red;
+        int yellowLed = sb.pin_config->led_yellow;
+        int greenLed = sb.pin_config->led_green;
+        int blueLed = sb.pin_config->led_blue;
+        pca9535 * gh = sb.gpio_header;
+        gh->digitalWrite(redLed,PCA_LOW,false);
+		gh->digitalWrite(yellowLed,PCA_HIGH,false);
+		gh->digitalWrite(greenLed,PCA_HIGH,false);
+		gh->digitalWrite(blueLed,PCA_HIGH,true);
+        strcpy(finishMessage,"Continue when leds are all on in the right order\n->red\n->green\n->blue\n->yellow\n");
+        stopTest(shared_buffer,finishMessage);
 
 
+        strcpy(startMessage,"SD card check");
+        startTest(startMessage);
         ESP_LOGI(TEST_TAG, "testing the SD Card. Please make sure the SD card is in the slot");
-        while(!shared_buffer->SD->isMounted()){ testGPIOExpander(1);}
+        while(!shared_buffer->SD->isMounted()){ vTaskDelay(100/portTICK_PERIOD_MS);}
         ESP_LOGI(TEST_TAG, "SD card is detected and mounted, please remove the SD card");
-        while(shared_buffer->SD->isMounted()){testGPIOExpander(1);}
+        while(shared_buffer->SD->isMounted()){ vTaskDelay(100/portTICK_PERIOD_MS);}
         ESP_LOGI(TEST_TAG, "SD card is removed, now place it back in");
-        while(!shared_buffer->SD->isMounted()){vTaskDelay(500/portTICK_PERIOD_MS);}
+        while(!shared_buffer->SD->isMounted()){ vTaskDelay(500/portTICK_PERIOD_MS);}       
+
+
 
         testReadWrite();
+        strcpy(finishMessage,"Finished testing the SD card. please confirm there is no Red led");
+        stopTest(shared_buffer,finishMessage);
 
 
-        ESP_LOGI(TEST_TAG, "Please remove the Ethernet cable");
-        while(shared_buffer->session_data->Ethernet_Ip_received){vTaskDelay(500/portTICK_PERIOD_MS);}   // the boolean Ethernet_Ip_received is only true when there is a succesfull connection with the network
+        //ESP_LOGI(TEST_TAG, "Please remove the Ethernet cable");
+       // while(shared_buffer->session_data->Ethernet_Ip_received){vTaskDelay(500/portTICK_PERIOD_MS);}   // the boolean Ethernet_Ip_received is only true when there is a succesfull connection with the network
 
+        strcpy(startMessage,"recording check,");
+        startTest(startMessage);
 
+        ESP_LOGI(TEST_TAG, "Press the button on top of the case to start the recording. It will take 5 seconds. be sure to say something recognisable");
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+         while(gpio_get_level((gpio_num_t)pinout.big_button)){ vTaskDelay(100/portTICK_PERIOD_MS);}
+        
         ESP_LOGI(TEST_TAG, "Testing Audio codec, NOTE: the settings currently stored on the device will be used");
         ESP_LOGI(TEST_TAG, "Testing for 5 seconds");
         shared_buffer->recording = true;
         vTaskDelay(5000/ portTICK_PERIOD_MS);
         shared_buffer->recording = false;
         ESP_LOGI(TEST_TAG, "Testing Audio done, please notice that the green LED is off. audio must be checked manually (for now)");
+        vTaskDelay(100/portTICK_PERIOD_MS); //time to write out the header
+        strcpy(finishMessage,"Finished testing a recording. please make sure to check the quallity of the audio manually (for now)");
+        stopTest(shared_buffer,finishMessage);
+
         //todo.. play the recorded sond back using the audio jack to verify the analog cirquit
+        //todo.. record with different microphones
+        //todo.. send recording to apresa/computer software.
         
 
         for(int i =0; i< 100; i++){printf(".\n");}// clear screen
@@ -89,7 +153,7 @@ void Test_task(esp_shared_buffer *shared_buffer){
 
 }
 void testReadWrite(){
-        static const char* TEST_TAG = "*******************SELF-TEST: ";
+        static const char* TEST_TAG = "Test: ";
         ESP_LOGI(TEST_TAG, "testing a write action to the SD card. Test message will be written to a file on the SD card");
         char fileName[] = "/sdcard/test.txt";
         char textToWrite[] = "This text is placed during an auto-test of the device. This file can be removed";

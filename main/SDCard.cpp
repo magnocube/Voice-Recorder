@@ -70,7 +70,7 @@ void SDCard::printCardInfo(){
 }
 esp_err_t SDCard::mountCard(){
     gpio_header->digitalWrite(pinconfig->sdPower,PCA_LOW,true); //enable power
-    //vTaskDelay(300/portTICK_PERIOD_MS);
+    vTaskDelay(300/portTICK_PERIOD_MS); //give SD card some time
     isCardMounted = false; //default false 
     
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
@@ -82,6 +82,7 @@ esp_err_t SDCard::mountCard(){
         } else {
             ESP_LOGE(TAG, "Failed to initialize the card: %d", ret);
             gpio_header->digitalWrite(pinconfig->sdPower,PCA_HIGH,true); //disable power
+             vTaskDelay(100/portTICK_PERIOD_MS); //halt the sd card to make sure all power is off (and it is not restarted withon 100 ms)
         }
     } else{
         ESP_LOGI(TAG, "SD card mouted succesfully!");
