@@ -88,11 +88,11 @@ void Test_task(esp_shared_buffer *shared_buffer){
         strcpy(startMessage,"SD card check");
         startTest(startMessage);
         ESP_LOGI(TEST_TAG, "testing the SD Card. Please make sure the SD card is in the slot");
-        while(!shared_buffer->SD->isMounted()){ vTaskDelay(100/portTICK_PERIOD_MS);}
+        while(!shared_buffer->SD->isCardMounted){ vTaskDelay(100/portTICK_PERIOD_MS);}
         ESP_LOGI(TEST_TAG, "SD card is detected and mounted, please remove the SD card");
-        while(shared_buffer->SD->isMounted()){ vTaskDelay(100/portTICK_PERIOD_MS);}
+        while(shared_buffer->SD->isCardMounted){ vTaskDelay(100/portTICK_PERIOD_MS);}
         ESP_LOGI(TEST_TAG, "SD card is removed, now place it back in");
-        while(!shared_buffer->SD->isMounted()){ vTaskDelay(500/portTICK_PERIOD_MS);}       
+        while(!shared_buffer->SD->isCardMounted){ vTaskDelay(500/portTICK_PERIOD_MS);}       
 
 
 

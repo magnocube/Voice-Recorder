@@ -44,6 +44,7 @@ class SDCard{
     private:       
         void setupSDConfig();                                   //setsup the SD peripheral in 1-line SD mode.
         void generateWavHeader();                               //generates the WAV header. Should be called upon closing the file.
+        void handleSDProtectBlink();                            //handle SD protection. will also blink the red led if protection is on.
         sdmmc_host_t host;                                      //used for: setupSDConfig();
         sdmmc_slot_config_t slot_config;                        //used for: setupSDConfig();
         esp_pin_config *pinconfig;                              //pingconfig of the device. Gets passed from the constructor

@@ -76,25 +76,35 @@ esp_err_t SDCard::mountCard(){
     esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
 
     if (ret != ESP_OK) {
+        //printf(esp_err_to_name(esp_vfs_fat_sdmmc_unmount()));
         isCardMounted = false;
         if (ret == ESP_FAIL) {
             ESP_LOGE(TAG, "Failed to mount filesystem, consider a card format(can be done in code,,, but needs to be inplemented");
         } else {
             ESP_LOGE(TAG, "Failed to initialize the card: %d", ret);
             gpio_header->digitalWrite(pinconfig->sdPower,PCA_HIGH,true); //disable power
-             vTaskDelay(100/portTICK_PERIOD_MS); //halt the sd card to make sure all power is off (and it is not restarted withon 100 ms)
+            vTaskDelay(100/portTICK_PERIOD_MS); //halt the sd card to make sure all power is off (and it is not restarted withon 100 ms)
         }
     } else{
         ESP_LOGI(TAG, "SD card mouted succesfully!");
         isCardMounted = true;
+        handleSDProtectBlink();
     }
     return ret;
+}
+void SDCard::handleSDProtectBlink(){
+    if(gpio_header->digitalRead(pinconfig->sdProtect,false) == true){ //HIGH,,, so write protect is enabled
+            sessionData->SD_Write_Protect_on = true;
+            gpio_header->digitalWrite(pinconfig->led_red,!gpio_header->digitalRead(pinconfig->led_red,false),true); // turn led off
+    } else {
+            sessionData->SD_Write_Protect_on = false;
+    }
 }
 bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCardMounted", 
                             //      this variable keeps track of the latest state od the SD since the last check 
                             //                    ESP_LOGW(TAG, "IsMount called, ");
     
-    if(isCardInSlot()){   
+    if(isCardInSlot()){  
     //ESP_LOGW(TAG, "card is in slot, ");
         if(isCardMounted == false){ //the card was not mounted before
         //ESP_LOGW(TAG, "ismounted = false ");
@@ -115,19 +125,14 @@ bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCa
         } else {  // card should be mounted
             //ESP_LOGI(TAG, "should be mounted");
             //ESP_LOGW(TAG, "should be mounted");
-            if(gpio_header->digitalRead(pinconfig->sdProtect,false) == true){ //HIGH,,, so write protect is enabled
-                    sessionData->SD_Write_Protect_on = true;
-                    gpio_header->digitalWrite(pinconfig->led_red,!gpio_header->digitalRead(pinconfig->led_red,false),true); // turn led off
-            } else {
-                    sessionData->SD_Write_Protect_on = false;
-            }
+            handleSDProtectBlink(); 
             return true;           
         }
     } else{                            // card is not in the cardholder
     //ESP_LOGW(TAG, "not in holder, ");
         if(isCardMounted == true) {  //the card was just removed from the cardholder
             vTaskDelay(20/portTICK_RATE_MS);
-            if(!isCardInSlot()){     //do a double check!.. (can be removed later, trying to fix a bug with i2c)
+                 //do a double check!.. (can be removed later, trying to fix a bug with i2c)
                 isCardMounted = false;
                 ESP_LOGW(TAG, "SD card was removed from slot... possible data loss");
                 printf(esp_err_to_name(esp_vfs_fat_sdmmc_unmount()));
@@ -135,9 +140,7 @@ bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCa
                 gpio_header->digitalWrite(pinconfig->sdPower,PCA_HIGH,false); //disable power
                 gpio_header->digitalWrite(pinconfig->led_red,PCA_LOW,true);
                 return false;
-            } else{
-                return true;
-            }
+            
         } else { //the card is out for a while
             // ESP_LOGI(TAG, "not mounted");
             //ESP_LOGW(TAG, "not mounted, ");
