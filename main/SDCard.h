@@ -38,12 +38,12 @@ class SDCard{
         esp_err_t beginFile(char name[]);                                  //will make a file on the file system and sets the offset for the header
         void generateNextFileName();                            //generate new file name and pit it in session data
         esp_err_t addDataToFile(uint8_t *data,int length);      //will add data to the file. (can be time consuming!)
-        void endFile();                                         //write out the wav header tho the beginning of the file and close the file
+        void endFile();                                         //write out the headers tho the beginning of the file and close the file
         void printCardInfo();  
         bool isCardMounted;                                     //public variable used by the function: isMounted();                         //print out basic info of the card. might come in handy if some specific card wont work  
     private:       
         void setupSDConfig();                                   //setsup the SD peripheral in 1-line SD mode.
-        void generateWavHeader();                               //generates the WAV header. Should be called upon closing the file.
+        void writeWavHeader();                                  //generates the WAV header. Should be called upon closing the file.
         void handleSDProtectBlink();                            //handle SD protection. will also blink the red led if protection is on.
         sdmmc_host_t host;                                      //used for: setupSDConfig();
         sdmmc_slot_config_t slot_config;                        //used for: setupSDConfig();

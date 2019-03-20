@@ -1,6 +1,6 @@
 -update the content in the storage folder
 -run  ./mkspiffs.exe  -c ./storage -b 4096 -p 256 -s  0x100000 spiffs.bin      in the home directory of the project
--run python $IDF_PATH/components/esptool_py/esptool/esptool.py --chip esp32 --port COM11 --baud 115200 write_flash -z 0x110000 ./spiffs.bin         in the home directory of the project
+-run python $IDF_PATH/components/esptool_py/esptool/esptool.py --chip esp32 --port COM6 --baud 115200 write_flash -z 0x110000 ./spiffs.bin         in the home directory of the project
 
 NOTE: check all the parameters if the partition=table is changed. 
 NOTE: COM-port will probably have to be changed too

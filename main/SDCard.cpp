@@ -41,10 +41,12 @@ esp_err_t SDCard::addDataToFile(uint8_t* data,int length){
     fwrite(data,sizeof(uint8_t),length,file);
     return ESP_OK;
 }   
+
+//write out the headers and close the file
 void SDCard::endFile(){
        
     ESP_LOGI(TAG, "File written...");
-    generateWavHeader();
+    writeWavHeader();  // will also include the "note" field
     fclose(file);
     
 }
@@ -158,7 +160,7 @@ bool SDCard::isWriteProtectOn(){
 
 
 
-void SDCard::generateWavHeader()
+void SDCard::writeWavHeader()
 {
     wavHeader wavh;                //struct... can be found in SDCard.h 
     int size = ftell(file);       //size of the file at the moment of writing the wav header
