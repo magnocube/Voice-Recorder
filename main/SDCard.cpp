@@ -206,7 +206,7 @@ void SDCard::writeWavHeader() // will also include the note header
 
     /*data subChunk*/
     strncpy(wavHeader.dataHeader.subChunkID,"data",4);
-    wavHeader.dataHeader.subChunkSize = size-44-(52-8);    
+    wavHeader.dataHeader.subChunkSize = size-44-52-8;    
 
 
 
