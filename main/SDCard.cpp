@@ -162,43 +162,19 @@ bool SDCard::isWriteProtectOn(){
 
 void SDCard::writeWavHeader() // will also include the note header
 {
-    // wavHeader wavh;                //struct... can be found in SDCard.h 
-    // int size = ftell(file);       //size of the file at the moment of writing the wav header
-    
-    // /*generating the WAV header based on the file size and audio quallity*/
-    // strncpy(wavh.ChunkID,"RIFF",4);
-    // wavh.ChunkSize = size - 8;
-    // strncpy(wavh.Format,"WAVE",4);
-    // strncpy(wavh.SubChunk1ID,"fmt ",4);
-    // wavh.SubChunk1Size = 16;
-    // wavh.AudioFormat = 1; 
-    // wavh.NumChannels = audioConfig->num_channels;
-    // wavh.SampleRate = audioConfig->sample_rate;
-    // wavh.ByteRate = audioConfig->sample_rate * audioConfig->num_channels * audioConfig->bits_per_sample / 8;
-    // wavh.BlockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
-    // wavh.BitsPerSample = audioConfig->bits_per_sample;
-    // strncpy(wavh.SubChunk2ID,"data",4);
-    // wavh.SubChunk2Size = size-44;    
-    
-    // /*jump to the start of the file and overwrite the header*/
-    // fseek(file,0,SEEK_SET);
-    // fwrite(&wavh,sizeof(char),WAV_HEADER_SIZE,file);
    
-    // printf("file written with: sample rate      : %d\n", wavh.SampleRate);
-    // printf("                 : num channels     : %d\n", wavh.NumChannels);
-    // printf("                 : byte rate        : %d\n", wavh.ByteRate);
-    // printf("                 : BlockAlign       : %d\n", wavh.BlockAlign);
-    // printf("                 : bits_per_sample  : %d\n", wavh.BitsPerSample);
-    // printf("Size of the written file it bytes: %d\n", size);
 
     int size = ftell(file);                                                     //size of the file in bytes. Used for determining the header Size values
 
+    /*wav header, contains 4 subchunks, see header for details*/
     WavHeader wavHeader;
 
+    /*RIFF header*/
     strncpy(wavHeader.riffHeader.chunkID,"RIFF",4);
     wavHeader.riffHeader.chunkSize = size - 8; 
     strncpy(wavHeader.riffHeader.format,"WAVE",4);
 
+    /*FMT subChunk*/
     strncpy(wavHeader.fmtSubChunk.subChunkID,"fmt ",4);
     wavHeader.fmtSubChunk.subChunkSize = 16;
     wavHeader.fmtSubChunk.audioFormat = 1;
@@ -208,10 +184,36 @@ void SDCard::writeWavHeader() // will also include the note header
     wavHeader.fmtSubChunk.blockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
     wavHeader.fmtSubChunk.bitsPerSample = audioConfig->bits_per_sample;
 
+    /*note subChunk*/
+    strncpy(wavHeader.noteSubChunk.subChunkID,"note",4);
+    wavHeader.noteSubChunk.subChunkSize = 52;           //needs to be checked!
+    wavHeader.noteSubChunk.archived_recording = 'Z';
+    wavHeader.noteSubChunk.recorded_call = 'C';
+    wavHeader.noteSubChunk.year = 'J';              // 2019
+    wavHeader.noteSubChunk.month = '1';             // 1
+    wavHeader.noteSubChunk.day = '1';               //1
+    wavHeader.noteSubChunk.hour = 'N';              //23
+    wavHeader.noteSubChunk.minutesHigh = '5';       //50
+    wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
+    wavHeader.noteSubChunk.seconds = 'T';           // 58
+    strncpy(wavHeader.noteSubChunk.additionalInformation,"______",6);
+    wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo
+    strncpy(wavHeader.noteSubChunk.SoftwareID,"ZZ",2);
+    wavHeader.noteSubChunk.recordingSource = 'A';
+    wavHeader.noteSubChunk.inOrOutgoing ='I';
+    strncpy(wavHeader.noteSubChunk.localNumber,"XXXXXXXXXXXXXXXX",16);
+    strncpy(wavHeader.noteSubChunk.remoteNumber,"XXXXXXXXXXXXXXXX",16);
+
+    /*data subChunk*/
     strncpy(wavHeader.dataHeader.subChunkID,"data",4);
-    wavHeader.dataHeader.subChunkSize = size-44;    
+    wavHeader.dataHeader.subChunkSize = size-44-(52-8);    
+
+
+
+
 
     /*jump to the start of the file and overwrite the header*/
+    /*the first milliseconds of the recording will be lost because of this*/
     fseek(file,0,SEEK_SET);
     fwrite(&wavHeader,sizeof(wavHeader),1,file);
 
