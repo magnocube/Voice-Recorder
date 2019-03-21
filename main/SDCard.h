@@ -56,22 +56,96 @@ class SDCard{
         FILE* file;                                             //the file that will be written too.. start by calling: beginFile();
         
 
-        typedef struct {                                        //the struct to have a clear overview of the WAV header. this struct will be configured and written to the file in: SDCard::endFile();
-            char ChunkID[4];                                    /* "RIFF"                                  */
-            int ChunkSize;                                      /* file length in bytes - 8 bytes          */
-            char Format[4];                                     /* "WAVE"                                  */
-            char SubChunk1ID[4];                                /* "fmt "                                  */
-            int SubChunk1Size;                                  /* size of FMT chunk in bytes (usually 16) */
-            short AudioFormat;                                  /* 1=PCM, 257=Mu-Law, 258=A-Law, 259=ADPCM */
-            short NumChannels;                                  /* 1=mono, 2=stereo                        */
-            int SampleRate;                                     /* Sampling rate in samples per second     */
-            int ByteRate;                                       /* bytes per second = srate*bytes_per_samp */
-            short BlockAlign;                                   /* 2=16-bit mono, 4=16-bit stereo          */
-            short BitsPerSample;                                /* Number of bits per sample               */
-            char SubChunk2ID[4];                                /* "data"                                  */
-            int SubChunk2Size;                                  /* data length in bytes (filelength - 44)  */
-        } wavHeader;
-                    
+
+        /*Riffheader is used for the format of a .WAV file*/
+        /*
+            order":
+                    -RiffHeader
+                    -FmtSubChunk
+                    -NoteSubChunk (optional, used for identifying to external devices)
+                    -data
+
+        */
+        struct RiffHeader{
+            char chunkID[4];                                    /* "RIFF"                                  */
+            int chunkSize;                                      /* file length in bytes - 8 bytes          */
+            char format[4];                                     /* "WAVE"                                  */
+        };
+        struct FmtSubChunk{
+            char subChunkID[4];                                /* "fmt "                                  */
+            int subChunkSize;                                  /* size of FMT chunk in bytes (usually 16) */
+            short audioFormat;                                  /* 1=PCM, 257=Mu-Law, 258=A-Law, 259=ADPCM */
+            short numChannels;                                  /* 1=mono, 2=stereo                        */
+            int sampleRate;                                     /* Sampling rate in samples per second     */
+            int byteRate;                                       /* bytes per second = srate*bytes_per_samp */
+            short blockAlign;                                   /* 2=16-bit mono, 4=16-bit stereo          */
+            short bitsPerSample;                                /* Number of bits per sample               */
+        };
+        struct NoteSubChunk{                                        
+            char archived_recording;                            /*"Z" for a archived recording*/
+            char recorded_call;                                 /*"C" for a recorded call*/
+            char year;                                          /*Year*/
+            char month;                                         
+            char day;
+            char hour;
+            char minutesHigh;                                   /*minute divided by 10*/
+            char minutesLow;                                    /*minute modulo 10*/
+            char seconds;                                       /*"0"-"9" = 0-18.    "A"-"T" = 20-58*/
+            char additionalInformation[6];                      
+            char format; //see note below;
+            char SoftwareID[2];
+            char recordingSource;
+            char inOrOutgoing;
+            char localNumber[16];
+            char remoteNumber[16];         
+        };
+        struct DataHeader{
+            char subChunkID[4];                                /* "data"                                  */
+            int subChunkSize;                                  /* data length in bytes (filelength - 44)  */
+        };
+
+
+        /*
+        
+        WAV Codec Format
+        "6"          = G.711 A-Law Mono  , Non-encrypted
+        "7"          = G.711 A-Law Stereo , Non-encrypted
+        "8"          = PCM 16-bit Mono , Non-encrypted
+        "9"          = PCM 16-bit Stereo , Non-encrypted
+        "F"          = G.711 A-Law Mono , Encrypted with ECB
+        "G"          = G.711 A-Law Stereo, Encrypted with ECB
+        "H"          = PCM 16-bit Mono . Encrypted with ECB
+        "I"          = PCM 16-bit Stereo ,Encrypted with ECB
+        "V"          = G.711 A-Law Mono , Encrypted with CBC
+        "W"          = G.711 A-Law Stereo. Encrypted with CBC
+        "X"          = PCM 16-bit Mono . Encrypted with CBC
+        "Y"          = PCM 16-bit Stereo . Encrypted with CBC
+        
+        */
+
+        struct WavHeader{
+            RiffHeader riffHeader;
+            FmtSubChunk fmtSubChunk;
+            //NoteSubChunk noteSunChunk;
+            DataHeader dataHeader;
+        };
+
+
+        // typedef struct {                                        //the struct to have a clear overview of the WAV header. this struct will be configured and written to the file in: SDCard::endFile();
+        //     char ChunkID[4];                                    /* "RIFF"                                  */
+        //     int ChunkSize;                                      /* file length in bytes - 8 bytes          */
+        //     char Format[4];                                     /* "WAVE"                                  */
+        //     char SubChunk1ID[4];                                /* "fmt "                                  */
+        //     int SubChunk1Size;                                  /* size of FMT chunk in bytes (usually 16) */
+        //     short AudioFormat;                                  /* 1=PCM, 257=Mu-Law, 258=A-Law, 259=ADPCM */
+        //     short NumChannels;                                  /* 1=mono, 2=stereo                        */
+        //     int SampleRate;                                     /* Sampling rate in samples per second     */
+        //     int ByteRate;                                       /* bytes per second = srate*bytes_per_samp */
+        //     short BlockAlign;                                   /* 2=16-bit mono, 4=16-bit stereo          */
+        //     short BitsPerSample;                                /* Number of bits per sample               */
+        //     char SubChunk2ID[4];                                /* "data"                                  */
+        //     int SubChunk2Size;                                  /* data length in bytes (filelength - 44)  */
+        // } wavHeader;
 };
 
 

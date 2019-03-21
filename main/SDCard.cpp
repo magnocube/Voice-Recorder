@@ -160,36 +160,71 @@ bool SDCard::isWriteProtectOn(){
 
 
 
-void SDCard::writeWavHeader()
+void SDCard::writeWavHeader() // will also include the note header
 {
-    wavHeader wavh;                //struct... can be found in SDCard.h 
-    int size = ftell(file);       //size of the file at the moment of writing the wav header
+    // wavHeader wavh;                //struct... can be found in SDCard.h 
+    // int size = ftell(file);       //size of the file at the moment of writing the wav header
     
-    /*generating the WAV header based on the file size and audio quallity*/
-    strncpy(wavh.ChunkID,"RIFF",4);
-    wavh.ChunkSize = size - 8;
-    strncpy(wavh.Format,"WAVE",4);
-    strncpy(wavh.SubChunk1ID,"fmt ",4);
-    wavh.SubChunk1Size = 16;
-    wavh.AudioFormat = 1; 
-    wavh.NumChannels = audioConfig->num_channels;
-    wavh.SampleRate = audioConfig->sample_rate;
-    wavh.ByteRate = audioConfig->sample_rate * audioConfig->num_channels * audioConfig->bits_per_sample / 8;
-    wavh.BlockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
-    wavh.BitsPerSample = audioConfig->bits_per_sample;
-    strncpy(wavh.SubChunk2ID,"data",4);
-    wavh.SubChunk2Size = size-44;    
+    // /*generating the WAV header based on the file size and audio quallity*/
+    // strncpy(wavh.ChunkID,"RIFF",4);
+    // wavh.ChunkSize = size - 8;
+    // strncpy(wavh.Format,"WAVE",4);
+    // strncpy(wavh.SubChunk1ID,"fmt ",4);
+    // wavh.SubChunk1Size = 16;
+    // wavh.AudioFormat = 1; 
+    // wavh.NumChannels = audioConfig->num_channels;
+    // wavh.SampleRate = audioConfig->sample_rate;
+    // wavh.ByteRate = audioConfig->sample_rate * audioConfig->num_channels * audioConfig->bits_per_sample / 8;
+    // wavh.BlockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
+    // wavh.BitsPerSample = audioConfig->bits_per_sample;
+    // strncpy(wavh.SubChunk2ID,"data",4);
+    // wavh.SubChunk2Size = size-44;    
     
+    // /*jump to the start of the file and overwrite the header*/
+    // fseek(file,0,SEEK_SET);
+    // fwrite(&wavh,sizeof(char),WAV_HEADER_SIZE,file);
+   
+    // printf("file written with: sample rate      : %d\n", wavh.SampleRate);
+    // printf("                 : num channels     : %d\n", wavh.NumChannels);
+    // printf("                 : byte rate        : %d\n", wavh.ByteRate);
+    // printf("                 : BlockAlign       : %d\n", wavh.BlockAlign);
+    // printf("                 : bits_per_sample  : %d\n", wavh.BitsPerSample);
+    // printf("Size of the written file it bytes: %d\n", size);
+
+    int size = ftell(file);                                                     //size of the file in bytes. Used for determining the header Size values
+
+    WavHeader wavHeader;
+
+    strncpy(wavHeader.riffHeader.chunkID,"RIFF",4);
+    wavHeader.riffHeader.chunkSize = size - 8; 
+    strncpy(wavHeader.riffHeader.format,"WAVE",4);
+
+    strncpy(wavHeader.fmtSubChunk.subChunkID,"fmt ",4);
+    wavHeader.fmtSubChunk.subChunkSize = 16;
+    wavHeader.fmtSubChunk.audioFormat = 1;
+    wavHeader.fmtSubChunk.numChannels = audioConfig->num_channels;
+    wavHeader.fmtSubChunk.sampleRate = audioConfig->sample_rate;
+    wavHeader.fmtSubChunk.byteRate = audioConfig->sample_rate * audioConfig->num_channels * audioConfig->bits_per_sample / 8;
+    wavHeader.fmtSubChunk.blockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
+    wavHeader.fmtSubChunk.bitsPerSample = audioConfig->bits_per_sample;
+
+    strncpy(wavHeader.dataHeader.subChunkID,"data",4);
+    wavHeader.dataHeader.subChunkSize = size-44;    
+
     /*jump to the start of the file and overwrite the header*/
     fseek(file,0,SEEK_SET);
-    fwrite(&wavh,sizeof(char),WAV_HEADER_SIZE,file);
-   
-    printf("file written with: sample rate      : %d\n", wavh.SampleRate);
-    printf("                 : num channels     : %d\n", wavh.NumChannels);
-    printf("                 : byte rate        : %d\n", wavh.ByteRate);
-    printf("                 : BlockAlign       : %d\n", wavh.BlockAlign);
-    printf("                 : bits_per_sample  : %d\n", wavh.BitsPerSample);
-    printf("Size of the written file it bytes: %d\n", size);
+    fwrite(&wavHeader,sizeof(wavHeader),1,file);
+
+    printf("file written with: sample rate      : %d\n", wavHeader.fmtSubChunk.sampleRate);
+    printf("                 : num channels     : %d\n", wavHeader.fmtSubChunk.numChannels);
+    printf("                 : byte rate        : %d\n", wavHeader.fmtSubChunk.byteRate);
+    printf("                 : BlockAlign       : %d\n", wavHeader.fmtSubChunk.blockAlign);
+    printf("                 : bits_per_sample  : %d\n", wavHeader.fmtSubChunk.bitsPerSample);
+    printf("Size of the written file it bytes   : %d\n", size);
+    
+    
+
+    
 
 
 }
