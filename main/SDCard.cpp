@@ -37,10 +37,10 @@ esp_err_t SDCard::beginFile(char name[]){
     ESP_LOGI(TAG, "file opened");
 
     //printing zero's so the header will not be in the audio data
-    char * data = (char*)malloc(512);
-    memset (data,0,512);
-    fwrite(data,sizeof(uint8_t),512,file);
-    delete data;
+    // char * data = (char*)malloc(512);
+    // memset (data,0,512);
+    // fwrite(data,sizeof(uint8_t),512,file);
+    // delete data;
 
     return ESP_OK;
 }
@@ -191,13 +191,44 @@ void SDCard::writeWavHeader() // will also include the note header
     wavHeader.fmtSubChunk.blockAlign = audioConfig->num_channels * audioConfig->bits_per_sample / 8;
     wavHeader.fmtSubChunk.bitsPerSample = audioConfig->bits_per_sample;
 
+    /*IDK,,, needs to be here apparently*/
+    wavHeader.idk.unknownHeader[0] = 0x66;
+    wavHeader.idk.unknownHeader[1] = 0x61;
+    wavHeader.idk.unknownHeader[2] = 0x63;
+    wavHeader.idk.unknownHeader[3] = 0x74;
+    wavHeader.idk.unknownHeader[4] = 0x04;
+    wavHeader.idk.unknownHeader[5] = 0x00;
+    wavHeader.idk.unknownHeader[6] = 0x00;
+    wavHeader.idk.unknownHeader[7] = 0x00;
+    wavHeader.idk.unknownHeader[8] = 0x00;
+    wavHeader.idk.unknownHeader[9] = 0x1D;
+    wavHeader.idk.unknownHeader[10] = 0x08;
+    wavHeader.idk.unknownHeader[11] = 0x00;
+    wavHeader.idk.unknownHeader[12] = 0x4C;
+    wavHeader.idk.unknownHeader[13] = 0x49;
+    wavHeader.idk.unknownHeader[14] = 0x53;
+    wavHeader.idk.unknownHeader[15] = 0x54;
+    wavHeader.idk.unknownHeader[16] = 0xC0;
+    wavHeader.idk.unknownHeader[17] = 0x01;
+    wavHeader.idk.unknownHeader[18] = 0x00;
+    wavHeader.idk.unknownHeader[19] = 0x00;
+    wavHeader.idk.unknownHeader[20] = 0x61;
+    wavHeader.idk.unknownHeader[21] = 0x64;
+    wavHeader.idk.unknownHeader[22] = 0x74;
+    wavHeader.idk.unknownHeader[23] = 0x6C;
+
+
     /*note subChunk*/
     strncpy(wavHeader.noteSubChunk.subChunkID,"note",4);
-    wavHeader.noteSubChunk.subChunkSize = 88;           //needs to be checked!
+    wavHeader.noteSubChunk.pre_ff[0] = 0xff;
+    wavHeader.noteSubChunk.pre_ff[1] = 0xff;
+    wavHeader.noteSubChunk.pre_ff[2] = 0xff;
+    wavHeader.noteSubChunk.pre_ff[3] = 0xff;
+    wavHeader.noteSubChunk.subChunkSize = 436;           //needs to be checked!
     wavHeader.noteSubChunk.archived_recording = 'Z';
     wavHeader.noteSubChunk.recorded_call = 'C';
     wavHeader.noteSubChunk.year = 'J';              // 2019
-    wavHeader.noteSubChunk.month = '1';             // 1
+    wavHeader.noteSubChunk.month = '3';             // maart
     wavHeader.noteSubChunk.day = '1';               //1
     wavHeader.noteSubChunk.hour = 'N';              //23
     wavHeader.noteSubChunk.minutesHigh = '5';       //50
@@ -205,15 +236,18 @@ void SDCard::writeWavHeader() // will also include the note header
     wavHeader.noteSubChunk.seconds = 'T';           // 58
     strncpy(wavHeader.noteSubChunk.additionalInformation,"______",6);
     wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo
-    strncpy(wavHeader.noteSubChunk.SoftwareID,"ZZ",2);
+    strncpy(wavHeader.noteSubChunk.SoftwareID,"QP",2);
     wavHeader.noteSubChunk.recordingSource = 'A';
     wavHeader.noteSubChunk.inOrOutgoing ='I';
-    strncpy(wavHeader.noteSubChunk.localNumber,"________________",16);
+    strncpy(wavHeader.noteSubChunk.localNumber,"VVOICE__________",16);
     strncpy(wavHeader.noteSubChunk.remoteNumber,"________________",16);
     strncpy(wavHeader.noteSubChunk.connectedNumber,"________________",16);
     strncpy(wavHeader.noteSubChunk.macAdress,"DEADBEEFFEED",12);
     strncpy(wavHeader.noteSubChunk.apresaChannelLicences,"001",3);
     strncpy(wavHeader.noteSubChunk.pcChannelLicences,"001",3);
+    for(int i =0;i<(346);i++){
+        wavHeader.noteSubChunk.rest_ff[i] = 0x00;
+    }
 
     /*data subChunk*/
     strncpy(wavHeader.dataHeader.subChunkID,"data",4);

@@ -81,9 +81,13 @@ class SDCard{
             short blockAlign;                                   /* 2=16-bit mono, 4=16-bit stereo          */
             short bitsPerSample;                                /* Number of bits per sample               */
         };
+        struct UnknownDataButNeeded{
+            char unknownHeader[24];
+        };
         struct NoteSubChunk{   
             char subChunkID[4];                                 /* "note"                                  */
-            int subChunkSize;                                   /* size of note chunk in bytes (52+8) */                                     
+            int subChunkSize;                                   /* size of note chunk in bytes (52+8) */      
+            char pre_ff[4];                               
             char archived_recording;                            /*"Z" for a archived recording*/
             char recorded_call;                                 /*"C" for a recorded call*/
             char year;                                          /*Year*/
@@ -104,6 +108,7 @@ class SDCard{
             char macAdress[12];
             char apresaChannelLicences[3];
             char pcChannelLicences[3];    
+            char rest_ff[346];
         };
         struct DataHeader{
             char subChunkID[4];                                /* "data"                                  */
@@ -132,6 +137,7 @@ class SDCard{
         struct WavHeader{
             RiffHeader riffHeader;
             FmtSubChunk fmtSubChunk;
+            UnknownDataButNeeded idk;
             NoteSubChunk noteSubChunk;
             DataHeader dataHeader;
         };
