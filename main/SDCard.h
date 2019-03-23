@@ -99,11 +99,15 @@ class SDCard{
             char recordingSource;
             char inOrOutgoing;
             char localNumber[16];
-            char remoteNumber[16];         
+            char remoteNumber[16];  
+            char connectedNumber[16];   
+            char macAdress[12];
+            char apresaChannelLicences[3];
+            char pcChannelLicences[3];    
         };
         struct DataHeader{
             char subChunkID[4];                                /* "data"                                  */
-            int subChunkSize;                                  /* data length in bytes (filelength - 44)  */
+            int subChunkSize;                                  /* data length in bytes                    */
         };
 
 

@@ -35,6 +35,13 @@ esp_err_t SDCard::beginFile(char name[]){
     ESP_LOGI(TAG, "Opening file");
     file = fopen(name, "w");
     ESP_LOGI(TAG, "file opened");
+
+    //printing zero's so the header will not be in the audio data
+    char * data = (char*)malloc(512);
+    memset (data,0,512);
+    fwrite(data,sizeof(uint8_t),512,file);
+    delete data;
+
     return ESP_OK;
 }
 esp_err_t SDCard::addDataToFile(uint8_t* data,int length){
@@ -186,7 +193,7 @@ void SDCard::writeWavHeader() // will also include the note header
 
     /*note subChunk*/
     strncpy(wavHeader.noteSubChunk.subChunkID,"note",4);
-    wavHeader.noteSubChunk.subChunkSize = 52;           //needs to be checked!
+    wavHeader.noteSubChunk.subChunkSize = 88;           //needs to be checked!
     wavHeader.noteSubChunk.archived_recording = 'Z';
     wavHeader.noteSubChunk.recorded_call = 'C';
     wavHeader.noteSubChunk.year = 'J';              // 2019
@@ -201,19 +208,23 @@ void SDCard::writeWavHeader() // will also include the note header
     strncpy(wavHeader.noteSubChunk.SoftwareID,"ZZ",2);
     wavHeader.noteSubChunk.recordingSource = 'A';
     wavHeader.noteSubChunk.inOrOutgoing ='I';
-    strncpy(wavHeader.noteSubChunk.localNumber,"XXXXXXXXXXXXXXXX",16);
-    strncpy(wavHeader.noteSubChunk.remoteNumber,"XXXXXXXXXXXXXXXX",16);
+    strncpy(wavHeader.noteSubChunk.localNumber,"________________",16);
+    strncpy(wavHeader.noteSubChunk.remoteNumber,"________________",16);
+    strncpy(wavHeader.noteSubChunk.connectedNumber,"________________",16);
+    strncpy(wavHeader.noteSubChunk.macAdress,"DEADBEEFFEED",12);
+    strncpy(wavHeader.noteSubChunk.apresaChannelLicences,"001",3);
+    strncpy(wavHeader.noteSubChunk.pcChannelLicences,"001",3);
 
     /*data subChunk*/
     strncpy(wavHeader.dataHeader.subChunkID,"data",4);
-    wavHeader.dataHeader.subChunkSize = size-44-52-8;    
+    wavHeader.dataHeader.subChunkSize = size-138;    //riff = 12.    fmt  = 24.      note = 94   .. dataheader = 8 (total 138)
 
 
 
 
 
     /*jump to the start of the file and overwrite the header*/
-    /*the first milliseconds of the recording will be lost because of this*/
+   
     fseek(file,0,SEEK_SET);
     fwrite(&wavHeader,sizeof(wavHeader),1,file);
 
