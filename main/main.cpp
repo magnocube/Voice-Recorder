@@ -97,6 +97,25 @@ void app_main()
     sessionData = ESP_SESSION_DATA_DEFAULT();                       //change default parameters in "settings.h"
     strcpy(sessionData.last_file_name,"/sdcard/notDefined.wav");    //set the default value of the file name.
     strcpy(sessionData.Ethernet_IP_Adress,"NO ADRESS");             //set the default value of the Ethernet IP (for the browser)
+    esp_read_mac(sessionData.macAdress,ESP_MAC_ETH);                //reads the mac adress
+
+    
+    //char str[MAC_SIZE *3];
+    unsigned char * pin = sessionData.macAdress;
+    const char * hex = "0123456789ABCDEF";
+    uint8_t * pout = sessionData.macAdressString;
+    int i = 0;
+    for(; i < MAC_SIZE-1; ++i){
+        *pout++ = hex[(*pin>>4)&0xF];
+        *pout++ = hex[(*pin++)&0xF];
+        *pout++ = ':';
+    }
+    *pout++ = hex[(*pin>>4)&0xF];
+    *pout++ = hex[(*pin)&0xF];
+    *pout = 0;
+
+    printf("Mac Adress in String Format:   ----- %s -----\n", sessionData.macAdressString);
+    
     setupInterruptBigButton(&pinout);                               //setup the big button on top of the case (set pinmode and assign interrupt handler)
         
 

@@ -6,8 +6,8 @@
 // #include "wm8960.h"
 
 //password and SSID of the voicerecorder... password might be changed to the mac of the device
-#define EXAMPLE_ESP_WIFI_SSID      "Stefan_Lan_Mic"
-#define EXAMPLE_ESP_WIFI_PASS      "12345678"
+#define EXAMPLE_ESP_WIFI_SSID      "Lan_Microphone"
+#define EXAMPLE_ESP_WIFI_PASS      "12345678"  // replaced by mac adress
 #define EXAMPLE_MAX_STA_CONN       5
 #define ESP_INTR_FLAG_DEFAULT 0
 
@@ -26,6 +26,7 @@
 #define PCA_I2C_ADDR 0x20 
 #define WAV_HEADER_SIZE 44 
 #define FILE_NAME_LENGTH 9
+#define MAC_SIZE 6
 
 #define MONO 1
 #define STERIO 2
@@ -88,6 +89,8 @@
     .is_in_TestModus = false, \
     .last_file_name = (char*)malloc(FILE_NAME_LENGTH +20), \
     .SD_Write_Protect_on = false, \
+    .macAdress = (uint8_t*)malloc(MAC_SIZE), \
+    .macAdressString = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} \
 }
 
 //TAG used for logging 
@@ -154,6 +157,8 @@ typedef struct{
    bool is_in_TestModus;          //will check if the device is in test modus. the can be enabled by pressing the large button on startup with SD inside.
    char* last_file_name;
    bool SD_Write_Protect_on;
+   uint8_t* macAdress;        //pure mac adress
+   uint8_t macAdressString[MAC_SIZE*3];  //mac adress converted to string (used for wifi accespoint password)
 } esp_session_data;
 
 #endif //SETTINGS_H

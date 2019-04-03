@@ -18,7 +18,7 @@
 static void phy_device_power_enable_via_gpio(bool enable);				 //function prototype   -> gets automaticly called from ehternet driver, will allow clock to flow to gpio0 (by default it is blocked)
 static void eth_gpio_config_rmii(void); 								 //function prototype   -> gets automaticly called from ehternet driver
 static esp_err_t eth_event_handler(void *ctx, system_event_t *event);    //function prototype   -> event handler. usefull for debugging. can be commented out when done testing
-void wifi_init_softap();                                                 //function prototype   -> enable the wifi
+void wifi_init_softap(esp_shared_buffer *shared_buffer);                                                 //function prototype   -> enable the wifi
 void ethernet_init();                                                    //function prototype   -> enable Ethernet
 
 static esp_err_t event_handler(void *ctx, system_event_t *event);        // not used yet
@@ -26,12 +26,12 @@ static esp_err_t event_handler(void *ctx, system_event_t *event);        // not 
 static EventGroupHandle_t s_wifi_event_group;
 
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
-    strcpy(sb.session_data->Ethernet_IP_Adress,"NO ADRESS");
+    //strcpy(sb.session_data->Ethernet_IP_Adress,"NO ADRESS");
     sb.session_data->Ethernet_Ip_received = false;
 
     tcpip_adapter_init();                                                       
     ethernet_init();
-    wifi_init_softap();
+    wifi_init_softap(shared_buffer);
     // server starts when IP is found... search for event handler wifi
     vTaskDelay(2000/portTICK_PERIOD_MS); 
     setupWebserver();                           //normal we should wait for an interface to be connected... but the delay on the previous line works fine too!
@@ -123,7 +123,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)   //wifi
     }
     return ESP_OK;
 }
-void wifi_init_softap()
+void wifi_init_softap(esp_shared_buffer *shared_buffer)
 {
     /*set a static IP*/
     tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
@@ -142,15 +142,32 @@ void wifi_init_softap()
     esp_wifi_set_storage(WIFI_STORAGE_RAM); 
     esp_wifi_set_mode(WIFI_MODE_AP); 
 
-    wifi_ap_config_t acfg = {EXAMPLE_ESP_WIFI_SSID,EXAMPLE_ESP_WIFI_PASS,strlen(EXAMPLE_ESP_WIFI_SSID),0,WIFI_AUTH_WPA_WPA2_PSK,0,2,100};
+
+    
+    //wifi_ap_config_t acfg = {EXAMPLE_ESP_WIFI_SSID,EXAMPLE_ESP_WIFI_PASS,strlen(EXAMPLE_ESP_WIFI_SSID),0,WIFI_AUTH_WPA_WPA2_PSK,0,2,100};
+    wifi_ap_config_t acfg;
+    
+    memcpy(acfg.ssid,EXAMPLE_ESP_WIFI_SSID,strlen(EXAMPLE_ESP_WIFI_SSID));
+    //acfg.ssid = EXAMPLE_ESP_WIFI_SSID;                   /**< SSID of ESP32 soft-AP. If ssid_len field is 0, this must be a Null terminated string. Otherwise, length is set according to ssid_len. */
+    memcpy(acfg.password,shared_buffer->session_data->macAdressString,63);
+    //acfg.password = wifiDirtyFix;                        /**< Password of ESP32 soft-AP. Null terminated string. */
+    acfg.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID);       /**< Optional length of SSID field. */
+    acfg.channel = 0;                                    /**< Channel of ESP32 soft-AP */
+    acfg.authmode = WIFI_AUTH_WPA_WPA2_PSK;              /**< Auth mode of ESP32 soft-AP. Do not support AUTH_WEP in soft-AP mode */
+    acfg.ssid_hidden = 0;                                /**< Broadcast SSID or not, default 0, broadcast the SSID */
+    acfg.max_connection = 2;                             /**< Max number of stations allowed to connect in, default 4, max 4 */
+    acfg.beacon_interval = 100;                          /**< Beacon interval, 100 ~ 60000 ms, default 100 ms */
+
+
+
     wifi_config_t wifi_config = {acfg};
 	
  
-    esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
-    esp_wifi_start();
-     esp_wifi_set_ps(WIFI_PS_NONE);
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+    esp_wifi_set_ps(WIFI_PS_NONE);
     ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
-             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+             EXAMPLE_ESP_WIFI_SSID, shared_buffer->session_data->macAdressString);
 }
 
 void ethernet_init(){    //configure ethernet ... done currently by using the DHCP service
