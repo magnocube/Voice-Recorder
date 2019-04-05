@@ -25,6 +25,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event);        // not 
 
 static EventGroupHandle_t s_wifi_event_group;
 
+/*
+this task will setup the wifi and handle the webserver. 
+It will also handle the communication to Apresa.
+*/
 void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){   
     //strcpy(sb.session_data->Ethernet_IP_Adress,"NO ADRESS");
     sb.session_data->Ethernet_Ip_received = false;
@@ -35,6 +39,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
     // server starts when IP is found... search for event handler wifi
     vTaskDelay(2000/portTICK_PERIOD_MS); 
     setupWebserver();                           //normal we should wait for an interface to be connected... but the delay on the previous line works fine too!
+                                                //(ethernet might nog be connected, but wifi AP sure is after 2 seconds)
     
 
     // shared_buffer->recording = true;

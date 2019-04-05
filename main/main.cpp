@@ -100,7 +100,7 @@ void app_main()
     esp_read_mac(sessionData.macAdress,ESP_MAC_ETH);                //reads the mac adress
 
     
-    //char str[MAC_SIZE *3];
+    /*converts the mac adress to a string for the wifi password*/
     unsigned char * pin = sessionData.macAdress;
     const char * hex = "0123456789ABCDEF";
     uint8_t * pout = sessionData.macAdressString;
@@ -145,14 +145,16 @@ void app_main()
 	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                  //make instance of the i2c-GPIO-expander
 	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr,&sessionData);               //make instance of the SD card interface
 	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);           //make instance of the audio codec interface
+    Apresa *apresa_connection_ptr = new Apresa();
 	sb = {	.recording = false,						                                        //this shared_buffer is passed to the different tasks it contains all the pointers Both tasks need.
 			.gpio_header = pca_ptr,					                                        /*TODO: rename 'shared_buffer' to 'shared_memory'*/  
 			.SD = SD_ptr,
 			.codec = audio_codec_ptr,
 			.audio_config = &audioConfig,
 			.pin_config = &pinout,
-            .session_data = &sessionData	
-			};
+            .session_data = &sessionData,	
+            .apresaConnection = apresa_connection_ptr
+	};
 
 	testSPIFFSRead();	      //TODO... delete or move this to test code. 
     configureGPIOExpander();  // sets all the required pinmodes (can be changed dynamicly anywhere in the code) to make sure all the hardware connected to it start up correctly.

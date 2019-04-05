@@ -27,6 +27,7 @@
 #include "wm8960.h"
 #include "SDCard.h"
 #include "pca9535.h"
+#include "Apresa.h"
 
 /*used in setting up the socket... still have to figure out what it does*/
 #define LISTENQ 2
@@ -47,6 +48,7 @@ typedef struct{
     esp_audio_config *audio_config;         //audio config struct (how the recording should happen)
     esp_pin_config *pin_config;             //pin config struct (the entire pinout of the hardware (mainly used to control leds and to (de)activate components))
     esp_session_data *session_data;         //relevant data about this particular boot (Ehternet IP, number of errors and all other things to keep track of)
+    Apresa *apresaConnection;
 } esp_shared_buffer;
 
 esp_shared_buffer sb;               //local variable of the struct above
