@@ -185,6 +185,14 @@ void app_main()
 							 1													//task core
 							 );
 
+    xTaskCreatePinnedToCore((TaskFunction_t)apresa_task,		                //task function		   //probably the tast that does everything except recording
+							 "apresa_task", 					                //task name 
+							 1024 * 8, 											//stack size
+							 &sb,												//function parameters (struct with pointers to shared classes)
+							 2,													//priority
+							 NULL,												//task handle
+							 1													//task core
+							 );
     
     // xTaskCreatePinnedToCore((TaskFunction_t)webInterface,	                	//task function		   //handles the webpage   --> does not exist anymore
 	// 						 "webInterface_task", 					            //task name 
