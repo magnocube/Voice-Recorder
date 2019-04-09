@@ -145,7 +145,7 @@ void app_main()
 	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                  //make instance of the i2c-GPIO-expander
 	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr,&sessionData);               //make instance of the SD card interface
 	WM8960 *audio_codec_ptr = new WM8960(&audioConfig, SD_ptr, pca_ptr, &pinout);           //make instance of the audio codec interface
-    Apresa *apresa_connection_ptr = new Apresa();
+    Apresa *apresa_connection_ptr = new Apresa(&sessionData);
 	sb = {	.recording = false,						                                        //this shared_buffer is passed to the different tasks it contains all the pointers Both tasks need.
 			.gpio_header = pca_ptr,					                                        /*TODO: rename 'shared_buffer' to 'shared_memory'*/  
 			.SD = SD_ptr,

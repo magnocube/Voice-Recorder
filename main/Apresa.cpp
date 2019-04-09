@@ -1,32 +1,140 @@
 #include "Apresa.h"
 #define TAG "apresaTunnelTest"
 
-Apresa::Apresa(){  //normal constructor
+Apresa::Apresa(esp_session_data *sessionD){  //normal constructor
     fileName = (char*)malloc(9 +20);  //the 20 is for the path that needs to be added, the 9 is for the file path length
+    sessionData = sessionD;
 }
 
 void Apresa::setup(){  //for setting up any other things
 
 }
-void Apresa::setFileName(char* name){  //will set the name used by the "sendFile()" function
+
+// esp_err_t SDCard::beginFile(char name[]){
+   
+//     ESP_LOGI(TAG, "Opening file");
+//     file = fopen(name, "w");
+//     ESP_LOGI(TAG, "file opened");
+
+//     //printing zero's so the header will not be in the audio data
+//     // char * data = (char*)malloc(512);
+//     // memset (data,0,512);
+//     // fwrite(data,sizeof(uint8_t),512,file);
+//     // delete data;
+
+//     return ESP_OK;
+// }
+// esp_err_t SDCard::addDataToFile(uint8_t* data,int length){
+//     fwrite(data,sizeof(uint8_t),length,file);
+//     return ESP_OK;
+// }   
+
+// //write out the headers and close the file
+// void SDCard::endFile(){
+       
+//     ESP_LOGI(TAG, "File written...");
+//     writeWavHeader();  // will also include the "note" field
+//     fclose(file);
+    
+// }
+
+
+void Apresa::setFileName(int n){  //will set the name used by the "sendFile()" function
+          
+    int32_t file_counter_copy = n;  //file counter comes from the SD card classs. this is just a quick copy paste
+    int count = 0;
+    while(file_counter_copy != 0)   // little loop in order to count the 0's in front of the file name.
+    {
+        file_counter_copy /= 10;
+        ++count;
+    } 
+    
+    
+    char name[FILE_NAME_LENGTH +20] = "/sdcard/";   //FILE_NAME_LENGTH = the length of the file on the sd card.. the +20 is to add a path to it
+    for(int i = 0; i< FILE_NAME_LENGTH - count; i++){ //write out the 0s before the file number
+            strcat(name,"0");        
+    } 
+
+    char numbers[FILE_NAME_LENGTH+1];                            
+    itoa(n,numbers,10);
+    
+
+    strcat(name,numbers);
+    strcat(name,".wav");
+    strcpy(fileName,name);  //store it in the class.. variabel name will get out of scope
     
 }
 void Apresa::sendFile(){
-    	
-	//char rx_buffer[128];
-    
+    static const char *payload = "Message from ESP32 "; 
 
-    //assuming nothing will be received
-    
-    connectTCP();
-    if(err == 0) {  //no problems
-        err = send(sock, payload, strlen(payload), 0);
-        ESP_LOGI(TAG, "succesfuls packet send");
-        if (err < 0) {
-            ESP_LOGE(TAG, "Error occured during sending: errno %d", errno);
-        }
+
+    //file pointer
+    ESP_LOGI(TAG,"File Ready to send to apresa: %s",fileName);
+
+    file = fopen(fileName, "r+");
+    fseek(file,0,SEEK_END);
+    uint32_t fileSize = ftell(file); 
+    fseek(file,0,SEEK_SET);
+
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading, will return");
+        return;
     }
+
+
+
+    //creating the header
+    TunnelHeader t;
+    t.sync[0]=0xA1;
+    t.sync[1]=0xA2;
+    t.sync[2]=0xA3;
+    t.sync[3]=0xA4;
+    t.version = 0b11110100; // analog + version 2
+    t.controlFlags = 0b01000000; //first packet
+    t.last2MacBytes[0] = sessionData->macAdress[4];
+    t.last2MacBytes[1] = sessionData->macAdress[5];
+    t.fileLength[0] = fileSize; // >> 0
+    t.fileLength[1] = fileSize >> 8;
+    t.fileLength[2] = fileSize >> 16;
+    t.fileLength[3] = fileSize >> 24;
+    t.macAdress[0] = sessionData->macAdress[0];  // maybe use a memcpy here?
+    t.macAdress[1] = sessionData->macAdress[1];
+    t.macAdress[2] = sessionData->macAdress[2];
+    t.macAdress[3] = sessionData->macAdress[3];
+    t.macAdress[4] = sessionData->macAdress[4];
+    t.macAdress[5] = sessionData->macAdress[5];
+    t.apresaChannelLicences[1] = 1;
+    t.crVoipChannelLicences[1] = 1;
+    t.recordingChannels[1] = 1; 
+
+    //connecting
+    connectTCP();
+
+    int packetSize = 1024;  //todo: put this in the settings.txt
+    if(err == 0) {  //no problems connecting
+        //sending the header
+        err = send(sock, &t, sizeof(t), 0);
+
+
+        //split and send the file (file already has correct headers)
+        uint8_t data[packetSize];
+        int size = -1;
+        while(size  != 0){
+            size = fread(data, sizeof(uint8_t), packetSize,file);
+            err = send(sock, data, size, 0);
+            if (err < 0) {
+                ESP_LOGE(TAG, "Error occured during sending: errno %d", errno);
+            }
+        }
+        ESP_LOGI(TAG, "Done Sending file! ");    
+        
+    }
+
+    //close the file and the stream
     disconnectTCP();
+    fclose(file);
+    isSendingAFile = false;
+    
     
 
 
@@ -94,4 +202,7 @@ void Apresa::disconnectTCP(){
         shutdown(sock, 0);
         close(sock);
     }
+}
+void Apresa::updateApresa(){
+
 }
