@@ -155,7 +155,7 @@ typedef struct{
    char* Ethernet_IP_Adress;    //by default requested by DHCP, 
    bool Ethernet_Ip_received;   //indicates if the interface is connected
    bool is_in_TestModus;          //will check if the device is in test modus. the can be enabled by pressing the large button on startup with SD inside.
-   char* last_file_name;
+   char* last_file_name;        //used for storing the last generated file name
    bool SD_Write_Protect_on;
    uint8_t* macAdress;        //pure mac adress
    uint8_t macAdressString[MAC_SIZE*3];  //mac adress converted to string (used for wifi accespoint password)

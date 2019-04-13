@@ -33,7 +33,9 @@ class Apresa{
         void startSending();               //to indicate that it can start sending the file (so an other thread can send it), non blocking for the thread calling it
         bool isSending();                  //to let other tasks know that there is an active connection, will be used by apresa thread to start the connection
         void setFileName(int n);    //set the name of the file to send (might also happen internal in this class)
+        void setFilePath(char * s);
         void updateApresa();              //updates the local files to the apresa
+        void sendLastRecording();         //sends only the last recording (from global struct)
 
     private:
 
@@ -58,7 +60,7 @@ class Apresa{
         
         esp_session_data *sessionData;
         char * fileName;                 // malloc in main
-        bool isSendingAFile;
+        bool isSendingAFile = false; //(dont forget to initialsie these type of variables -_-)
         FILE* file; 
         int sock;
         int err;

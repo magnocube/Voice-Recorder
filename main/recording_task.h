@@ -54,8 +54,9 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			shared_buffer->gpio_header->digitalWrite(shared_buffer->pin_config->enable48V,PCA_LOW,false);   // disable phanton power( regarding if it was on or not)
 			shared_buffer->gpio_header->digitalWrite(shared_buffer->pin_config->led_green,PCA_LOW,true);	// indicate that the recodring is done (green led goes off)
 			
-			shared_buffer->apresaConnection->setFileName(183);
-			shared_buffer->apresaConnection->startSending();
+			shared_buffer->apresaConnection->sendLastRecording();
+			// shared_buffer->apresaConnection->setFileName(183);
+			// shared_buffer->apresaConnection->startSending();
 			//ESP_LOGW(TAG, "4 ");
 			/*should be recording,,, but card is not mounted...*/
 			//flash red led!

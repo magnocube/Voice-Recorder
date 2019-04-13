@@ -71,15 +71,18 @@ void Apresa::sendFile(){
     //file pointer
     ESP_LOGI(TAG,"File Ready to send to apresa: %s",fileName);
 
+
+
     file = fopen(fileName, "r+");
+    if (file == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading, will return");
+        return;
+    }    
     fseek(file,0,SEEK_END);
     uint32_t fileSize = ftell(file); 
     fseek(file,0,SEEK_SET);
 
-    if (file == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading, will return");
-        return;
-    }
+  
 
 
 
@@ -111,7 +114,7 @@ void Apresa::sendFile(){
     connectTCP();
 
     int packetSize = 1024;  //todo: put this in the settings.txt
-    if(err == 0) {  //no problems connecting
+        if(err == 0) {  //no problems connecting
         //sending the header
         err = send(sock, &t, sizeof(t), 0);
 
@@ -203,6 +206,13 @@ void Apresa::disconnectTCP(){
         close(sock);
     }
 }
-void Apresa::updateApresa(){
-
+void Apresa::updateApresa(){ 
+    
+}
+void Apresa::sendLastRecording(){
+    setFilePath(sessionData->last_file_name);
+    startSending();
+}
+void Apresa::setFilePath(char * s){
+    strcpy(fileName,s);
 }
