@@ -11,6 +11,8 @@
 #define EXAMPLE_MAX_STA_CONN       5
 #define ESP_INTR_FLAG_DEFAULT 0
 
+#define SyncFileName "/sdcard/sync.cfg"
+
 //i2c defines
 #define CODEC_I2C_ADDR 0x1a
 #define CODEC_I2S_NUM 0       //driver 0

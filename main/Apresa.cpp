@@ -7,7 +7,7 @@ Apresa::Apresa(esp_session_data *sessionD){  //normal constructor
 }
 
 void Apresa::setup(){  //for setting up any other things
-
+    
 }
 
 // esp_err_t SDCard::beginFile(char name[]){
@@ -58,18 +58,17 @@ void Apresa::setFileName(int n){  //will set the name used by the "sendFile()" f
     char numbers[FILE_NAME_LENGTH+1];                            
     itoa(n,numbers,10);
     
+   
 
     strcat(name,numbers);
     strcat(name,".wav");
     strcpy(fileName,name);  //store it in the class.. variabel name will get out of scope
     
 }
-void Apresa::sendFile(){
-    static const char *payload = "Message from ESP32 "; 
-
-
+void Apresa::sendFile(){  //sends the file (name of file is in "filename")
+   
     //file pointer
-    ESP_LOGI(TAG,"File Ready to send to apresa: %s",fileName);
+    ESP_LOGI(TAG,"sending file %s to apresa.",fileName);
 
 
 
@@ -82,6 +81,7 @@ void Apresa::sendFile(){
     uint32_t fileSize = ftell(file); 
     fseek(file,0,SEEK_SET);
 
+    ESP_LOGI(TAG,"Size of the file to send: %d",fileSize);
   
 
 
@@ -207,7 +207,14 @@ void Apresa::disconnectTCP(){
     }
 }
 void Apresa::updateApresa(){ 
+    for(int i = 0; i< 5; i++ ){
+        ESP_LOGI(TAG,"checking and updating file: %d",i);
+    }
     
+    bool succes = true;
+    if(succes){
+        isUpdatingApresa = false;
+    } //else it will call this loop again
 }
 void Apresa::sendLastRecording(){
     setFilePath(sessionData->last_file_name);
@@ -215,4 +222,14 @@ void Apresa::sendLastRecording(){
 }
 void Apresa::setFilePath(char * s){
     strcpy(fileName,s);
+}
+
+void Apresa::makeNewSyncFile(){
+
+}
+bool Apresa::isUpdating(){
+    return isUpdatingApresa;
+}
+void Apresa::startUpdateApresa(){
+    isUpdatingApresa = true;
 }

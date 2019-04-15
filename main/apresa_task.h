@@ -11,8 +11,9 @@ void apresa_task(esp_shared_buffer *shared_buffer){
 	while(1){ //task should not end
 	vTaskDelay(1000/portTICK_PERIOD_MS);
 		if(shared_buffer->apresaConnection->isSending()){  //an other thread has called the "startSending()" method, which will let this fuction return true;
-			shared_buffer->apresaConnection->sendFile();   //quick send method, might be changed later
-			
+			shared_buffer->apresaConnection->sendFile();   //quick send method, might be changed later, this method will send the file that has been previously set in "filename"			
+		} else if (shared_buffer->apresaConnection->isUpdating()){  //an other thread has called the startUpdateAprasa() method, this thread will actually handle it
+			shared_buffer->apresaConnection->updateApresa();
 		}
 
 
