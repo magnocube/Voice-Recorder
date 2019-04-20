@@ -129,14 +129,27 @@ void Apresa::sendFile(){  //sends the file (name of file is in "filename")
                 ESP_LOGE(TAG, "Error occured during sending: errno %d", errno);
             }
         }
-        ESP_LOGI(TAG, "Done Sending file! ");    
+        ESP_LOGI(TAG, "Done Sending file! ");  
+
+        disconnectTCP();
+        fclose(file);
+        //rename file so it wont be synced the next time, and user knows that it has been synced
+        char newName[30];
+        newName[0] = '\n'; 
+       
+        strcpy(newName,fileName); // append file name to the "S"
+        newName[8] = 'S';
+        rename(fileName,newName); //rename the file so it wont be recognised next time  
         
+    } else{
+        disconnectTCP();
+        fclose(file);
     }
 
     //close the file and the stream
-    disconnectTCP();
-    fclose(file);
-    isSendingAFile = false;
+    
+    isSendingAFile = false;  //done sending
+
     
     
 
@@ -207,8 +220,48 @@ void Apresa::disconnectTCP(){
     }
 }
 void Apresa::updateApresa(){ 
-    for(int i = 0; i< 5; i++ ){
+    int file_counter = 0;   // for the current file
+    int maxFilesSyncing = 5;  //must be from settings file. still a TODO 
+      
+
+    nvs_handle my_NVS_handle;
+    esp_err_t err;  //keeping track of last errors
+
+    printf("Opening Non-Volatile Storage (NVS) handle for apresa syncing... ");
+    
+    err = nvs_open("storage", NVS_READWRITE, &my_NVS_handle);   
+    if (err != ESP_OK) {
+        printf("Error (%s) opening NVS handle!,  cannot update apresa\n", esp_err_to_name(err));
+        return;
+    } else {
+        printf("Reading file counter from NVS ... ");
+          
+
+        err = nvs_get_i32(my_NVS_handle, "file_counter", &file_counter);
+        switch (err) {
+            case ESP_OK:
+                printf("Done\n");
+                printf("file counter = %d\n", file_counter);
+                break;
+            case ESP_ERR_NVS_NOT_FOUND:
+                printf("The file counter is not initialized yet, cannot update apresa\n");
+                return;
+                break;
+            default :
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+                return;
+        }
+
+        
+         nvs_close(my_NVS_handle); 
+    }
+    
+
+    for(int i = file_counter; ((i>0) && (i >file_counter - maxFilesSyncing)); i-- ){
         ESP_LOGI(TAG,"checking and updating file: %d",i);
+        setFileName(i);
+        sendFile(); //BLOCKING
+        
     }
     
     bool succes = true;
@@ -217,16 +270,17 @@ void Apresa::updateApresa(){
     } //else it will call this loop again
 }
 void Apresa::sendLastRecording(){
-    setFilePath(sessionData->last_file_name);
-    startSending();
+    if(isSendingAFile == false){
+        setFilePath(sessionData->last_file_name);
+        startSending();
+    }
+    
 }
 void Apresa::setFilePath(char * s){
     strcpy(fileName,s);
 }
 
-void Apresa::makeNewSyncFile(){
 
-}
 bool Apresa::isUpdating(){
     return isUpdatingApresa;
 }

@@ -198,7 +198,7 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
         /*NOTE:,, enabling the ethernet led might need to moced to event: ETH_GOT_IP, in stead of ETH_CONNECTED*/
 		sb.gpio_header->digitalWrite(sb.pin_config->led_blue,PCA_HIGH,true);
         sb.gpio_header->digitalWrite(sb.pin_config->ethernet_up_led,PCA_LOW,true);
-        sb.apresaConnection->startUpdateApresa(); // update the aprease when connected with ethernet
+        
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
@@ -223,6 +223,7 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
 
         sb.session_data->Ethernet_IP_Adress = inet_ntoa(ip.ip);
         sb.session_data->Ethernet_Ip_received = true;
+        sb.apresaConnection->startUpdateApresa(); // update the aprease when connected with ethernet
         
         //printf(sb.session_data->Ethernet_IP_Adress);
         break;

@@ -9,6 +9,7 @@
 #include "driver/sdmmc_host.h"
 #include "driver/sdspi_host.h"
 #include "sdmmc_cmd.h"
+#include "nvs_flash.h"
 
 #pragma once
 #include <stdlib.h>
@@ -61,7 +62,7 @@ class Apresa{
         void connectTCP();
         void disconnectTCP();
 
-        void makeNewSyncFile();
+        
 
 
         
