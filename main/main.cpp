@@ -296,11 +296,7 @@ void setupDeviceSettingsFromSPIFFS(){
                     audioConfig.channel2 = MIC_EXTERNAL_5_0_mm;
                }             
                 printf("channel2 value: %d\n", audioConfig.channel2);
-           } else if(strcmp(c,"enablePhantom") == 0) {
-                int state = atoi(d);
-                printf("found phantom state: %d\n", state);
-                audioConfig.enablePhantom = state;
-           }
+           } 
            //:TODO: add more settings
                     
          

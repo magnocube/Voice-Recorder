@@ -86,10 +86,7 @@
 			toSend += "channel2:";
 			toSend += document.getElementById("channel2").value;
 			toSend +='\r\n';
-			toSend += "enablePhantom:";
-			toSend += document.getElementById("enablePhantom").value;
-			toSend +='\r\n';
-			
+						
 
 			
 			xhttp.send(toSend);
@@ -168,13 +165,9 @@ Select Channel 2 for recording in stereo.
 
 </br>
 
-Enable Phantom power during recording on 5 mm jack
-<select id="enablePhantom">
-        <option value="1">On</option>
-		<option value="0">Off</option>
-</select>
 
-</br>
+
+
 </br>
 <button type="button" onclick="safeSettingsToServer();">submit and restart</button> 
 

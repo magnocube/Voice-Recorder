@@ -82,7 +82,6 @@
     .sample_rate = 16000, \
     .channel1 = MIC_BUILD_IN, \
     .channel2 = MIC_BUILD_IN, \
-    .enablePhantom = 0, \
 }
 
 #define ESP_SESSION_DATA_DEFAULT() {\
@@ -112,7 +111,6 @@ typedef struct{
     int sample_rate;
     int channel1;
     int channel2;
-    bool enablePhantom;
 } esp_audio_config;
 
 
