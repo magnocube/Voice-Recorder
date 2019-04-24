@@ -58,8 +58,8 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
 }
 /*TODO... implement all this (can be tested when both mics work)*/
 void WM8960::setupMicPath(){
-     gpio_header->digitalWrite(pinout->mic_select_0,PCA_LOW,false); //high = build in ,, low = extern (3.5mm)
-     gpio_header->digitalWrite(pinout->mic_select_1,PCA_LOW,false); //high = build in ,, low = extern (5mm)
+     gpio_header->digitalWrite(pinout->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)  --> are now being overwritten in main
+     gpio_header->digitalWrite(pinout->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
     if(audioConfig->num_channels == MONO){
         if(audioConfig->channel1 == MIC_EXTERNAL_3_5_mm){
 

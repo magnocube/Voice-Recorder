@@ -86,11 +86,20 @@
 			toSend += "channel2:";
 			toSend += document.getElementById("channel2").value;
 			toSend +='\r\n';
+			toSend += "apresaIP:";
+			toSend += document.getElementById("apresaIP").value;
+			toSend +='\r\n';
+			toSend += "apresaPort:";
+			toSend += document.getElementById("apresaPort").value;
+			toSend +='\r\n';
+			toSend += "apresaNumFilesSync:";
+			toSend += document.getElementById("apresaNumFilesSync").value;
+			toSend +='\r\n';
 						
 
 			
 			xhttp.send(toSend);
-			document.getElementById("messagePlace").innerHTML +=  "<br> <br> <h1>Page will now reload, should not take more than half a minute</h1>";
+			document.getElementById("messagePlace").innerHTML +=  "<br> <br> <h1>Page will now reload. Please refresh this page in 15 seconds</h1>";
 			location.reload();
 		}
 		function makeNonSelectable()
@@ -162,6 +171,15 @@ Select Channel 2 for recording in stereo.
         <option value="5">5mm jack</option>
 		<option value="BuildIn">Build in Microphone</option>
 </select>
+
+</br>
+Select IP for apresa server: <input type="text" id="apresaIP" value="192.168.1.1">
+
+</br>
+Select port for apresa server: <input type="text" id="apresaPort" value="2016">
+
+</br>
+max number of files to synk to apresa when connection is restored: <input type="text" id="apresaNumFilesSync" value="5">
 
 </br>
 

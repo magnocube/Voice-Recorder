@@ -3,3 +3,6 @@ bit_depth:16
 num_channels:2
 channel1:BuildIn
 channel2:BuildIn
+apresaIP:192.168.1.1
+apresaPort:2016
+apresaNumFilesSync:5

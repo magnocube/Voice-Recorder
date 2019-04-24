@@ -356,7 +356,7 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->enable48V,PCA_LOW,false);  // HIGH = on, LOW = off
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);  //low = on, High = off
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
+    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_LOW,false); //high = build in ,, low = extern (3.5mm)
     gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->ethernet_up_led,PCA_HIGH,false); //LOW = on
