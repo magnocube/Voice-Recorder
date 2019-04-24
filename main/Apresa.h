@@ -18,7 +18,7 @@
 
 
 
-#define HOST_IP_ADDR "192.168.2.32" //must be placed in a variable from settings.txt
+#define HOST_IP_ADDR "192.168.0.71" //must be placed in a variable from settings.txt
 #define PORT 2016					 // ""
 
 

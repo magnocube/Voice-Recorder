@@ -157,6 +157,7 @@ httpd_uri_t PostURI = {
 void setupWebserver(){
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_open_sockets = 1;
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);

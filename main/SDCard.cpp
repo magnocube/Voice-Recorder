@@ -242,7 +242,7 @@ void SDCard::writeWavHeader() // will also include the note header
     strncpy(wavHeader.noteSubChunk.localNumber,"VVOICE__________",16);
     strncpy(wavHeader.noteSubChunk.remoteNumber,"________________",16);
     strncpy(wavHeader.noteSubChunk.connectedNumber,"________________",16);
-    strncpy(wavHeader.noteSubChunk.macAdress,"DEADBEEFFEED",12);
+    strncpy(wavHeader.noteSubChunk.macAdress,(char*)sessionData->macAdressString,12);
     strncpy(wavHeader.noteSubChunk.apresaChannelLicences,"001",3);
     strncpy(wavHeader.noteSubChunk.pcChannelLicences,"001",3);
     for(int i =0;i<(346);i++){
