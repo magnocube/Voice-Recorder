@@ -228,11 +228,20 @@ void SDCard::writeWavHeader() // will also include the note header
     wavHeader.noteSubChunk.archived_recording = 'Z';
     wavHeader.noteSubChunk.recorded_call = 'C';
     wavHeader.noteSubChunk.year = 'J';              // 2019
-    wavHeader.noteSubChunk.month = '3';             // maart
-    wavHeader.noteSubChunk.day = '1';               //1
-    wavHeader.noteSubChunk.hour = 'N';              //23
-    wavHeader.noteSubChunk.minutesHigh = '5';       //50
-    wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
+
+    // wavHeader.noteSubChunk.month = '3';             // maart
+    // wavHeader.noteSubChunk.day = '1';               //1
+    // wavHeader.noteSubChunk.hour = 'N';              //23
+    // wavHeader.noteSubChunk.minutesHigh = '5';       //50
+    // wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
+
+    sprintf(&wavHeader.noteSubChunk.month, "%d", esp_random()%10);
+    sprintf(&wavHeader.noteSubChunk.day, "%d", esp_random()%10);
+    sprintf(&wavHeader.noteSubChunk.hour, "%d", esp_random()%10);
+    sprintf(&wavHeader.noteSubChunk.minutesHigh, "%d", esp_random()%10);
+    sprintf(&wavHeader.noteSubChunk.minutesLow, "%d", esp_random()%10);
+
+
     wavHeader.noteSubChunk.seconds = 'T';           // 58
     strncpy(wavHeader.noteSubChunk.additionalInformation,"______",6);
     wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo
