@@ -91,7 +91,10 @@
     .last_file_name = (char*)malloc(FILE_NAME_LENGTH +20), \
     .SD_Write_Protect_on = false, \
     .macAdress = (uint8_t*)malloc(MAC_SIZE), \
-    .macAdressString = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} \
+    .macAdressString = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, \
+    .apresaIP = (char*)malloc(16), \
+    .apresaPort = 2016, \
+    .apresaNumFilesSync = 5, \
 }
 
 //TAG used for logging 
@@ -147,7 +150,7 @@ typedef struct{
 
 
 /*|||||||||____________SESSION_DATA_______________|||||||||*/
-/*this struct will be updated with all settings specifig to this device
+/*this struct will be updated with all settings specific to this device
     -it will be used for the requested IP adress
     -it will be used for testing the device
 */
@@ -159,6 +162,9 @@ typedef struct{
    bool SD_Write_Protect_on;
    uint8_t* macAdress;        //pure mac adress
    uint8_t macAdressString[MAC_SIZE*3];  //mac adress converted to string (used for wifi accespoint password)
+   char* apresaIP;
+   uint32_t apresaPort;
+   uint32_t apresaNumFilesSync;
 } esp_session_data;
 
 #endif //SETTINGS_H

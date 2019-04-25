@@ -142,7 +142,7 @@ void Apresa::sendFile(){  //sends the file (name of file is in "filename")
         rename(fileName,newName); //rename the file so it wont be recognised next time  
         
     } else{
-        disconnectTCP();
+        //disconnectTCP();
         fclose(file);
     }
 
@@ -191,9 +191,9 @@ void Apresa::connectTCP(){  //using tcp protocol
     int ip_protocol;
 
     struct sockaddr_in destAddr;
-    destAddr.sin_addr.s_addr = inet_addr(HOST_IP_ADDR);    //TODO: make this into a variable
+    destAddr.sin_addr.s_addr = inet_addr(sessionData->apresaIP);   
     destAddr.sin_family = AF_INET;
-    destAddr.sin_port = htons(PORT);                        //TODO: make this into a variable
+    destAddr.sin_port = htons(sessionData->apresaPort);                       
     addr_family = AF_INET;
     ip_protocol = IPPROTO_IP;
     inet_ntoa_r(destAddr.sin_addr, addr_str, sizeof(addr_str) - 1);
@@ -257,7 +257,7 @@ void Apresa::updateApresa(){
     }
     
 
-    for(int i = file_counter; ((i>0) && (i >file_counter - maxFilesSyncing)); i-- ){
+    for(int i = file_counter; ((i>0) && (i >file_counter - sessionData->apresaNumFilesSync)); i-- ){
         ESP_LOGI(TAG,"checking and updating file: %d",i);
         setFileName(i);
         sendFile(); //BLOCKING

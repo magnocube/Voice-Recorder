@@ -296,6 +296,17 @@ void setupDeviceSettingsFromSPIFFS(){
                     audioConfig.channel2 = MIC_EXTERNAL_5_0_mm;
                }             
                 printf("channel2 value: %d\n", audioConfig.channel2);
+           } else if(strcmp(c,"apresaIP") == 0) {
+               strcpy(sessionData.apresaIP,d);         
+                printf("Apresa Ip: %s\n", sessionData.apresaIP);
+           } else if(strcmp(c,"apresaPort") == 0) {
+                int port = atoi(d);
+                printf("found apresa port: %d\n", port);
+                sessionData.apresaPort = port;
+           } else if(strcmp(c,"apresaNumFilesSync") == 0) {
+                int num = atoi(d);
+                printf("found num files sync: %d\n", num);
+                sessionData.apresaNumFilesSync = num;
            } 
            //:TODO: add more settings
                     
