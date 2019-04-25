@@ -2,7 +2,8 @@
 
 
 
-SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC,pca9535 * gh, esp_session_data *sessionD){ 
+SDCard::SDCard(esp_pin_config *pinC,esp_audio_config * audioC,pca9535 * gh, esp_session_data *sessionD,Apresa *apresa_connection_ptr){ 
+    apresa = apresa_connection_ptr;
     pinconfig = pinC;
     audioConfig = audioC;
     sessionData = sessionD;
@@ -123,6 +124,9 @@ bool SDCard::isMounted(){   //NOTE: there is also a public variable called "isCa
                 //ESP_LOGW(TAG, "Now true");
                 
                 gpio_header->digitalWrite(pinconfig->led_red,PCA_HIGH,true); // turn led off
+                if(sessionData->Ethernet_Ip_received){
+                    apresa->startUpdateApresa(); // update the apreasa when connected with ethernet
+                }
                 
                 
                 return true;

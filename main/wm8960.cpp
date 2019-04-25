@@ -198,7 +198,9 @@ void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debuggi
 }
 
 void WM8960::initialSetupRegisters(){ //example config
-   
+
+    
+
     //enable microphone bias and enables power on ADC's
     setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR|R25_ENABLE_PGA_BOOST);  //micbias +vref+pgaBoost+adc
     setRegister(regCopy.R47_Codec_Power_Manegement3,R47_ENABLE_PGA|R47_ENBALE_OUTPUT_MIXER);

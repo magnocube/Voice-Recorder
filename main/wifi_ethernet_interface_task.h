@@ -223,7 +223,10 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
 
         sb.session_data->Ethernet_IP_Adress = inet_ntoa(ip.ip);
         sb.session_data->Ethernet_Ip_received = true;
-        sb.apresaConnection->startUpdateApresa(); // update the aprease when connected with ethernet
+        if(sb.SD->isCardMounted){
+            sb.apresaConnection->startUpdateApresa(); // update the apreasa when connected with ethernet
+        }
+
         
         //printf(sb.session_data->Ethernet_IP_Adress);
         break;

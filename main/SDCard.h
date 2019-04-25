@@ -24,12 +24,13 @@
 
 #include "settings.h" 
 #include "pca9535.h"
+#include "Apresa.h"
 
 
 
 class SDCard{
     public:
-        SDCard(esp_pin_config *pinC, esp_audio_config *audioC,pca9535 * gh, esp_session_data *sessionD); //constructor, will try to mount the SD card on initialising                                           
+        SDCard(esp_pin_config *pinC, esp_audio_config *audioC,pca9535 * gh, esp_session_data *sessionD, Apresa *apresa_connection_ptr); //constructor, will try to mount the SD card on initialising                                           
         bool isCardInSlot();                                    //will check if the SD card is in the slot for writing
         bool isWriteProtectOn();                                //checks if the write protection is on. (card must be in slot for this to give a valid return)
         bool isMounted();                                       //returns if the SD card is mounted to the file System
@@ -51,6 +52,7 @@ class SDCard{
         esp_audio_config *audioConfig;                          //audioconfig of the device. will have up-to-date settings for audio settings 
         esp_session_data *sessionData;
         pca9535 *gpio_header;
+        Apresa *apresa;
         esp_vfs_fat_sdmmc_mount_config_t mount_config;          //used for: setupSDConfig();
         sdmmc_card_t* card;                                     //used for: mountCard();
         FILE* file;                                             //the file that will be written too.. start by calling: beginFile();

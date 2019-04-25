@@ -113,7 +113,7 @@ void Apresa::sendFile(){  //sends the file (name of file is in "filename")
     //connecting
     connectTCP();
 
-    int packetSize = 1024;  //todo: put this in the settings.txt
+    int packetSize = 4096;  //todo: put this in the settings.txt
         if(err == 0) {  //no problems connecting
         //sending the header
         err = send(sock, &t, sizeof(t), 0);
