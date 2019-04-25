@@ -72,9 +72,9 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R55_PLLK_7_0                0xE8
 
 #define R0_UPDATE_SOUND             0b100000000
-#define R0_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC (I hope)
+#define R0_DEFAULT_VOLUME           0b001111111 //LOUD
 #define R1_UPDATE_SOUND             0b100000000
-#define R1_DEFAULT_VOLUME           0b000010111 //will be overwritten by ALC (I hope)
+#define R1_DEFAULT_VOLUME           0b001111111 //LOUD
 
 #define R17_ALC_ENABLE              0b110000000
 #define R17_ALC_MAX_GAIN            0b001000000 // +12db
@@ -89,20 +89,20 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R27_ALC_SAMPLE_RATE_16      0b000000011 // 16 khz
 #define R27_ALC_SAMPLE_RATE_48      0b000000000 // 48 khz
 
-#define R21_LEFT_ADC_VOLUME         0b011000011 //default volume -> copied from datasheet
-#define R22_RIGHT_ADC_VOLUME        0b011000011 //default volume -> copied from datasheet
+#define R21_LEFT_ADC_VOLUME         0b111111111 //default volume -> copied from datasheet
+#define R22_RIGHT_ADC_VOLUME        0b111111111 //default volume -> copied from datasheet
 
 #define R32_ADCL_SIGNAL_PATH_LIN1   0b100000000 //linput1
 #define R32_ADCL_SIGNAL_PATH_LIN3   0b010000000 //linput2
 #define R32_ADCL_SIGNAL_PATH_LIN2   0b001000000 //linput3
-#define R32_ADCL_LMIC_BOOST         0b000100000 // +20db
-#define R32_CONNECT_TO_BOOST        0b000000100 // connected
+#define R32_ADCL_LMIC_BOOST         0b000110000 // +29db
+#define R32_CONNECT_TO_BOOST        0b000001000 // connected
 
 #define R33_ADCR_SIGNAL_PATH_RIN1   0b100000000 //linput1
 #define R33_ADCR_SIGNAL_PATH_RIN3   0b010000000 //linput2
 #define R33_ADCR_SIGNAL_PATH_RIN2   0b001000000 //linput3
-#define R33_ADCR_RMIC_BOOST         0b000100000 // +20db
-#define R33_CONNECT_TO_BOOST        0b000000100 // connected
+#define R33_ADCR_RMIC_BOOST         0b000110000 // +29db
+#define R33_CONNECT_TO_BOOST        0b000001000 // connected
 
 #define R43_LEFT_BOOSTER_GAIN       0b001111110
 #define R44_RIGHT_BOOSTER_GAIN      0b001111110

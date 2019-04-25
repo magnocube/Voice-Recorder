@@ -199,9 +199,9 @@ void WM8960::printRegister(uint8_t index, uint16_t value){   // used for debuggi
 
 void WM8960::initialSetupRegisters(){ //example config
 
-    
 
-    //enable microphone bias and enables power on ADC's
+
+    // //enable microphone bias and enables power on ADC's
     setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR|R25_ENABLE_PGA_BOOST);  //micbias +vref+pgaBoost+adc
     setRegister(regCopy.R47_Codec_Power_Manegement3,R47_ENABLE_PGA|R47_ENBALE_OUTPUT_MIXER);
     //set the clock frequencies
@@ -228,8 +228,8 @@ void WM8960::initialSetupRegisters(){ //example config
     setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_UPDATE_SOUND|R1_DEFAULT_VOLUME);
     setRegister(regCopy.R21_Codec_Left_ADC_Volume,R21_LEFT_ADC_VOLUME);
     setRegister(regCopy.R22_Codec_Right_ADC_Volume,R22_RIGHT_ADC_VOLUME);
-    setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN3|R32_ADCL_LMIC_BOOST|R32_CONNECT_TO_BOOST);
-    setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN3|R33_ADCR_RMIC_BOOST|R33_CONNECT_TO_BOOST);
+    setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN3|R32_ADCL_LMIC_BOOST/*|R32_CONNECT_TO_BOOST*/);
+    setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN3|R33_ADCR_RMIC_BOOST/*|R33_CONNECT_TO_BOOST*/);
     setRegister(regCopy.R43_Codec_Input_Boost_Mixer1,R43_LEFT_BOOSTER_GAIN);
     setRegister(regCopy.R44_Codec_Input_Boost_Mixer2,R44_RIGHT_BOOSTER_GAIN);
     //set ALC 
@@ -237,13 +237,14 @@ void WM8960::initialSetupRegisters(){ //example config
     setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);
     setRegister(regCopy.R19_Codec_ALC3,R19_ALC_MODE_ALC|R19_ALC_ATTACK|R19_ALC_DECAY);
     setRegister(regCopy.R20_Codec_Noise_Gate,R20_NOISE_THRESHOLD_ENABLE|R20_NOISE_THRESHOLD);
-    setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_48);
+    setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
     
     writeRegisters(); //sends registers to codec
    
 
-    
-
+    //regCopy.R0_Codec_Left_Input_Volume = 0b100111111 // update volume, disable mute & volume +30db
+    //regCopy.R1_Codec_Right_Input_Volume = 0b100111111 // same as line above
+    //writeRegisters();
 
 }
 
