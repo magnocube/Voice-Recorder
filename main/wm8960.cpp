@@ -201,50 +201,118 @@ void WM8960::initialSetupRegisters(){ //example config
 
 
 
-    // //enable microphone bias and enables power on ADC's
-    setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR|R25_ENABLE_PGA_BOOST);  //micbias +vref+pgaBoost+adc
-    setRegister(regCopy.R47_Codec_Power_Manegement3,R47_ENABLE_PGA|R47_ENBALE_OUTPUT_MIXER);
-    //set the clock frequencies
-    setRegister(regCopy.R26_Codec_Power_Manegement2,R26_PLL_ENABLE);
-    setRegister(regCopy.R52_Codec_PLL_N,R52_PLLN|R52_SDM_FRACTIONAL_MODE|R52_PLL_PRESCALE_DIV_1);
-    setRegister(regCopy.R4_Codec_Clocking1,R4_SYS_CLOCK_DIV_2|R4_CLOCK_FROM_PLL);
-    setRegister(regCopy.R8_Codec_Clocking2,0b111000000); //speaker class D?
+    // // //enable microphone bias and enables power on ADC's
+    // setRegister(regCopy.R25_Codec_Power_Manegement1,R25_MIC_BIAS|R25_VREF|R25_VMID_SELECT|R25_POWER_ADCL|R25_POWER_ADCR|R25_ENABLE_PGA_BOOST);  //micbias +vref+pgaBoost+adc
+    // setRegister(regCopy.R47_Codec_Power_Manegement3,R47_ENABLE_PGA|R47_ENBALE_OUTPUT_MIXER);
+    // //set the clock frequencies
+    // setRegister(regCopy.R26_Codec_Power_Manegement2,R26_PLL_ENABLE);
+    // setRegister(regCopy.R52_Codec_PLL_N,R52_PLLN|R52_SDM_FRACTIONAL_MODE|R52_PLL_PRESCALE_DIV_1);
+    // setRegister(regCopy.R4_Codec_Clocking1,R4_SYS_CLOCK_DIV_2|R4_CLOCK_FROM_PLL);
+    // setRegister(regCopy.R8_Codec_Clocking2,0b111000000); //speaker class D?
+    // if(audioConfig->sample_rate == 16000){
+    //     setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
+    //     setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
+    // } else if(audioConfig->sample_rate == 48000){
+    //     setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_48KHZ);
+    //     setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_8);
+    // }
+
+    // setRegister(regCopy.R53_Codec_PLL_K_1,R53_PLLK_23_16);
+    // setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
+    // setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
+    // //sets the audio control interface
+    // setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER/*|R7_INVERT_BCLK*/|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S|R7_MSB_AFTER_FIRST_EDGE|R7_SWAP_CHANNELS);
+    // setRegister(regCopy.R48_Codec_Additional_Control4,0b000000000);
+    // //set audio input registers
+    // setRegister(regCopy.R0_Codec_Left_Input_Volume,R0_UPDATE_SOUND|R0_DEFAULT_VOLUME);
+    // setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_UPDATE_SOUND|R1_DEFAULT_VOLUME);
+    // setRegister(regCopy.R21_Codec_Left_ADC_Volume,R21_LEFT_ADC_VOLUME);
+    // setRegister(regCopy.R22_Codec_Right_ADC_Volume,R22_RIGHT_ADC_VOLUME);
+    // setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN3|R32_ADCL_LMIC_BOOST/*|R32_CONNECT_TO_BOOST*/);
+    // setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN3|R33_ADCR_RMIC_BOOST/*|R33_CONNECT_TO_BOOST*/);
+    // setRegister(regCopy.R43_Codec_Input_Boost_Mixer1,R43_LEFT_BOOSTER_GAIN);
+    // setRegister(regCopy.R44_Codec_Input_Boost_Mixer2,R44_RIGHT_BOOSTER_GAIN);
+    // //set ALC 
+    // setRegister(regCopy.R17_Codec_ALC1,/*R17_ALC_ENABLE|*/R17_ALC_MAX_GAIN|R17_ALC_TARGET);
+    // setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);
+    // setRegister(regCopy.R19_Codec_ALC3,R19_ALC_MODE_ALC|R19_ALC_ATTACK|R19_ALC_DECAY);
+    // setRegister(regCopy.R20_Codec_Noise_Gate,R20_NOISE_THRESHOLD_ENABLE|R20_NOISE_THRESHOLD);
+    // setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
+    
+    // writeRegisters(); //sends registers to codec
+
+
+
+    /*
+    ///////////////NOTES///////////////
+    - look at meaning of R24, might have something to do with conflict on PCB
+    -set right value for micbias source (vmid might not have enough power)
+    - enable an play with ALC
+    - play with noise gate. 
+    -adclrc gpio mode
+    */
+   
+
+    regCopy.R0_Codec_Left_Input_Volume =            0b101011111; // update volume(8), disable mute(7) & volume (5:0)   // was 101011111
+    regCopy.R1_Codec_Right_Input_Volume =           0b101011111; // same as line above (max volume)
+    regCopy.R2_Codec_LOUT1_Volume =                 0b000000000; // no output volume, default value
+    regCopy.R3_Codec_ROUT1_Volume =                 0b000000000; // no output volume, default value
+    regCopy.R4_Codec_Clocking1 =                    0b000000101; // clock divider of 2(2:1), and SYSCLK of PLL(0) (sample rate will be done at end of this config)
+    regCopy.R5_Codec_ADC_DAC_Control1 =             0b000001000; // adc normal polarity(6:5), enable high pass filter(0)
+    regCopy.R6_Codec_ADC_DAC_Control2 =             0b000000000; // all default, no audio output settings
+    regCopy.R7_Codec_Audio_Interface1 =             0b001000010; // no channel swap(8), no bitclk invert(7), MASTER MODE(6), no LRCLK invert(4), 16 bit word length(3:2), I2S format(1:0)
+    regCopy.R8_Codec_Clocking2 =                    0b111000000; // class d speaker output (default, not used)(8:6), bitclk will be done at enf of this config
+    regCopy.R9_Codec_Audio_interface2 =             0b000000000; // adclrc/gpio1  = ADCLRC(6), no 8 bit word(5), no adc/dac companding(4:1),no loopback(0)
+    regCopy.R10_Codec_Left_Dac_Volume =             0b111111111; // update output volume(8), volume control = 0db(7:0)
+    regCopy.R11_Codec_Right_Dac_Volume =            0b111111111; // same as line above
+    regCopy.R16_Codec_3D_Conrtol =                  0b000000000; // all default, output is not used
+    regCopy.R17_Codec_ALC1 =                        0b001111011; // ALC off(8:7), max gain +30DB (6:4), target (3:0)(max)
+    regCopy.R18_Codec_ALC2 =                        0b100000000; // ALC min gain = -17.25 (6:4), ALC hold time = 0ms(3:0)
+    regCopy.R19_Codec_ALC3 =                        0b000110100; // ALC mode = ALC(8), decay = 192ms(7:4), attack = 24ms(3:0)
+    regCopy.R20_Codec_Noise_Gate =                  0b000000001; // Noise threshold = -76.5dBfs(7:3), enable noise gate(0)
+    regCopy.R21_Codec_Left_ADC_Volume =             0b111000000; // adc volume default(7:0)
+    regCopy.R22_Codec_Right_ADC_Volume =            0b111000000; // same as line above
+    regCopy.R23_Codec_Adittional_control1 =         0b111000000; // enable thermal shutdown(8), vmid = low current(7:6)  
+    regCopy.R24_Codec_Adittional_control2 =         0b000000000; // all default, might solve conflicting pullup and down on data signals
+    regCopy.R25_Codec_Power_Manegement1 =           0b011111110; // vmid  = 2*50Kohm (8:7), vref up(6), analog pga power(5:4), adc power(3:2),micbias up(1),master clock enable(0)
+    regCopy.R26_Codec_Power_Manegement2 =           0b000000001; // all ouput drivers disabled(8:1), PLL enabled(0)
+    regCopy.R27_Codec_Additional_control3 =         0b000000000; // no outputs, all default, ALC sample rate will be done at end of this config
+    regCopy.R28_Codec_Anti_Pop1 =                   0b000000000; // micbias from vmid(8)
+    regCopy.R29_Codec_Anti_Pop2 =                   0b000000000; // no resistor on HP for capacitors(6)
+    regCopy.R32_Codec_ADCL_Signal_Path =            0b100111000; // Linput1 connected to PGA(8:6), pga boost +29Db (5:4), pga connected to boost mixer(3)
+    regCopy.R33_Codec_ADCR_Signal_Path =            0b100111000; // same as line above
+    regCopy.R34_Codec_Left_Out_Mix =                0b001010000; // default values, not used
+    regCopy.R37_Codec_Right_Out_Mix =               0b001010000; // default values, not used
+    regCopy.R38_Codec_Mono_Out_Mix1 =               0b000000000; // default values, not used
+    regCopy.R39_Codec_Mono_Out_Mix2 =               0b000000000; // default values, not used
+    regCopy.R40_Codec_LOUT1_Volume =                0b000000000; // default values, not used
+    regCopy.R41_Codec_ROUT2_Volume =                0b000000000; // default values, not used
+    regCopy.R42_Codec_MONOOUT_Volume =              0b001000000; // default values, not used
+    regCopy.R43_Codec_Input_Boost_Mixer1 =          0b000000000; // all unput boost on in2 and in3 off, otherwise they will also be routed trough the moost mixer (robo voice)
+    regCopy.R44_Codec_Input_Boost_Mixer2 =          0b000000000; // same as line above
+    regCopy.R45_Codec_Bypass1 =                     0b001010000; // bypass disabled(8), rest is default
+    regCopy.R46_Cocec_Bypass2 =                     0b001010000; // same as line above
+    regCopy.R47_Codec_Power_Manegement3 =           0b000110000; // left and right PGA enabled(5:4)
+    regCopy.R48_Codec_Additional_Control4 =         0b000000010; // temprature sensor enabled(1), bias voltage = 0.9*avvd(0)
+    regCopy.R49_Codec_Class_D_Control1 =            0b000110111; // no speaker output(7:6), all is default
+    regCopy.R51_Codec_Class_D_Control3 =            0b010000000; // default values, speaker not used
+    regCopy.R52_Codec_PLL_N =                       0b000101000; 
+    regCopy.R53_Codec_PLL_K_1 =                     0b000110001;
+    regCopy.R54_Codec_PLL_K_2 =                     0b000100110;
+    regCopy.R55_Codec_PLL_K_3 =                     0b011101000;
+
+    /*adjusting settings according to the sample rate*/
+    /*the mono/stereo selection will be done in the recording task. codec will always output stereo!*/
     if(audioConfig->sample_rate == 16000){
         setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
         setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
+        setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
     } else if(audioConfig->sample_rate == 48000){
         setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_48KHZ);
         setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_8);
+        setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_48);
     }
-
-    setRegister(regCopy.R53_Codec_PLL_K_1,R53_PLLK_23_16);
-    setRegister(regCopy.R54_Codec_PLL_K_2,R54_PLLK_15_8);
-    setRegister(regCopy.R55_Codec_PLL_K_3,R55_PLLK_7_0);
-    //sets the audio control interface
-    setRegister(regCopy.R7_Codec_Audio_Interface1,R7_MODE_MASTER/*|R7_INVERT_BCLK*/|R7_AUDIO_WORD_LENGTH_16|R7_FORMAT_I2S|R7_MSB_AFTER_FIRST_EDGE|R7_SWAP_CHANNELS);
-    setRegister(regCopy.R48_Codec_Additional_Control4,0b000000000);
-    //set audio input registers
-    setRegister(regCopy.R0_Codec_Left_Input_Volume,R0_UPDATE_SOUND|R0_DEFAULT_VOLUME);
-    setRegister(regCopy.R1_Codec_Right_Input_Volume,R1_UPDATE_SOUND|R1_DEFAULT_VOLUME);
-    setRegister(regCopy.R21_Codec_Left_ADC_Volume,R21_LEFT_ADC_VOLUME);
-    setRegister(regCopy.R22_Codec_Right_ADC_Volume,R22_RIGHT_ADC_VOLUME);
-    setRegister(regCopy.R32_Codec_ADCL_Signal_Path,R32_ADCL_SIGNAL_PATH_LIN3|R32_ADCL_LMIC_BOOST/*|R32_CONNECT_TO_BOOST*/);
-    setRegister(regCopy.R33_Codec_ADCR_Signal_Path,R33_ADCR_SIGNAL_PATH_RIN3|R33_ADCR_RMIC_BOOST/*|R33_CONNECT_TO_BOOST*/);
-    setRegister(regCopy.R43_Codec_Input_Boost_Mixer1,R43_LEFT_BOOSTER_GAIN);
-    setRegister(regCopy.R44_Codec_Input_Boost_Mixer2,R44_RIGHT_BOOSTER_GAIN);
-    //set ALC 
-    setRegister(regCopy.R17_Codec_ALC1,/*R17_ALC_ENABLE|*/R17_ALC_MAX_GAIN|R17_ALC_TARGET);
-    setRegister(regCopy.R18_Codec_ALC2,R18_ALC_MINIMUM_GAIN|R18_ALC_HOLD_TIME);
-    setRegister(regCopy.R19_Codec_ALC3,R19_ALC_MODE_ALC|R19_ALC_ATTACK|R19_ALC_DECAY);
-    setRegister(regCopy.R20_Codec_Noise_Gate,R20_NOISE_THRESHOLD_ENABLE|R20_NOISE_THRESHOLD);
-    setRegister(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
-    
-    writeRegisters(); //sends registers to codec
-   
-
-    //regCopy.R0_Codec_Left_Input_Volume = 0b100111111 // update volume, disable mute & volume +30db
-    //regCopy.R1_Codec_Right_Input_Volume = 0b100111111 // same as line above
-    //writeRegisters();
+    writeRegisters();
 
 }
 
