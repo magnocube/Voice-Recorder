@@ -91,7 +91,7 @@ void WM8960::setupI2S(){  //setup the i2s bus of the esp32
     i2s_config = {
         .mode = static_cast<i2s_mode_t>(I2S_MODE_SLAVE | I2S_MODE_RX),
         .sample_rate = audioConfig->sample_rate, 
-        .bits_per_sample = static_cast<i2s_bits_per_sample_t>(audioConfig->bits_per_sample),
+        .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,  //.bits_per_sample = static_cast<i2s_bits_per_sample_t>(audioConfig->bits_per_sample), always 16 bit, play with recording task for other values
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  //default value, will be overwritten 
         .communication_format = static_cast<i2s_comm_format_t>(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1 , // high interrupt priority

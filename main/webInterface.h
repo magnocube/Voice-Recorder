@@ -158,7 +158,7 @@ httpd_uri_t PostURI = {
 void setupWebserver(){
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_open_sockets = 1;
+    config.max_open_sockets = 3; //in case some network devices want to hold up the recorder ???, sometimes stuck when using max 1 open socket
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);

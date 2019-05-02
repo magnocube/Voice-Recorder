@@ -270,7 +270,7 @@ void Apresa::updateApresa(){
     } //else it will call this loop again
 }
 void Apresa::sendLastRecording(){
-    if(isSendingAFile == false){
+    if(isSendingAFile == false && sessionData->Ethernet_Ip_received){ //not sendig a file and ethernet connection
         setFilePath(sessionData->last_file_name);
         startSending();
     }
