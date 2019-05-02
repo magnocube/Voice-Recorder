@@ -127,7 +127,8 @@ esp_err_t PostURI_post_handler(httpd_req_t *req)
 
         
         FILE* f = fopen("/spiffs/settings.txt", "w");
-        fprintf(f,buf); 
+        //fprintf(f,buf); 
+        fwrite(buf,1,strlen(buf),f);
         fclose(f);
         ESP_LOGI(TAG, "DONE WRITING THE NEW SETTINGS FILE>>>> REBOOT IS NOW REQUIRED!");
         //send a hasty respond to the client.
@@ -208,7 +209,7 @@ void sendFileBackToClient(char * fileName, httpd_req_t * client){
                     httpd_resp_send_chunk(client, line, numElementsRead);                    
                 }
                 
-                 httpd_resp_send_chunk(client, line, 0);           
+                 httpd_resp_send_chunk(client, NULL, 0);           
                 fclose(f);
                 
                 // strip newline
