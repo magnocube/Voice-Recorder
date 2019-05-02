@@ -188,7 +188,7 @@ void SDCard::writeWavHeader() // will also include the note header
     /*FMT subChunk*/
     strncpy(wavHeader.fmtSubChunk.subChunkID,"fmt ",4);
     wavHeader.fmtSubChunk.subChunkSize = 16;
-    wavHeader.fmtSubChunk.audioFormat = 1;
+    wavHeader.fmtSubChunk.audioFormat = audioConfig->format;
     wavHeader.fmtSubChunk.numChannels = audioConfig->num_channels;
     wavHeader.fmtSubChunk.sampleRate = audioConfig->sample_rate;
     wavHeader.fmtSubChunk.byteRate = audioConfig->sample_rate * audioConfig->num_channels * audioConfig->bits_per_sample / 8;
@@ -248,7 +248,7 @@ void SDCard::writeWavHeader() // will also include the note header
 
     wavHeader.noteSubChunk.seconds = 'T';           // 58
     strncpy(wavHeader.noteSubChunk.additionalInformation,"______",6);
-    wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo
+    wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo   -->> need to change this!!!!!
     strncpy(wavHeader.noteSubChunk.SoftwareID,"QP",2);
     wavHeader.noteSubChunk.recordingSource = 'A';
     wavHeader.noteSubChunk.inOrOutgoing ='I';
@@ -277,6 +277,7 @@ void SDCard::writeWavHeader() // will also include the note header
 
     printf("file written with: sample rate      : %d\n", wavHeader.fmtSubChunk.sampleRate);
     printf("                 : num channels     : %d\n", wavHeader.fmtSubChunk.numChannels);
+    printf("                 : format           : %d\n", wavHeader.fmtSubChunk.audioFormat);
     printf("                 : byte rate        : %d\n", wavHeader.fmtSubChunk.byteRate);
     printf("                 : BlockAlign       : %d\n", wavHeader.fmtSubChunk.blockAlign);
     printf("                 : bits_per_sample  : %d\n", wavHeader.fmtSubChunk.bitsPerSample);

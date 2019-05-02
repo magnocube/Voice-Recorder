@@ -270,10 +270,29 @@ void setupDeviceSettingsFromSPIFFS(){
                 int sample_rate = atoi(d);
                 printf("found sample rate: %d\n", sample_rate);
                 audioConfig.sample_rate = sample_rate;
-           } else if(strcmp(c,"bit_depth") == 0) {
-                int bit_depth = atoi(d);
-                printf("found bit depth: %d\n", bit_depth);
-                audioConfig.bits_per_sample = bit_depth;
+           } else if(strcmp(c,"format") == 0) {   
+                printf("found a format: %s\n", d);
+                if(strstr(d,"pcm") != NULL) {
+                    audioConfig.bits_per_sample = 16;
+                    audioConfig.format = PCM;
+                    printf("Format selected: 16 bit PCM\n");
+                } else if(strstr(d,"alaw") != NULL) {
+                    audioConfig.bits_per_sample = 8;
+                    audioConfig.format = A_LAW;
+                    audioConfig.sample_rate = 8000; //WARNING, can be overwritten!!
+                    printf("Format selected: 8 bit ALAW\n");
+                } else if(strstr(d,"ulaw") != NULL) {
+                    audioConfig.bits_per_sample = 8;
+                    audioConfig.format = U_LAW;
+                    audioConfig.sample_rate = 8000; //WARNING, can be overwritten!!
+                    printf("Format selected: 8 bit ULAW\n");
+                } else{
+                    audioConfig.bits_per_sample = 16;
+                    audioConfig.format = PCM;
+                    printf("no suitable formats. default: 16 bit PCM\n");
+                }
+                
+                
            } else if(strcmp(c,"num_channels") == 0) {
                 int num_channels = atoi(d);
                 printf("found num channels: %d\n", num_channels);

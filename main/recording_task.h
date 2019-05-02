@@ -1,7 +1,11 @@
 
 
+#include "g711.h"
+
 void recording_task(esp_shared_buffer *shared_buffer){  
 	uint8_t* monoData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/2);  // a buffer to store the data when recording in mono.
+	uint8_t* monoCompressedData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/8);  // a buffer to store the data when recording in mono&compressed.
+	
 	while(1){
 		vTaskDelay(100/portTICK_PERIOD_MS);						
 		
@@ -23,18 +27,41 @@ void recording_task(esp_shared_buffer *shared_buffer){
 			while(shared_buffer->recording == true){				//while it should be recording,,, take and store AUDIO_BUFFER_SIZE samples
 				shared_buffer->codec->read();						//reads the content from the i2s bus, and stores it into 'audioBuffer1'
 				uint8_t* data = shared_buffer->codec->audioBuffer1;		//aqquire a pointer to that buffer (TODO: the buffer location won't change... aqquiering the pointer should only be done once when the recording starts)
+				
+				
+				
 				if(shared_buffer->audio_config->num_channels == 2){								//when recording in Stereo
-					shared_buffer->SD->addDataToFile(data,AUDIO_BUFFER_SIZE);					//just write the raw i2s data to SD
+					
+						shared_buffer->SD->addDataToFile(data,AUDIO_BUFFER_SIZE);					//just write the raw i2s data to SD
+					
+					
 				}else {																			//else it is recording with mono settings... the codec still delivers a stereo signal
-					for (int i = 0; i < AUDIO_BUFFER_SIZE; i+=4)  //records only first channel
+					for (int i = 0; i < AUDIO_BUFFER_SIZE; i+=4)  //records only first channel, 
 					{
 						monoData[i/2]   = data[i];
-						monoData[i/2+1] =  data[i+1];
-						
+						monoData[i/2+1] =  data[i+1];						
 					}
-					shared_buffer->SD->addDataToFile(monoData,AUDIO_BUFFER_SIZE/2);
+					
+					if(shared_buffer->audio_config->format == PCM){
+						shared_buffer->SD->addDataToFile(monoData,AUDIO_BUFFER_SIZE/2);					//just write the raw i2s data to SD
+					} else if(shared_buffer->audio_config->format == A_LAW){
+						for (int i = 0; i < AUDIO_BUFFER_SIZE/2; i+=4){ //every 2 bytes (every 2 samples from codec)
+							monoCompressedData[i/4] = linear2alaw(*(int16_t*)&monoData[i]);
+						}
+						shared_buffer->SD->addDataToFile(monoCompressedData,AUDIO_BUFFER_SIZE/8);
+					}else if(shared_buffer->audio_config->format == U_LAW){
+					
+					}
 				}	
 				
+
+
+
+
+
+
+
+
 				
 				// /shared_buffer->audio_config->num_channels == 2
 				// uint8_t* m = (uint8_t *)malloc(512);	

@@ -1,5 +1,5 @@
 sample_rate:16000
-bit_depth:16
+format:pcm
 num_channels:2
 channel1:BuildIn
 channel2:BuildIn

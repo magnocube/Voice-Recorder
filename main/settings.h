@@ -76,12 +76,19 @@
 //might be overwritten with spiffs data (to keep the changes from last run)
 // NOTE: these values will be overwritten in the main methond!.
 // NOTE: channel2 will not be used when device is in mono mode.
+
+/* 1=PCM, 257=Mu-Law, 258=A-Law, 259=ADPCM */
+#define A_LAW 258
+#define U_LAW 257
+#define PCM 1
+
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
     .num_channels = STERIO, \
     .bits_per_sample = 16, \
     .sample_rate = 16000, \
     .channel1 = MIC_BUILD_IN, \
     .channel2 = MIC_BUILD_IN, \
+    .format = PCM, \
 }
 
 #define ESP_SESSION_DATA_DEFAULT() {\
@@ -114,6 +121,7 @@ typedef struct{
     int sample_rate;
     int channel1;
     int channel2;
+    short format;
 } esp_audio_config;
 
 

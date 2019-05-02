@@ -101,6 +101,9 @@ void WM8960::setupI2S(){  //setup the i2s bus of the esp32
         .tx_desc_auto_clear = true,
         .fixed_mclk = 0
     };
+    if(audioConfig->format == A_LAW || audioConfig->format == U_LAW){
+        i2s_config.sample_rate = 16000; // will be made smaller in recording task
+    }
     // if(audioConfig->num_channels ==1){   //          
     //     i2s_config.channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT;
     // } else if(audioConfig->num_channels == 2){
@@ -303,14 +306,14 @@ void WM8960::initialSetupRegisters(){ //example config
 
     /*adjusting settings according to the sample rate*/
     /*the mono/stereo selection will be done in the recording task. codec will always output stereo!*/
-    if(audioConfig->sample_rate == 16000){
-        setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
-        setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
-        setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);
-    } else if(audioConfig->sample_rate == 48000){
+    if(audioConfig->sample_rate == 48000){
         setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_48KHZ);
         setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_8);
-        setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_48);
+        setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_48);        
+    } else {
+        setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
+        setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
+        setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);        
     }
     writeRegisters();
 

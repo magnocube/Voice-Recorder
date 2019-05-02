@@ -74,8 +74,8 @@
 			var toSend = "sample_rate:";
 			toSend += document.getElementById("sample_rate").value;
 			toSend += '\r\n';
-			toSend += "bit_depth:";
-			toSend += document.getElementById("bit_depth").value;
+			toSend += "format:";
+			toSend += document.getElementById("format").value;
 			toSend +='\r\n';
 			toSend += "num_channels:";
 			toSend += document.getElementById("num_channels").value;
@@ -145,9 +145,10 @@ Select sample rate.
 
 <br>
 Select recording resolution
-<select id="bit_depth">
-        <option value="8">8 bit</option>
-        <option value="16">16 bit</option>
+<select id="format">
+		<option value="ulaw">8 bit U-LAW</option>
+        <option value="alaw">8 bit A-LAW</option>
+        <option value="pcm">16 bit PCM</option>
 </select>
 
 <br>
