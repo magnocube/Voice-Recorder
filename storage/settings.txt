@@ -1,6 +1,4 @@
-sample_rate:16000
-format:pcm
-num_channels:2
+format:pcm_16b_16k_m
 channel1:BuildIn
 channel2:BuildIn
 apresaIP:192.168.1.1

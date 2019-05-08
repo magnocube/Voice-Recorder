@@ -50,7 +50,10 @@ void recording_task(esp_shared_buffer *shared_buffer){
 						}
 						shared_buffer->SD->addDataToFile(monoCompressedData,AUDIO_BUFFER_SIZE/8);
 					}else if(shared_buffer->audio_config->format == U_LAW){
-					
+						for (int i = 0; i < AUDIO_BUFFER_SIZE/2; i+=4){ //every 2 bytes (every 2 samples from codec)
+							monoCompressedData[i/4] = linear2ulaw(*(int16_t*)&monoData[i]);
+						}
+						shared_buffer->SD->addDataToFile(monoCompressedData,AUDIO_BUFFER_SIZE/8);
 					}
 				}	
 				

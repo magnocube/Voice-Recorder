@@ -256,7 +256,7 @@ void WM8960::initialSetupRegisters(){ //example config
     */
    
 
-    regCopy.R0_Codec_Left_Input_Volume =            0b101011111; // update volume(8), disable mute(7) & volume (5:0)   // was 101011111
+    regCopy.R0_Codec_Left_Input_Volume =            0b101011111; // update volume(8), disable mute(7) & volume (5:0)   
     regCopy.R1_Codec_Right_Input_Volume =           0b101011111; // same as line above (max volume)
     regCopy.R2_Codec_LOUT1_Volume =                 0b000000000; // no output volume, default value
     regCopy.R3_Codec_ROUT1_Volume =                 0b000000000; // no output volume, default value
@@ -305,12 +305,12 @@ void WM8960::initialSetupRegisters(){ //example config
     regCopy.R55_Codec_PLL_K_3 =                     0b011101000;
 
     /*adjusting settings according to the sample rate*/
-    /*the mono/stereo selection will be done in the recording task. codec will always output stereo!*/
+    /*the mono/stereo selection will be done in the recording task. codec will always output stereo! 16khz, unless required to record in 48khz*/
     if(audioConfig->sample_rate == 48000){
         setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_48KHZ);
         setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_8);
         setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_48);        
-    } else {
+    } else {  // recording task will make a slower sample rate by capturing every 2 samples
         setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
         setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
         setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);        

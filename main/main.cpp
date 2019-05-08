@@ -266,37 +266,53 @@ void setupDeviceSettingsFromSPIFFS(){
 
                 
             //us a switch-case to fill in all the parameters to the right buffers    
-           if(strcmp(c,"sample_rate") == 0){
-                int sample_rate = atoi(d);
-                printf("found sample rate: %d\n", sample_rate);
-                audioConfig.sample_rate = sample_rate;
-           } else if(strcmp(c,"format") == 0) {   
+           if(strcmp(c,"format") == 0) {   
                 printf("found a format: %s\n", d);
-                if(strstr(d,"pcm") != NULL) {
+                if(strstr(d,"pcm_16b_16k_m") != NULL) {
+                    audioConfig.num_channels = 1;
+                    audioConfig.sample_rate = 16000;
                     audioConfig.bits_per_sample = 16;
                     audioConfig.format = PCM;
-                    printf("Format selected: 16 bit PCM\n");
-                } else if(strstr(d,"alaw") != NULL) {
-                    audioConfig.bits_per_sample = 8;
-                    audioConfig.format = A_LAW;
-                    audioConfig.sample_rate = 8000; //WARNING, can be overwritten!!
-                    printf("Format selected: 8 bit ALAW\n");
-                } else if(strstr(d,"ulaw") != NULL) {
+                    printf("Format selected: 16 bit PCM,16Khz, mono\n");
+                } if(strstr(d,"pcm_16b_16k_s") != NULL) {
+                    audioConfig.num_channels = 2;
+                    audioConfig.sample_rate = 16000;
+                    audioConfig.bits_per_sample = 16;
+                    audioConfig.format = PCM;
+                    printf("Format selected: 16 bit PCM,16Khz, stereo\n");
+                } if(strstr(d,"pcm_16b_48k_m") != NULL) {
+                    audioConfig.num_channels = 1;
+                    audioConfig.sample_rate = 48000;
+                    audioConfig.bits_per_sample = 16;
+                    audioConfig.format = PCM;
+                    printf("Format selected: 16 bit PCM,48Khz, mono\n");
+                } if(strstr(d,"pcm_16b_48k_s") != NULL) {
+                    audioConfig.num_channels = 2;
+                    audioConfig.sample_rate = 48000;
+                    audioConfig.bits_per_sample = 16;
+                    audioConfig.format = PCM;
+                    printf("Format selected: 16 bit PCM,48Khz, stereo\n");
+                } if(strstr(d,"ulaw_8b_8k_m") != NULL) {
+                    audioConfig.num_channels = 1;
+                    audioConfig.sample_rate = 8000;
                     audioConfig.bits_per_sample = 8;
                     audioConfig.format = U_LAW;
-                    audioConfig.sample_rate = 8000; //WARNING, can be overwritten!!
-                    printf("Format selected: 8 bit ULAW\n");
-                } else{
+                    printf("Format selected: ulaw\n");
+                } if(strstr(d,"alaw_8b_8k_m") != NULL) {
+                    audioConfig.num_channels = 1;
+                    audioConfig.sample_rate = 8000;
+                    audioConfig.bits_per_sample = 8;
+                    audioConfig.format = A_LAW;
+                    printf("Format selected: alaw\n");
+                }else{
+                    audioConfig.num_channels = 1;
+                    audioConfig.sample_rate = 16000;
                     audioConfig.bits_per_sample = 16;
                     audioConfig.format = PCM;
-                    printf("no suitable formats. default: 16 bit PCM\n");
+                    printf("no suitable formats. default: 16 bit 16khz PCM mono\n");
                 }
                 
                 
-           } else if(strcmp(c,"num_channels") == 0) {
-                int num_channels = atoi(d);
-                printf("found num channels: %d\n", num_channels);
-                audioConfig.num_channels = num_channels;
            } else if(strcmp(c,"channel1") == 0) {
                if(strcmp(d,"BuildIn") == 0) {
                     audioConfig.channel1 = MIC_BUILD_IN;

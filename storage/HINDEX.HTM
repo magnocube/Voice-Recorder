@@ -71,15 +71,10 @@
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
 			
-			var toSend = "sample_rate:";
-			toSend += document.getElementById("sample_rate").value;
-			toSend += '\r\n';
-			toSend += "format:";
+			
+			var toSend = "format:";
 			toSend += document.getElementById("format").value;
 			toSend +='\r\n';
-			toSend += "num_channels:";
-			toSend += document.getElementById("num_channels").value;
-			toSend += '\r\n';
 			toSend += "channel1:";
 			toSend += document.getElementById("channel1").value;
 			toSend +='\r\n';
@@ -105,10 +100,10 @@
 		function makeNonSelectable()
 			{
 			<!--prevent changing channel 2 when recording in Stereo. and in Stereo the 5mm connection is not anvailable on channel 1>
-				if(document.getElementById("num_channels").value == 1){
+				if(document.getElementById("format").value.endsWith("m")){ //mono
 					document.getElementById("channel2").disabled = true;
 					document.getElementById("channel1").options[1].disabled = false;
-				} else {
+				} else {													//stereo
 					document.getElementById("channel2").disabled = false;
 					document.getElementById("channel1").options[1].disabled = true;
 					if(document.getElementById("channel1").value == "5"){
@@ -137,40 +132,31 @@ Ethernet Ip Adress
 
 
 <br>
-Select sample rate.
-<select id="sample_rate">
-        <option value="16000">16000</option>
-        <option value="48000">48000</option>
+
+Select recording format
+<select id="format" onchange="makeNonSelectable();">
+		<option value="ulaw_8b_8k_m">U-LAW 8 bit, 8Khz, Mono</option>
+        <option value="alaw_8b_8k_m">A-LAW 8 bit, 8Khz, Mono </option>
+        <option value="pcm_16b_16k_m">PCM 16 bit, 16Khz, Mono</option>
+		<option value="pcm_16b_16k_s">PCM 16 bit, 16Khz, Stereo</option>
+		<option value="pcm_16b_48k_m">PCM 16 bit, 48Khz, Mono</option>
+		<option value="pcm_16b_48k_s">PCM 16 bit, 48Khz, Stereo</option>
 </select>
 
-<br>
-Select recording resolution
-<select id="format">
-		<option value="ulaw">8 bit U-LAW</option>
-        <option value="alaw">8 bit A-LAW</option>
-        <option value="pcm">16 bit PCM</option>
-</select>
-
-<br>
-Select mono or stereo mode for recording.
-<select id="num_channels" onchange="makeNonSelectable();">
-        <option value="1">Mono</option>
-        <option value="2">Sterio</option>
-</select>
 
 <br>
 Select Channel for recording in mono
 <select id="channel1">
         <option value="3.5">3.5mm jack</option>
         <option value="5">5mm jack</option>
-		<option value="BuildIn">Build in Microphone</option>
+		<option value="BuildIn">Build in Microphone 1</option>
 </select>
 
 <br>
 Select Channel 2 for recording in stereo.
 <select id="channel2">
         <option value="5">5mm jack</option>
-		<option value="BuildIn">Build in Microphone</option>
+		<option value="BuildIn">Build in Microphone 2</option>
 </select>
 
 </br>

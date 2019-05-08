@@ -78,8 +78,8 @@
 // NOTE: channel2 will not be used when device is in mono mode.
 
 /* 1=PCM, 257=Mu-Law, 258=A-Law, 259=ADPCM */
-#define A_LAW 258
-#define U_LAW 257
+#define A_LAW 6 //258
+#define U_LAW 7 //257
 #define PCM 1
 
 #define ESP_AUDIO_CONFIG_DEFAULT() {\
