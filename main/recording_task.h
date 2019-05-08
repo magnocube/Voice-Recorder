@@ -5,6 +5,10 @@
 void recording_task(esp_shared_buffer *shared_buffer){  
 	uint8_t* monoData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/2);  // a buffer to store the data when recording in mono.
 	uint8_t* monoCompressedData = (uint8_t*)malloc(AUDIO_BUFFER_SIZE/8);  // a buffer to store the data when recording in mono&compressed.
+
+
+
+
 	
 	while(1){
 		vTaskDelay(100/portTICK_PERIOD_MS);						

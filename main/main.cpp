@@ -226,6 +226,10 @@ void app_main()
     }
 
 
+    // char tempbuffer[40*12]; // max 12 tasks
+    // vTaskList(tempbuffer);
+    // printf(tempbuffer);
+    // printf("\n");
 
 
 	//while(1){ 											// -- this loop has cost me a couple of hours of hopeless debugging
@@ -274,31 +278,31 @@ void setupDeviceSettingsFromSPIFFS(){
                     audioConfig.bits_per_sample = 16;
                     audioConfig.format = PCM;
                     printf("Format selected: 16 bit PCM,16Khz, mono\n");
-                } if(strstr(d,"pcm_16b_16k_s") != NULL) {
+                }else if(strstr(d,"pcm_16b_16k_s") != NULL) {
                     audioConfig.num_channels = 2;
                     audioConfig.sample_rate = 16000;
                     audioConfig.bits_per_sample = 16;
                     audioConfig.format = PCM;
                     printf("Format selected: 16 bit PCM,16Khz, stereo\n");
-                } if(strstr(d,"pcm_16b_48k_m") != NULL) {
+                }else if(strstr(d,"pcm_16b_48k_m") != NULL) {
                     audioConfig.num_channels = 1;
                     audioConfig.sample_rate = 48000;
                     audioConfig.bits_per_sample = 16;
                     audioConfig.format = PCM;
                     printf("Format selected: 16 bit PCM,48Khz, mono\n");
-                } if(strstr(d,"pcm_16b_48k_s") != NULL) {
+                }else if(strstr(d,"pcm_16b_48k_s") != NULL) {
                     audioConfig.num_channels = 2;
                     audioConfig.sample_rate = 48000;
                     audioConfig.bits_per_sample = 16;
                     audioConfig.format = PCM;
                     printf("Format selected: 16 bit PCM,48Khz, stereo\n");
-                } if(strstr(d,"ulaw_8b_8k_m") != NULL) {
+                }else if(strstr(d,"ulaw_8b_8k_m") != NULL) {
                     audioConfig.num_channels = 1;
                     audioConfig.sample_rate = 8000;
                     audioConfig.bits_per_sample = 8;
                     audioConfig.format = U_LAW;
                     printf("Format selected: ulaw\n");
-                } if(strstr(d,"alaw_8b_8k_m") != NULL) {
+                }else if(strstr(d,"alaw_8b_8k_m") != NULL) {
                     audioConfig.num_channels = 1;
                     audioConfig.sample_rate = 8000;
                     audioConfig.bits_per_sample = 8;
