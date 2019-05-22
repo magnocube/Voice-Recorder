@@ -44,7 +44,7 @@ the update class wil first make a list of what ALL the registers should be. then
 #define R7_FORMAT_I2S               0b000000010  // bot 0 and 1. "10" for i2s
 #define R7_FORMAT_RIGHT_JUSTIFIED   0b000000000  // bot 0 and 1. "10" for i2s
 #define R7_FORMAT_LEFT_JUSTIFIED    0b000000001
-#define R7_SWAP_CHANNELS            0b000100000 //true
+#define R7_SWAP_CHANNELS            0b100000000 //true
 #define R7_MSB_AFTER_FIRST_EDGE     0b000010000
 
 

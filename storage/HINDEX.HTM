@@ -51,8 +51,11 @@
 			}
 			
 			
-			<!-- set the unselectable options non-selectable >
-            makeNonSelectable();
+			<!-- set the unselectable options non-selectable (wont work when called directly, therefore a small timeout>
+            
+			setTimeout(function() {
+				makeNonSelectable();
+			}, 200);
         }
 		
 
@@ -99,7 +102,7 @@
 		}
 		function makeNonSelectable()
 			{
-			<!--prevent changing channel 2 when recording in Stereo. and in Stereo the 5mm connection is not anvailable on channel 1>
+			<!--prevent selecting channel 1 when recording in Mono. And in Stereo the 5mm connection is not anvailable on channel 1>
 				if(document.getElementById("format").value.endsWith("m")){ //mono
 					document.getElementById("channel2").disabled = true;
 					document.getElementById("channel1").options[1].disabled = false;

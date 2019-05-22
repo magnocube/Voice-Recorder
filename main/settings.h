@@ -89,6 +89,9 @@
     .channel1 = MIC_BUILD_IN, \
     .channel2 = MIC_BUILD_IN, \
     .format = PCM, \
+    .swapChannels = false, \
+    .preOpApmLeftSel = 1, \
+    .preOpApmRightSel = 1, \
 }
 
 #define ESP_SESSION_DATA_DEFAULT() {\
@@ -122,6 +125,9 @@ typedef struct{
     int channel1;
     int channel2;
     short format;
+    bool swapChannels; // in case a other source than the input connected to channel 1 on the codec must be recorded
+    bool preOpApmLeftSel;
+    bool preOpApmRightSel;
 } esp_audio_config;
 
 

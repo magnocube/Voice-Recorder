@@ -40,7 +40,7 @@ void recording_task(esp_shared_buffer *shared_buffer){
 					
 					
 				}else {																			//else it is recording with mono settings... the codec still delivers a stereo signal
-					for (int i = 0; i < AUDIO_BUFFER_SIZE; i+=4)  //records only first channel, 
+					for (int i = 0; i < AUDIO_BUFFER_SIZE; i+=4)  //records only first channel, left or right depends if channels are swapped.. (in case de monochannel needs to be the second one)
 					{
 						monoData[i/2]   = data[i];
 						monoData[i/2+1] =  data[i+1];						
@@ -49,12 +49,12 @@ void recording_task(esp_shared_buffer *shared_buffer){
 					if(shared_buffer->audio_config->format == PCM){
 						shared_buffer->SD->addDataToFile(monoData,AUDIO_BUFFER_SIZE/2);					//just write the raw i2s data to SD
 					} else if(shared_buffer->audio_config->format == A_LAW){
-						for (int i = 0; i < AUDIO_BUFFER_SIZE/2; i+=4){ //every 2 bytes (every 2 samples from codec)
+						for (int i = 0; i < AUDIO_BUFFER_SIZE/2; i+=4){ //every 2 bytes (every 2 samples from codec)  16khz --> 8khz
 							monoCompressedData[i/4] = linear2alaw(*(int16_t*)&monoData[i]);
 						}
 						shared_buffer->SD->addDataToFile(monoCompressedData,AUDIO_BUFFER_SIZE/8);
 					}else if(shared_buffer->audio_config->format == U_LAW){
-						for (int i = 0; i < AUDIO_BUFFER_SIZE/2; i+=4){ //every 2 bytes (every 2 samples from codec)
+						for (int i = 0; i < AUDIO_BUFFER_SIZE/2; i+=4){ //every 2 bytes (every 2 samples from codec) 16khz --> 8khz
 							monoCompressedData[i/4] = linear2ulaw(*(int16_t*)&monoData[i]);
 						}
 						shared_buffer->SD->addDataToFile(monoCompressedData,AUDIO_BUFFER_SIZE/8);

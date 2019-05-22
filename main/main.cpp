@@ -352,11 +352,48 @@ void setupDeviceSettingsFromSPIFFS(){
          
            }       
         }  
+
+        setupMicPath(); // wil determine which signals need to be high or low. and if channels should be swapped for mono data
+
+        
+
         // free(command);
         // free(data);               
         fclose(f);
 
 }
+void setupMicPath(){ // wil determine which signals need to be high or low. and if channels should be swapped for mono data
+    if(audioConfig.num_channels == 2){        
+        audioConfig.swapChannels = false; //stereo,, no need for channel swap, but there is a choise between internal and external microphones
+        if(audioConfig.channel1 == MIC_BUILD_IN){
+            audioConfig.preOpApmLeftSel = PCA_HIGH;
+        }else{ // channel 1 will have the 3mm mic as other value
+            audioConfig.preOpApmLeftSel = PCA_LOW;
+        } 
+
+        if(audioConfig.channel2 == MIC_BUILD_IN){
+            audioConfig.preOpApmRightSel = PCA_HIGH;
+        }else{ // channel 2 will have the 5mm mic as other value
+            audioConfig.preOpApmRightSel = PCA_LOW;
+        } 
+    } else {
+        //mono recording.. channels might need to be swapped
+        if(audioConfig.channel1 == MIC_BUILD_IN){
+            audioConfig.swapChannels = false; // does not matter which channel, so use the default (right channel)
+            audioConfig.preOpApmLeftSel = PCA_HIGH; 
+        }else if(audioConfig.channel1 == MIC_EXTERNAL_3_5_mm){
+            audioConfig.swapChannels = true; // i2sdata receives channel 2 first, and the recording task will only record the first value when recording mono
+            audioConfig.preOpApmLeftSel = PCA_LOW;
+        } else{
+            //5mm mic
+            audioConfig.swapChannels = false; // i2sdata receives channel 2 first, and the recording task will only record the first value when recording mono
+            audioConfig.preOpApmLeftSel = PCA_LOW;
+        }
+    }
+   //these logic levels will be written to the codec when the codec is initialized with it's constructor
+}
+
+
 
 void setupPeripherals(esp_pin_config *pinconfig)
 {
@@ -406,8 +443,8 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->led_blue,PCA_OUTPUT,true); //last parameter true (flushes all the data)
     gh->digitalWrite(sb.pin_config->enable48V,PCA_HIGH,false);  // HIGH = on, LOW = off
     gh->digitalWrite(sb.pin_config->sdPower,PCA_HIGH,false);  //low = on, High = off
-    gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)
-    gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
+    //gh->digitalWrite(sb.pin_config->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)   -> now configured in wm8960.cpp
+    //gh->digitalWrite(sb.pin_config->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)     -> now configured in wm8960.cpp
     gh->digitalWrite(sb.pin_config->led_yellow,PCA_HIGH,false);
     gh->digitalWrite(sb.pin_config->ethernet_up_led,PCA_HIGH,false); //LOW = on
     gh->digitalWrite(sb.pin_config->led_blue,PCA_LOW,false);        //HIGH = on

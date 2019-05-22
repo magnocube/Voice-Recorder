@@ -50,37 +50,20 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
     
     
 
-    initialSetupRegisters(); //configuration example
+    
+    
+    initialSetupRegisters(); //configuration example, WILL USE VARIABLE SET BY MICPATH
     setupMicPath(); //sets the microphones in the correct position (connects the right microphones)
     setupI2S(); // init i2s driver
   
 
 }
-/*TODO... implement all this (can be tested when both mics work)*/
+
 void WM8960::setupMicPath(){
-     gpio_header->digitalWrite(pinout->mic_select_0,PCA_HIGH,false); //high = build in ,, low = extern (3.5mm)  --> are now being overwritten in main
-     gpio_header->digitalWrite(pinout->mic_select_1,PCA_HIGH,false); //high = build in ,, low = extern (5mm)
-    if(audioConfig->num_channels == MONO){
-        if(audioConfig->channel1 == MIC_EXTERNAL_3_5_mm){
-
-        } else if(audioConfig->channel1 == MIC_BUILD_IN){
-
-        } else if(audioConfig->channel1 == MIC_EXTERNAL_5_0_mm){
-
-        }
-    } else if(audioConfig->num_channels == STERIO){
-        if(audioConfig->channel1 == MIC_EXTERNAL_3_5_mm){
-
-        } else if(audioConfig->channel1 == MIC_BUILD_IN){
-
-        } 
-
-        if(audioConfig->channel2 == MIC_EXTERNAL_3_5_mm){
-
-        } else if(audioConfig->channel2 == MIC_EXTERNAL_5_0_mm){
-            
-        }
-    }
+    
+     gpio_header->digitalWrite(pinout->mic_select_0,audioConfig->preOpApmLeftSel,false); //high = build in ,, low = extern (3.5mm)  mic0 = left (MIC1 on PCB)
+     gpio_header->digitalWrite(pinout->mic_select_1,audioConfig->preOpApmRightSel,false); //high = build in ,, low = extern (5mm)   mic1 = right (MIC2 on PCB)
+    
 }
 /*setup the i2s bus with the correct settings. 
 the audio settings are stored in the struct audioConfig
@@ -248,14 +231,12 @@ void WM8960::initialSetupRegisters(){ //example config
 
     /*
     ///////////////NOTES///////////////
-    - look at meaning of R24, might have something to do with conflict on PCB
-    -set right value for micbias source (vmid might not have enough power)
     - enable an play with ALC
     - play with noise gate. 
-    -adclrc gpio mode
+    - figure why 
     */
    
-
+    //http://www.sunnyqi.com/upLoad/product/month_1306/WM8960.pdf
     regCopy.R0_Codec_Left_Input_Volume =            0b101011111; // update volume(8), disable mute(7) & volume (5:0)   
     regCopy.R1_Codec_Right_Input_Volume =           0b101011111; // same as line above (max volume)
     regCopy.R2_Codec_LOUT1_Volume =                 0b000000000; // no output volume, default value
@@ -314,6 +295,9 @@ void WM8960::initialSetupRegisters(){ //example config
         setBitsHigh(regCopy.R4_Codec_Clocking1,R4_DIVIDER_ADC_SAMPLE_16KHZ);
         setBitsHigh(regCopy.R8_Codec_Clocking2,R8_BITCLOCK_DIVIDER_24);
         setBitsHigh(regCopy.R27_Codec_Additional_control3,R27_ALC_SAMPLE_RATE_16);        
+    }
+    if(audioConfig->swapChannels){ // determined by configuring device settings in main.cpp. in case mono needs to be recorded with the second channel
+        setBitsHigh(regCopy.R7_Codec_Audio_Interface1,R7_SWAP_CHANNELS); 
     }
     writeRegisters();
 

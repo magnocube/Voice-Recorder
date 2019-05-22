@@ -71,6 +71,7 @@ void setupNVS();
 void setupPeripherals(esp_pin_config *pinconfig);
 void setupInterruptBigButton(esp_pin_config *pinconfig);
 void setupDeviceSettingsFromSPIFFS();
+void setupMicPath();
 void start_mdns_service(); //not used... need to remove
 
 
