@@ -35,7 +35,7 @@ void Wifi_ethernet_interface_task(esp_shared_buffer *shared_buffer){
 
     tcpip_adapter_init();                                                       
     ethernet_init();
-    wifi_init_softap(shared_buffer);
+    wifi_init_softap(shared_buffer);   
     // server starts when IP is found... search for event handler wifi
     vTaskDelay(2000/portTICK_PERIOD_MS); 
     setupWebserver();                           //normal we should wait for an interface to be connected... but the delay on the previous line works fine too!
@@ -223,7 +223,7 @@ static esp_err_t eth_event_handler(void *ctx, system_event_t *event)    //event 
 
         sb.session_data->Ethernet_IP_Adress = inet_ntoa(ip.ip);
         sb.session_data->Ethernet_Ip_received = true;
-        if(sb.SD->isCardMounted){
+        if(sb.SD->isCardMounted && !sb.apresaConnection->isSending()){
             sb.apresaConnection->startUpdateApresa(); // update the apreasa when connected with ethernet
         }
 

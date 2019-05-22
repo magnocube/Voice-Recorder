@@ -60,7 +60,8 @@ WM8960::WM8960(esp_audio_config *audioC, SDCard *sd_card, pca9535 *gpioHeader,es
 }
 
 void WM8960::setupMicPath(){
-    
+     gpio_header->pinMode(pinout->mic_select_0, PCA_OUTPUT,false);    
+     gpio_header->pinMode(pinout->mic_select_1,PCA_OUTPUT,false); 
      gpio_header->digitalWrite(pinout->mic_select_0,audioConfig->preOpApmLeftSel,false); //high = build in ,, low = extern (3.5mm)  mic0 = left (MIC1 on PCB)
      gpio_header->digitalWrite(pinout->mic_select_1,audioConfig->preOpApmRightSel,false); //high = build in ,, low = extern (5mm)   mic1 = right (MIC2 on PCB)
     

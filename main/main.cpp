@@ -318,20 +318,20 @@ void setupDeviceSettingsFromSPIFFS(){
                 
                 
            } else if(strcmp(c,"channel1") == 0) {
-               if(strcmp(d,"BuildIn") == 0) {
+               if(strstr(d,"BuildIn") != NULL) {
                     audioConfig.channel1 = MIC_BUILD_IN;
-               } else if(strcmp(d,"3.5") == 0) {
+               } else if(strstr(d,"3.5") != NULL) {
                     audioConfig.channel1 = MIC_EXTERNAL_3_5_mm;
-               } else if(strcmp(d,"5.0") == 0) {
+               } else if(strstr(d,"5") != NULL) {
                     audioConfig.channel1 = MIC_EXTERNAL_5_0_mm;
                }             
                 printf("channel1 value: %d\n", audioConfig.channel1);
            } else if(strcmp(c,"channel2") == 0) {
-               if(strcmp(d,"BuildIn") == 0) {
+               if(strstr(d,"BuildIn") != NULL) {
                     audioConfig.channel2 = MIC_BUILD_IN;
-               } else if(strcmp(d,"3.5") == 0) {
+               } else if(strstr(d,"3.5") != NULL) {
                     audioConfig.channel2 = MIC_EXTERNAL_3_5_mm;
-               } else if(strcmp(d,"5") == 0) {
+               } else if(strstr(d,"5") != NULL) {
                     audioConfig.channel2 = MIC_EXTERNAL_5_0_mm;
                }             
                 printf("channel2 value: %d\n", audioConfig.channel2);
@@ -380,14 +380,14 @@ void setupMicPath(){ // wil determine which signals need to be high or low. and 
         //mono recording.. channels might need to be swapped
         if(audioConfig.channel1 == MIC_BUILD_IN){
             audioConfig.swapChannels = false; // does not matter which channel, so use the default (right channel)
-            audioConfig.preOpApmLeftSel = PCA_HIGH; 
+            audioConfig.preOpApmRightSel = PCA_HIGH; 
         }else if(audioConfig.channel1 == MIC_EXTERNAL_3_5_mm){
             audioConfig.swapChannels = true; // i2sdata receives channel 2 first, and the recording task will only record the first value when recording mono
             audioConfig.preOpApmLeftSel = PCA_LOW;
         } else{
             //5mm mic
             audioConfig.swapChannels = false; // i2sdata receives channel 2 first, and the recording task will only record the first value when recording mono
-            audioConfig.preOpApmLeftSel = PCA_LOW;
+            audioConfig.preOpApmRightSel = PCA_LOW;
         }
     }
    //these logic levels will be written to the codec when the codec is initialized with it's constructor
@@ -433,8 +433,8 @@ void configureGPIOExpander(){
 	gh->pinMode(sb.pin_config->sdProtect,PCA_INPUT,false); //change this to true... trying to fix a bug
     gh->pinMode(sb.pin_config->sdPower,PCA_OUTPUT,false);
     gh->pinMode(sb.pin_config->phy_reset,PCA_OUTPUT,false);
-    gh->pinMode(sb.pin_config->mic_select_0, PCA_OUTPUT,false);    
-    gh->pinMode(sb.pin_config->mic_select_1,PCA_OUTPUT,false); 
+    // gh->pinMode(sb.pin_config->mic_select_0, PCA_OUTPUT,false);    
+    // gh->pinMode(sb.pin_config->mic_select_1,PCA_OUTPUT,false); 
     gh->pinMode(sb.pin_config->led_red,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_yellow,PCA_OUTPUT,false);
 	gh->pinMode(sb.pin_config->led_green,PCA_OUTPUT,false);

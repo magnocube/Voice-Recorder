@@ -75,6 +75,7 @@ void Apresa::sendFile(){  //sends the file (name of file is in "filename")
     file = fopen(fileName, "r+");
     if (file == NULL) {
         ESP_LOGE(TAG, "Failed to open file for reading, will return");
+        isSendingAFile = false;
         return;
     }    
     fseek(file,0,SEEK_END);
@@ -256,8 +257,11 @@ void Apresa::updateApresa(){
          nvs_close(my_NVS_handle); 
     }
     
-
-    for(int i = file_counter; ((i>0) && (i >file_counter - sessionData->apresaNumFilesSync)); i-- ){
+    int fc = file_counter;
+    // if(sb->recording){                                                                                           // implement this is next version... now it is too much of a hassle
+    //     fc--;  //dont want to rename and send a file that is currently being made
+    // }
+    for(int i = fc; ((i>0) && (i >fc - sessionData->apresaNumFilesSync)); i-- ){
         ESP_LOGI(TAG,"checking and updating file: %d",i);
         setFileName(i);
         sendFile(); //BLOCKING
