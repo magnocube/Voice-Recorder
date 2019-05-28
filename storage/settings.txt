@@ -1,6 +1,7 @@
 format:pcm_16b_16k_m
 channel1:BuildIn
 channel2:BuildIn
+playBack:00
 apresaIP:192.168.1.1
 apresaPort:2016
 apresaNumFilesSync:5

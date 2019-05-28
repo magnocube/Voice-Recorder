@@ -92,6 +92,8 @@
     .swapChannels = false, \
     .preOpApmLeftSel = 1, \
     .preOpApmRightSel = 1, \
+    .playbackLeftChannel = false, \
+    .playbackRightChannel = false, \
 }
 
 #define ESP_SESSION_DATA_DEFAULT() {\
@@ -128,6 +130,8 @@ typedef struct{
     bool swapChannels; // in case a other source than the input connected to channel 1 on the codec must be recorded
     bool preOpApmLeftSel;
     bool preOpApmRightSel;
+    bool playbackLeftChannel;
+    bool playbackRightChannel;
 } esp_audio_config;
 
 

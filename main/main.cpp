@@ -346,6 +346,21 @@ void setupDeviceSettingsFromSPIFFS(){
                 int num = atoi(d);
                 printf("found num files sync: %d\n", num);
                 sessionData.apresaNumFilesSync = num;
+           } else if(strcmp(c,"playBack") == 0) {
+               printf("handling playback %s ",d);
+                if(strstr(d,"00") != NULL) {
+                    audioConfig.playbackLeftChannel = false;
+                    audioConfig.playbackRightChannel = false;
+               } else if(strstr(d,"10") != NULL) {
+                    audioConfig.playbackLeftChannel = true;
+                    audioConfig.playbackRightChannel = false;
+               } else if(strstr(d,"01") != NULL) {
+                    audioConfig.playbackLeftChannel = false;
+                    audioConfig.playbackRightChannel = true;
+               } else{
+                   audioConfig.playbackLeftChannel = true;
+                   audioConfig.playbackRightChannel = true;
+               }
            } 
            //:TODO: add more settings
                     

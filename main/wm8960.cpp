@@ -280,8 +280,8 @@ void WM8960::initialSetupRegisters(){ //example config
     regCopy.R42_Codec_MONOOUT_Volume =              0b001000000; // default values, not used
     regCopy.R43_Codec_Input_Boost_Mixer1 =          0b000000000; // all unput boost on in2 and in3 off, otherwise they will also be routed trough the moost mixer (robo voice)
     regCopy.R44_Codec_Input_Boost_Mixer2 =          0b000000000; // same as line above
-    regCopy.R45_Codec_Bypass1 =                     0b011010000; // bypass enabled(7), rest is default
-    regCopy.R46_Cocec_Bypass2 =                     0b011010000; // same as line above
+    regCopy.R45_Codec_Bypass1 =                     0b001010000; // bypass disabled(7), rest is default, bypass will be turned on according to settings below
+    regCopy.R46_Cocec_Bypass2 =                     0b001010000; // same as line above
     regCopy.R47_Codec_Power_Manegement3 =           0b000111100; // left and right PGA enabled(5:4), left&right output mixer enable control
     regCopy.R48_Codec_Additional_Control4 =         0b000000010; // temprature sensor enabled(1), bias voltage = 0.9*avvd(0)
     regCopy.R49_Codec_Class_D_Control1 =            0b000110111; // no speaker output(7:6), all is default
@@ -290,7 +290,7 @@ void WM8960::initialSetupRegisters(){ //example config
     regCopy.R53_Codec_PLL_K_1 =                     0b000110001;
     regCopy.R54_Codec_PLL_K_2 =                     0b000100110;
     regCopy.R55_Codec_PLL_K_3 =                     0b011101000;
-
+                                                    
     /*adjusting settings according to the sample rate*/
     /*the mono/stereo selection will be done in the recording task. codec will always output stereo! 16khz, unless required to record in 48khz*/
     if(audioConfig->sample_rate == 48000){
@@ -305,6 +305,25 @@ void WM8960::initialSetupRegisters(){ //example config
     if(audioConfig->swapChannels){ // determined by configuring device settings in main.cpp. in case mono needs to be recorded with the second channel
         setBitsHigh(regCopy.R7_Codec_Audio_Interface1,R7_SWAP_CHANNELS); 
     }
+
+    //enables the playback to the 3,5 mm jack. if the channels are swapped the channel of the output mixer should be swapped too.
+    if(audioConfig->playbackLeftChannel){
+        if(audioConfig->swapChannels){
+            setBitsHigh(regCopy.R46_Cocec_Bypass2,0b010000000); //bit 7
+        } else{
+            setBitsHigh(regCopy.R45_Codec_Bypass1,0b010000000); //bit 7
+        }
+        
+    }
+    if(audioConfig->playbackRightChannel){
+        if(audioConfig->swapChannels){
+            setBitsHigh(regCopy.R45_Codec_Bypass1,0b010000000); //bit 7
+        } else{
+            setBitsHigh(regCopy.R46_Cocec_Bypass2,0b010000000); //bit 7
+        }
+        
+    }
+                   
     writeRegisters();
 
 }

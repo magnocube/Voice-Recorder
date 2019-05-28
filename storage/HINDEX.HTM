@@ -84,6 +84,9 @@
 			toSend += "channel2:";
 			toSend += document.getElementById("channel2").value;
 			toSend +='\r\n';
+			toSend += "playBack:";
+			toSend += document.getElementById("playBack").value;
+			toSend +='\r\n';
 			toSend += "apresaIP:";
 			toSend += document.getElementById("apresaIP").value;
 			toSend +='\r\n';
@@ -160,6 +163,16 @@ Select Channel 2 for recording in stereo.
 <select id="channel2">
         <option value="5">5mm jack</option>
 		<option value="BuildIn">Build in Microphone 2</option>
+</select>
+
+<br>
+Select Audio playback options on 3.5mm jack.
+<select id="playBack">
+        <option value="00">No Playback</option>
+		<option value="11">Stereo Playback</option>
+		<option value="10">playback channel 1 only</option>
+		<option value="01">playback channel 2 only</option>
+
 </select>
 
 </br>
