@@ -236,15 +236,20 @@ void WM8960::initialSetupRegisters(){ //example config
     - play with noise gate. 
     - figure why 
     */
+
+    /*
+    the codec is configured to always record with 16 khz stero, unless required to record in 48 khz.
+    the settings are detemined beforehand which allows this function only to be called when the device is starting up.
+    */
    
     //http://www.sunnyqi.com/upLoad/product/month_1306/WM8960.pdf
     regCopy.R0_Codec_Left_Input_Volume =            0b101011111; // update volume(8), disable mute(7) & volume (5:0)   
     regCopy.R1_Codec_Right_Input_Volume =           0b101011111; // same as line above (max volume)
-    regCopy.R2_Codec_LOUT1_Volume =                 0b000000000; // no output volume, default value
-    regCopy.R3_Codec_ROUT1_Volume =                 0b000000000; // no output volume, default value
+    regCopy.R2_Codec_LOUT1_Volume =                 0b111111111; // max output volume
+    regCopy.R3_Codec_ROUT1_Volume =                 0b111111111; // max output volume
     regCopy.R4_Codec_Clocking1 =                    0b000000101; // clock divider of 2(2:1), and SYSCLK of PLL(0) (sample rate will be done at end of this config)
-    regCopy.R5_Codec_ADC_DAC_Control1 =             0b000001000; // adc normal polarity(6:5), enable high pass filter(0)
-    regCopy.R6_Codec_ADC_DAC_Control2 =             0b000000000; // all default, no audio output settings
+    regCopy.R5_Codec_ADC_DAC_Control1 =             0b000001000; // adc normal polarity(6:5), enable high pass filter(0), dac soft mute enable
+    regCopy.R6_Codec_ADC_DAC_Control2 =             0b000000000; // all default, change output volume inmediately
     regCopy.R7_Codec_Audio_Interface1 =             0b001000010; // no channel swap(8), no bitclk invert(7), MASTER MODE(6), no LRCLK invert(4), 16 bit word length(3:2), I2S format(1:0)
     regCopy.R8_Codec_Clocking2 =                    0b111000000; // class d speaker output (default, not used)(8:6), bitclk will be done at enf of this config
     regCopy.R9_Codec_Audio_interface2 =             0b000000000; // adclrc/gpio1  = ADCLRC(6), no 8 bit word(5), no adc/dac companding(4:1),no loopback(0)
@@ -260,7 +265,7 @@ void WM8960::initialSetupRegisters(){ //example config
     regCopy.R23_Codec_Adittional_control1 =         0b111000000; // enable thermal shutdown(8), vmid = low current(7:6)  
     regCopy.R24_Codec_Adittional_control2 =         0b000000000; // all default, might solve conflicting pullup and down on data signals
     regCopy.R25_Codec_Power_Manegement1 =           0b011111110; // vmid  = 2*50Kohm (8:7), vref up(6), analog pga power(5:4), adc power(3:2),micbias up(1),master clock enable(0)
-    regCopy.R26_Codec_Power_Manegement2 =           0b000000001; // all ouput drivers disabled(8:1), PLL enabled(0)
+    regCopy.R26_Codec_Power_Manegement2 =           0b001100001; // loutput and routput, rest disabled(8:1), PLL enabled(0)
     regCopy.R27_Codec_Additional_control3 =         0b000000000; // no outputs, all default, ALC sample rate will be done at end of this config
     regCopy.R28_Codec_Anti_Pop1 =                   0b000000000; // micbias from vmid(8)
     regCopy.R29_Codec_Anti_Pop2 =                   0b000000000; // no resistor on HP for capacitors(6)
@@ -275,9 +280,9 @@ void WM8960::initialSetupRegisters(){ //example config
     regCopy.R42_Codec_MONOOUT_Volume =              0b001000000; // default values, not used
     regCopy.R43_Codec_Input_Boost_Mixer1 =          0b000000000; // all unput boost on in2 and in3 off, otherwise they will also be routed trough the moost mixer (robo voice)
     regCopy.R44_Codec_Input_Boost_Mixer2 =          0b000000000; // same as line above
-    regCopy.R45_Codec_Bypass1 =                     0b001010000; // bypass disabled(8), rest is default
-    regCopy.R46_Cocec_Bypass2 =                     0b001010000; // same as line above
-    regCopy.R47_Codec_Power_Manegement3 =           0b000110000; // left and right PGA enabled(5:4)
+    regCopy.R45_Codec_Bypass1 =                     0b011010000; // bypass enabled(7), rest is default
+    regCopy.R46_Cocec_Bypass2 =                     0b011010000; // same as line above
+    regCopy.R47_Codec_Power_Manegement3 =           0b000111100; // left and right PGA enabled(5:4), left&right output mixer enable control
     regCopy.R48_Codec_Additional_Control4 =         0b000000010; // temprature sensor enabled(1), bias voltage = 0.9*avvd(0)
     regCopy.R49_Codec_Class_D_Control1 =            0b000110111; // no speaker output(7:6), all is default
     regCopy.R51_Codec_Class_D_Control3 =            0b010000000; // default values, speaker not used
