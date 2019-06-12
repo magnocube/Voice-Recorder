@@ -141,7 +141,7 @@ void app_main()
     setupPeripherals(&pinout);					                	//setup for i2c and spiffs... all other peripherals have been moved to other classes
     setupDeviceSettingsFromSPIFFS();                                //will fill the corresponding config-structs with the desired settings (settings can be changed using the browser and a restart, or to reflash the storage-partition)   
    
-
+    rtcInstance.begin();  //extern declared in RV-1805-C3.h
 	pca9535 *pca_ptr = new pca9535(&pinout, &sessionData);                                  //make instance of the i2c-GPIO-expander
     Apresa *apresa_connection_ptr = new Apresa(&sessionData);
 	SDCard *SD_ptr = new SDCard(&pinout, &audioConfig, pca_ptr,&sessionData,apresa_connection_ptr);               //make instance of the SD card interface

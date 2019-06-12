@@ -231,22 +231,54 @@ void SDCard::writeWavHeader() // will also include the note header
     wavHeader.noteSubChunk.subChunkSize = 436;           //needs to be checked!
     wavHeader.noteSubChunk.archived_recording = 'Z';
     wavHeader.noteSubChunk.recorded_call = 'C';
-    wavHeader.noteSubChunk.year = 'J';              // 2019
+    
 
-    // wavHeader.noteSubChunk.month = '3';             // maart
-    // wavHeader.noteSubChunk.day = '1';               //1
-    // wavHeader.noteSubChunk.hour = 'N';              //23
-    // wavHeader.noteSubChunk.minutesHigh = '5';       //50
-    // wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
-
-    sprintf(&wavHeader.noteSubChunk.month, "%d", esp_random()%10);
-    sprintf(&wavHeader.noteSubChunk.day, "%d", esp_random()%10);
-    sprintf(&wavHeader.noteSubChunk.hour, "%d", esp_random()%10);
-    sprintf(&wavHeader.noteSubChunk.minutesHigh, "%d", esp_random()%10);
-    sprintf(&wavHeader.noteSubChunk.minutesLow, "%d", esp_random()%10);
+    
 
 
-    wavHeader.noteSubChunk.seconds = 'T';           // 58
+    rtcInstance.updateTime();
+    
+    wavHeader.noteSubChunk.year = rtcInstance.getYear() + 56;              // getYear returns only the x's of 20XX, to map to ASCii where "A" = 2010 there have to be added 56
+
+    uint8_t month = rtcInstance.getMonth();
+    if(month <= 9){ 
+        wavHeader.noteSubChunk.month = month + 48;           
+    }else{ // 10-12
+        wavHeader.noteSubChunk.seconds = month + 55;  
+    }
+
+    uint8_t day = rtcInstance.getDate();
+    if(day <= 9){ 
+        wavHeader.noteSubChunk.month = day + 48;           
+    }else{ // 10-31
+        wavHeader.noteSubChunk.seconds = day + 55;  
+    }
+
+    uint8_t hour = rtcInstance.getHours();
+    if(month <= 9){ 
+        wavHeader.noteSubChunk.month = hour + 48;           
+    }else{ // 10-23
+        wavHeader.noteSubChunk.seconds = hour + 55;  
+    }
+    //wavHeader.noteSubChunk.day = '1';
+    //wavHeader.noteSubChunk.hour = '1';
+    wavHeader.noteSubChunk.minutesHigh = rtcInstance.getMinutes()/10.0 + 48; // 48 in ascii = 0;
+    wavHeader.noteSubChunk.minutesLow  = rtcInstance.getMinutes()%10 + 48;
+    uint8_t seconds = rtcInstance.getSeconds();
+    if(seconds <= 18){ //0-18
+        wavHeader.noteSubChunk.seconds = rtcInstance.getSeconds()/2 + 48;           
+    }else{ // 20-58
+        wavHeader.noteSubChunk.seconds = rtcInstance.getSeconds()/2 + 65;  
+    }
+    
+
+    /*Backup variables. in case the rtc generated wont work*/ //RESUME HERE
+    wavHeader.noteSubChunk.month = '3';             // maart
+    wavHeader.noteSubChunk.day = '1';               //1
+    wavHeader.noteSubChunk.hour = 'N';              //23
+    wavHeader.noteSubChunk.minutesHigh = '5';       //50
+    wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
+
     strncpy(wavHeader.noteSubChunk.additionalInformation,"______",6);
     wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo   -->> need to change this!!!!!
     strncpy(wavHeader.noteSubChunk.SoftwareID,"QP",2);
@@ -281,6 +313,7 @@ void SDCard::writeWavHeader() // will also include the note header
     printf("                 : byte rate        : %d\n", wavHeader.fmtSubChunk.byteRate);
     printf("                 : BlockAlign       : %d\n", wavHeader.fmtSubChunk.blockAlign);
     printf("                 : bits_per_sample  : %d\n", wavHeader.fmtSubChunk.bitsPerSample);
+    printf("                 : timeStamp        : %s\n", rtcInstance.stringTimeStamp());
     printf("Size of the written file it bytes   : %d\n", size);
     
     

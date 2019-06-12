@@ -28,6 +28,7 @@
 #include "SDCard.h"
 #include "pca9535.h"
 #include "Apresa.h"
+#include "RV-1805-C3.h"
 
 /*used in setting up the socket... still have to figure out what it does*/
 #define LISTENQ 2
