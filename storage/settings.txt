@@ -1,3 +1,4 @@
+currentTime:2000-00-00 00.00.00
 format:pcm_16b_16k_m
 channel1:BuildIn
 channel2:BuildIn

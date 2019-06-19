@@ -135,14 +135,50 @@ esp_err_t PostURI_post_handler(httpd_req_t *req)
 
         httpd_resp_send_chunk(req, NULL, 0); 
 
+        // safe the time
+        // dirty place to implement.. but will be fixed soon
+        //assuming that the format does not change.. this will get the time form the offset in de string
+
+        //format example: currentTime:2019-06-19_14:25:3
+        int baseOffset = 12; //currentTime: 
+        int year = (buf[baseOffset] - '0') *1000;
+            year +=(buf[baseOffset+1]- '0') *100;
+            year +=(buf[baseOffset+2]- '0') *10;
+            year +=(buf[baseOffset+3]- '0');
+
+        int month = (buf[baseOffset+5] - '0') *10;
+            month +=(buf[baseOffset+6] - '0');
+
+        int day = (buf[baseOffset+8] - '0') *10;
+            day +=(buf[baseOffset+9] - '0');
+
+        int hour = (buf[baseOffset+11] - '0') *10;
+            hour +=(buf[baseOffset+12] - '0');
+
+        int minute = (buf[baseOffset+14] - '0') *10;
+            minute +=(buf[baseOffset+15] - '0');
+
+        int second = (buf[baseOffset+17] - '0') *10;
+            second +=(buf[baseOffset+18] - '0');
+
+        rtcInstance.setTime(0,second,minute,hour,day,month,year,0);
+            
+
+        // ESP_LOGI(TAG, "saving year befoor reboot: %d",year);
+
+
+
         vTaskDelay(1000/portTICK_PERIOD_MS);
         esp_restart(); /*magic line of code*/
         
-
+            
     
 
     // End response
     httpd_resp_send_chunk(req, NULL, 0);
+
+    
+
     return ESP_OK;
 }
 
@@ -177,7 +213,7 @@ void setupWebserver(){
 
 void sendFileBackToClient(char * fileName, httpd_req_t * client){
             int packetSize = 512;   //for testing ... the desired size of a single packet
-            int fileSize;           //size of the Faile
+            int fileSize;           //size of the File
             int currentIndex = 0;   //current index (from 0 to filesize)
             char line[packetSize];  //a single packet to send
             

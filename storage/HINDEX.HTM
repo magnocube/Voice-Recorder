@@ -35,7 +35,9 @@
 			<!-- lines[0] contains the IP. this should not be placed in a dropdown (therefore this hardcoded solution) ->these 2 lines work perfectly>
 			var IPsegments = lines[0].split(':');
 			document.getElementById(IPsegments[0]).innerHTML = IPsegments[1];
-		
+			<!-- lines[1] contains the last time update. this should not be placed in a dropdown (therefore this hardcoded solution) ->these 2 lines work perfectly>
+			var timeSegments = lines[1].split(':');
+			document.getElementById(timeSegments[0]).innerHTML = timeSegments[1];
 		
 			<!-- translate string to usable array>
 			var myArray = [];
@@ -46,7 +48,7 @@
 			
 			
 			<!-- go through each line. and set the dropdown to the right index>
-			for(var line = 1; line < lines.length; line++){
+			for(var line = 2; line < lines.length; line++){
 				document.getElementById(myArray[line][0]).value = myArray[line][1];
 			}
 			
@@ -71,11 +73,28 @@
 		function safeSettingsToServer() 
 			{
 			<!--generate settings file and post it (typo's in the settings file might brick the recorder ;-)>
+ 
+			var today = new Date();
+			var date = today.getFullYear()+'-'
+			if(today.getMonth() +1 < 10){date+='0'} 
+			date+= (today.getMonth()+1)+'-'
+			if(today.getDate() <10){date+='0'}
+			date+= today.getDate()+' ';
+			
+			if(today.getHours() <10){date +='0'} 			
+			date += today.getHours() + "." 
+			if(today.getMinutes() < 10){date+='0'}
+			date += today.getMinutes() + "."
+			if(today.getSeconds() < 10) {date +='0'}
+			date += today.getSeconds();
+
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "SETTINGS_SAVECONFIG", false);
 			
-			
-			var toSend = "format:";
+			var toSend = "currentTime:";
+			toSend += date;
+			toSend += '\r\n';
+			toSend += "format:";
 			toSend += document.getElementById("format").value;
 			toSend +='\r\n';
 			toSend += "channel1:";
@@ -96,11 +115,10 @@
 			toSend += "apresaNumFilesSync:";
 			toSend += document.getElementById("apresaNumFilesSync").value;
 			toSend +='\r\n\0';
-						
 
 			
 			xhttp.send(toSend);
-			document.getElementById("messagePlace").innerHTML +=  "<br> <br> <h1>Page will now reload. Please refresh this page in 15 seconds</h1>";
+			document.getElementById("messagePlace").innerHTML +=  "<br> <br> <h1>The settings will be saved\n. Please refresh this page in 15 seconds</h1>";
 			location.reload();
 		}
 		function makeNonSelectable()
@@ -134,8 +152,11 @@
 
 <br>
 Ethernet Ip Adress
-<p id="ethernet_ip">Unknown. Settings has not been received.</p>
+<p id="ethernet_ip">Unknown. Settings have not been received.</p>
 
+<br>
+Last time update
+<p id="currentTime"> Settings have not been received.</p>
 
 <br>
 

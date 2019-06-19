@@ -361,7 +361,9 @@ void setupDeviceSettingsFromSPIFFS(){
                    audioConfig.playbackLeftChannel = true;
                    audioConfig.playbackRightChannel = true;
                }
-           } 
+           } else{
+               printf("found no valid setting\n");
+           }
            //:TODO: add more settings
                     
          
