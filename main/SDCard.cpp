@@ -238,27 +238,27 @@ void SDCard::writeWavHeader() // will also include the note header
 
     rtcInstance.updateTime();
     
-    wavHeader.noteSubChunk.year = rtcInstance.getYear() + 56;              // getYear returns only the x's of 20XX, to map to ASCii where "A" = 2010 there have to be added 56
+    wavHeader.noteSubChunk.year = rtcInstance.getYear() + 55;              // getYear returns only the x's of 20XX, to map to ASCii where "A" = 2010 there have to be added 56
 
     uint8_t month = rtcInstance.getMonth();
     if(month <= 9){ 
         wavHeader.noteSubChunk.month = month + 48;           
     }else{ // 10-12
-        wavHeader.noteSubChunk.seconds = month + 55;  
+        wavHeader.noteSubChunk.month = month + 55;  
     }
 
     uint8_t day = rtcInstance.getDate();
     if(day <= 9){ 
-        wavHeader.noteSubChunk.month = day + 48;           
+        wavHeader.noteSubChunk.day = day + 48;           
     }else{ // 10-31
-        wavHeader.noteSubChunk.seconds = day + 55;  
+        wavHeader.noteSubChunk.day = day + 55;  
     }
 
     uint8_t hour = rtcInstance.getHours();
-    if(month <= 9){ 
-        wavHeader.noteSubChunk.month = hour + 48;           
+    if(hour <= 9){ 
+        wavHeader.noteSubChunk.hour = hour + 48;           
     }else{ // 10-23
-        wavHeader.noteSubChunk.seconds = hour + 55;  
+        wavHeader.noteSubChunk.hour = hour + 55;  
     }
     //wavHeader.noteSubChunk.day = '1';
     //wavHeader.noteSubChunk.hour = '1';
@@ -268,16 +268,22 @@ void SDCard::writeWavHeader() // will also include the note header
     if(seconds <= 18){ //0-18
         wavHeader.noteSubChunk.seconds = rtcInstance.getSeconds()/2 + 48;           
     }else{ // 20-58
-        wavHeader.noteSubChunk.seconds = rtcInstance.getSeconds()/2 + 65;  
+        wavHeader.noteSubChunk.seconds = rtcInstance.getSeconds()/2 + 55;  
     }
     
 
+    printf("year:       : %d\n",  rtcInstance.getYear());
+    printf("month:      : %d\n",  rtcInstance.getMonth());
+    printf("day:        : %d\n",  rtcInstance.getDate());
+    printf("hour:       : %d\n",  rtcInstance.getHours());
+    printf("minute:     : %d\n",  rtcInstance.getMinutes());
+
     /*Backup variables. in case the rtc generated wont work*/ //RESUME HERE
-    wavHeader.noteSubChunk.month = '3';             // maart
-    wavHeader.noteSubChunk.day = '1';               //1
-    wavHeader.noteSubChunk.hour = 'N';              //23
-    wavHeader.noteSubChunk.minutesHigh = '5';       //50
-    wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
+    // wavHeader.noteSubChunk.month = '3';             // maart
+    //wavHeader.noteSubChunk.day = '1';               //1
+    //wavHeader.noteSubChunk.hour = 'N';              //23
+    //wavHeader.noteSubChunk.minutesHigh = '5';       //50
+    //wavHeader.noteSubChunk.minutesLow = '9';        //9  -> total of 59
 
     strncpy(wavHeader.noteSubChunk.additionalInformation,"______",6);
     wavHeader.noteSubChunk.format = '9';            //PCM 16 bit stereo   -->> need to change this!!!!!
